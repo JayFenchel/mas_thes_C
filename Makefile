@@ -2,8 +2,8 @@ CC=gcc
 CFLAGS="-Wall"
 
 debug:clean
-	$(CC) $(CFLAGS) -g -o master_thesis_c main.c
+	$(CC) $(CFLAGS) -g -o main main.c
 stable:clean
-	$(CC) $(CFLAGS) -o master_thesis_c main.c
+	$(CC) $(CFLAGS) -o main main.c
 clean:
-	rm -vfr *~ master_thesis_c
+	rm -vfr *~ main
