@@ -1,0 +1,4 @@
+[Project]
+Name=Master_Thesis_C
+Manager=KDevCustomMakeManager
+VersionControl=kdevgit
