@@ -18,7 +18,7 @@ EnvironmentGroup=default
 Executable=file:///home/jayf/Dokumente/Master_Thesis_C/main
 External Terminal=konsole --noclose --workdir %workdir -e %exe
 Project Target=
-Use External Terminal=false
+Use External Terminal=true
 Working Directory=
 isExecutable=true
 
