@@ -1,15 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "hhmpctestfunc.h"
 
-#define TEXT    "Zeichen(-kette) eingeben!\n"
-#define LEN     10
 
-int c;
-
-void change(int wrong[], int right[]);
-int power(int m, int n);
-
-int main(){
+int main(void){
     extern int c;
     int i, v[LEN];
     for (i = 0; i < LEN; ++i){
@@ -23,31 +17,12 @@ int main(){
     return 0;
 }
 
-void change(int a[], int b[]){
-    extern int c;
-    int i;
-    for (i = 0; i < LEN; ++i){
-        a[i] = b[i]*b[i];
-        printf("%d %d\n", a[i], b[i]);
-    }
-    c = c*c;
-    printf("%d\n", c);
-}
-
-
-int power(int base, int n){
-    int i, p;
-    p = 1;
-    for (i = 1; i <= n; ++i)
-        p = p*base;
-    return p;
-}
 
 // int main(/*int argc, char **argv*/) {
 //     
 //     int c, d;
 //     long n[2];
-//     printf(TEXT);
+//     printf(TEXT\n);
 //  
 // //     c = getchar() == EOF;
 //     c = getchar();
