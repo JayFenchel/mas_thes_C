@@ -1,6 +1,6 @@
 #include "include/hhmpctestfunc.h"
 
-
+/*DEFINITIONEN*/
 void change(int a[], int b[]){
     extern int c;
     int i;

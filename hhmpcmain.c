@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "hhmpctestfunc.h"
 
+#define PPP     printf("help\n")
+
 
 int main(void){
     extern int c;
@@ -10,10 +12,11 @@ int main(void){
         printf("%d %d %d\n", i, power(2, i), power(-3, i));
         v[i] = power(2, i);
     }
-    c = 3;
+    c = SQUARE(1+1+1);
     change(v, v);
     for (i = 0; i < LEN; ++i)
         printf("%d\n", c);
+    PPP;
     return 0;
 }
 
