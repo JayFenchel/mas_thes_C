@@ -7,11 +7,38 @@
 
 int main(void){
     extern int c;
-    int i, v[LEN];
+    int i, *p1, *p2, v[LEN];
+    
+    i = 5;
+    p1 = &i;
+    printf("%d \n", *p1);
+    
     for (i = 0; i < LEN; ++i){
         printf("%d %d %d\n", i, power(2, i), power(-3, i));
         v[i] = power(2, i);
     }
+    
+    p2 = v;
+    for (i=0; i < LEN; ++i){
+        printf("%d ", v[i]);
+        printf("%d ", p2[i]);
+    }
+    printf("\n");
+    for (i=0; i < LEN; ++i){
+        printf("%d ", *v);
+        printf("%d ", *(v+i));
+    }
+    printf("\n");
+    for (i=0; i < LEN; ++i){
+        printf("%d ", *p2);
+        printf("%d ", *(p2+i));
+    }
+    printf("\n");
+    for (i=0; i < LEN; ++i){
+        printf("%d ", *(p2++));
+    }
+    printf("\n");
+    
     c = SQUARE(1+1+1);
     change(v, v);
     for (i = 0; i < LEN; ++i)
