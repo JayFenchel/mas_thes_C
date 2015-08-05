@@ -46,3 +46,8 @@ int power(int base, int n){
         p = p*base;
     return p;
 }
+
+int sum(int a, int b) {
+
+    return a + b;
+}

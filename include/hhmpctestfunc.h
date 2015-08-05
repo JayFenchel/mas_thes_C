@@ -20,6 +20,7 @@ void change(int wrong[], int right[]);
 
 int power(int m, int n);
 
+int sum(int a, int b);
 
 
 #endif
