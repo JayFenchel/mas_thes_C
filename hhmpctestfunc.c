@@ -1,6 +1,33 @@
 #include "include/hhmpctestfunc.h"
 
+#define ALLOCSIZE 10
+
+static float allocbuf[ALLOCSIZE];
+static float *allocp = allocbuf; /*nächste freie Position, zeigt zum Beginn auf den Anfang von allocbuf*/
+
 /*DEFINITIONEN*/
+
+float *alloc(int n){ /*liefert Zeiger auf Platz für n Zeichen*/
+    if (allocbuf + ALLOCSIZE - allocp >= n) {
+        allocp += n;
+        return allocp - n;
+    } else        
+    return 0;
+}
+
+void afree(float *p){
+    if (p >= allocbuf && p < allocbuf + ALLOCSIZE)
+        allocp = p;
+}
+
+void aprint(void){
+    int i;
+    for (i=0; i<ALLOCSIZE; ++i){
+        printf("%f\n", allocbuf[i]);
+    }
+}
+
+
 void change(int a[], int b[]){
     extern int c;
     int i;
