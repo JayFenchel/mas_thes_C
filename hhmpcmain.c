@@ -1,14 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "hhmpctestfunc.h"
 
 #define PPP     printf("help\n")
 
 
-int main(void){
+int main(int argc, char *argv[]){
     extern int c;
     int i, *p1, *p2, v[LEN];
     float *pc;
+    if (strcmp(*(argv+1), "echo") != -1){
+        printf("%d\n", strcmp(*(argv+1), "echo"));
+        printf("%d, %s\n", argc, *(argv+2));
+    }
     
     pc = alloc(6);
     
