@@ -8,6 +8,21 @@
 int main(void){
     extern int c;
     int i, *p1, *p2, v[LEN];
+    float *pc;
+    
+    pc = alloc(6);
+    
+    pc[0] = 3.4;
+    *(pc+5) = 2.5;
+    pc[6] = 7.;
+    pc = alloc(2);
+    pc[0] = 4.4;
+    afree(pc-4);
+    
+    pc = alloc(2);
+    pc[0] = 4.3;
+    
+    aprint();
     
     i = 5;
     p1 = &i;
