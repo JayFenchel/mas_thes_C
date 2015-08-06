@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="84">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df name="mpcinc" root=".">
+      <df name="cython">
+        <df name="__pycache__">
+        </df>
+        <in>mpcincCcvp.c</in>
+        <in>mpcinccvp.c</in>
+        <in>mpcincfgm.c</in>
+      </df>
+      <df name="include">
+        <in>arithmetic.h</in>
+        <in>cjson.h</in>
+        <in>mc04types.h</in>
+        <in>mpcinccvp.h</in>
+        <in>mpcinccvpdata.h</in>
+        <in>mpcinccvpdynmem.h</in>
+        <in>mpcincdynmem.h</in>
+        <in>mpcincfgm.h</in>
+        <in>mpcincfgmdynmem.h</in>
+        <in>mpcincmtxops.h</in>
+      </df>
+      <in>cjson.c</in>
+      <in>mpcinccvp.c</in>
+      <in>mpcinccvpdata.c</in>
+      <in>mpcinccvpdynmem.c</in>
+      <in>mpcincdynmem.c</in>
+      <in>mpcincfgm.c</in>
+      <in>mpcincfgmdynmem.c</in>
+      <in>mpcincmain.c</in>
+      <in>mpcincmtxops.c</in>
+    </df>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>default</compilerSet>
+      </toolsSet>
+      <codeAssistance>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>.</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath>main.exe</executablePath>
+          <cTool>
+            <incDir>
+              <pElem></pElem>
+              <pElem>include</pElem>
+            </incDir>
+          </cTool>
+        </makeTool>
+      </makefileType>
+      <item path="cjson.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="cython/mpcincCcvp.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="cython/mpcinccvp.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="cython/mpcincfgm.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="include/arithmetic.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/cjson.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/mc04types.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/mpcinccvp.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/mpcinccvpdata.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/mpcinccvpdynmem.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/mpcincdynmem.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/mpcincfgm.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/mpcincfgmdynmem.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="include/mpcincmtxops.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinccvp.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="mpcinccvpdata.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="mpcinccvpdynmem.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="mpcincdynmem.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="mpcincfgm.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="mpcincfgmdynmem.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="mpcincmain.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="mpcincmtxops.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
