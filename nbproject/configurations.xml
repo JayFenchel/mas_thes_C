@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="84">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df name="mas_thes_C" root=".">
+      <df name="include">
+        <in>hhmpctestfunc.h</in>
+      </df>
+      <df name="mpcinc">
+        <df name="cython">
+          <df name="__pycache__">
+          </df>
+          <in>mpcincCcvp.c</in>
+          <in>mpcinccvp.c</in>
+          <in>mpcincfgm.c</in>
+        </df>
+        <df name="include">
+          <in>arithmetic.h</in>
+          <in>cjson.h</in>
+          <in>mc04types.h</in>
+          <in>mpcinccvp.h</in>
+          <in>mpcinccvpdata.h</in>
+          <in>mpcinccvpdynmem.h</in>
+          <in>mpcincdynmem.h</in>
+          <in>mpcincfgm.h</in>
+          <in>mpcincfgmdynmem.h</in>
+          <in>mpcincmtxops.h</in>
+        </df>
+        <in>cjson.c</in>
+        <in>mpcinccvp.c</in>
+        <in>mpcinccvpdata.c</in>
+        <in>mpcinccvpdynmem.c</in>
+        <in>mpcincdynmem.c</in>
+        <in>mpcincfgm.c</in>
+        <in>mpcincfgmdynmem.c</in>
+        <in>mpcincmain.c</in>
+        <in>mpcincmtxops.c</in>
+      </df>
+      <df name="mpcinc_orig">
+        <df name="cython">
+          <df name="__pycache__">
+          </df>
+          <in>mpcincCcvp.c</in>
+          <in>mpcinccvp.c</in>
+          <in>mpcincfgm.c</in>
+        </df>
+        <df name="include">
+          <in>arithmetic.h</in>
+          <in>cjson.h</in>
+          <in>mc04types.h</in>
+          <in>mpcinccvp.h</in>
+          <in>mpcinccvpdata.h</in>
+          <in>mpcinccvpdynmem.h</in>
+          <in>mpcincdynmem.h</in>
+          <in>mpcincfgm.h</in>
+          <in>mpcincfgmdynmem.h</in>
+          <in>mpcincmtxops.h</in>
+        </df>
+        <in>cjson.c</in>
+        <in>mpcinccvp.c</in>
+        <in>mpcinccvpdata.c</in>
+        <in>mpcinccvpdynmem.c</in>
+        <in>mpcincdynmem.c</in>
+        <in>mpcincfgm.c</in>
+        <in>mpcincfgmdynmem.c</in>
+        <in>mpcincmain.c</in>
+        <in>mpcincmtxops.c</in>
+      </df>
+      <df name="tests">
+        <in>impl_test.c</in>
+        <in>main.c</in>
+      </df>
+      <in>hhmpcmain.c</in>
+      <in>hhmpctestfunc.c</in>
+    </df>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>default</compilerSet>
+      </toolsSet>
+      <codeAssistance>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>.</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath>main.exe</executablePath>
+          <cTool>
+            <incDir>
+              <pElem></pElem>
+              <pElem>include</pElem>
+            </incDir>
+          </cTool>
+        </makeTool>
+      </makefileType>
+      <item path="hhmpcmain.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="hhmpctestfunc.c" ex="false" tool="0" flavor2="2">
+        <cTool>
+        </cTool>
+      </item>
+      <item path="mpcinc/cjson.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc/cython/mpcincCcvp.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc/cython/mpcinccvp.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc/cython/mpcincfgm.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc/include/arithmetic.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc/include/cjson.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc/include/mc04types.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc/include/mpcinccvp.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc/include/mpcinccvpdata.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc/include/mpcinccvpdynmem.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc/include/mpcincdynmem.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc/include/mpcincfgm.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc/include/mpcincfgmdynmem.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc/include/mpcincmtxops.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc/mpcinccvp.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc/mpcinccvpdata.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc/mpcinccvpdynmem.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc/mpcincdynmem.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc/mpcincfgm.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc/mpcincfgmdynmem.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc/mpcincmain.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc/mpcincmtxops.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/cjson.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/cython/mpcincCcvp.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/cython/mpcinccvp.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/cython/mpcincfgm.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/include/arithmetic.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/include/cjson.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/include/mc04types.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/include/mpcinccvp.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/include/mpcinccvpdata.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/include/mpcinccvpdynmem.h"
+            ex="true"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="mpcinc_orig/include/mpcincdynmem.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/include/mpcincfgm.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/include/mpcincfgmdynmem.h"
+            ex="true"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="mpcinc_orig/include/mpcincmtxops.h" ex="true" tool="3" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/mpcinccvp.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/mpcinccvpdata.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/mpcinccvpdynmem.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/mpcincdynmem.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/mpcincfgm.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/mpcincfgmdynmem.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/mpcincmain.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="mpcinc_orig/mpcincmtxops.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="tests/impl_test.c" ex="true" tool="0" flavor2="0">
+      </item>
+      <item path="tests/main.c" ex="true" tool="0" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
