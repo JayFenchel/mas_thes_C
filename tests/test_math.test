@@ -1,0 +1,11 @@
+/*DO 
+  checkmk tests/test_math.test >tests/test_math.c
+*/
+#define fuenf 5
+#include "../include/hhmpcmath.h"
+
+#test simple_sum_test
+    fail_unless(simple_sum(3, 2) == fuenf, "sum function borked");
+    fail_unless(simple_sum(-3, 2) == -1, "sum function borked");
+    fail_unless(simple_sum(3, -2) == 1, "sum function borked");
+    fail_unless(simple_sum(-3, -2) == -fuenf, "sum function borked");

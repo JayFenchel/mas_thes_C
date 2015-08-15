@@ -30,3 +30,16 @@ libmpcformqpx: $(OBJ)
 .PHONY: clean  # nicht auf Aktualität prüfen, immer ausführen
 clean:
 	rm -vfr main $(OBJ) $(LIB)/*
+
+# Teil für Tests
+test: math-test
+	./tests/math-test
+
+math-test: test_math.o hhmpcmath.o
+	gcc -o ./tests/math-test hhmpcmath.o ./tests/test_math.o -lcheck -lpthread -lrt -lm
+
+test_math.o: test_math.c $(INC)/hhmpcmath.h
+	gcc $(FLAGS) -c -o ./tests/test_math.o ./tests/test_math.c
+
+test_math.c: ./tests/test_math.test
+	checkmk tests/test_math.test >tests/test_math.c
