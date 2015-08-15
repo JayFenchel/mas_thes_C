@@ -1,5 +1,5 @@
 CFLAGS=-Wall
-LIBS=-lcheck
+LIBS=-lcheck -lpthread -lrt -lm
 DIR=../include/
 
 all: sum2ints
