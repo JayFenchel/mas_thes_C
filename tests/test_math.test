@@ -1,13 +1,25 @@
 /*DO 
   checkmk tests/test_math.test >tests/test_math.c
 */
+#include <math.h>
+
 #define fuenf 5
 #include "../include/hhmpcmath.h"
 #include "../include/mpcincmtxops.h"
 
+#test fwd_subst_test
+    real_t sol[2]; 
+    real_t test_a[] = {2., 0., 3., 1.}, test_b[] = {4., 4.};
+    real_t sol_ref[] = {2., -2.};
+    fwd_subst(sol, test_a, 2, test_b);
+    printf("%.8f, %.8f\n", sol[0], sol[1]);
+//     printf("%f\n", (4.-12.));
+    fail_unless(mtx_cmp(sol, sol_ref, 2) == 0, "forward substitution failed");
+//     fail_unless(sol == sol_ref, "forward substitution failed");
+
 #test mtx_out_test
     real_t test_a[] = {2., 2., 3., 3.}, test_b[] = {4., 4.}; 
-    fail_unless(mtx_out(test_a, 2., 2., test_b) == 16., "mtx_out function confuses me");
+    fail_unless(mtx_out(test_a, 2, 2, test_b) == 16., "mtx_out function confuses me");
 
 #test simple_sum_test
     fail_unless(simple_sum(3, 2) == fuenf, "sum function borked");

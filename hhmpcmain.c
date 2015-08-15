@@ -27,6 +27,11 @@ int main(int argc, char *argv[]){
     printf("Hallo Lea am Punkt %d, %d\n", pp->y, pp->x);
     real_t test_a[] = {2, 2, 3, 3}, test_b[] = {4, 4}; 
     printf("%f\n", mtx_out(test_a, 2, 2, test_b));
+    real_t sol[2]; 
+    real_t tests_a[] = {2, 0, 3, 1}, tests_b[] = {4, 4}; 
+    fwd_subst(sol, tests_a, 2., tests_b);
+    printf("%f %f\n", sol[0], sol[1]);
+    printf("%d\n", mtx_cmp(sol, tests_b, 2));
     
 //    extern int c;
 //    int i, *p1, *p2, v[LEN];
