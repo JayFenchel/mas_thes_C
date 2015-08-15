@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "hhmpctestfunc.h"
+#include "hhmpcmath.h"
 
 #define PPP     printf("help\n")
 
@@ -24,6 +25,8 @@ int main(int argc, char *argv[]){
     struct point pt = makept(2, 3), *pp;
     pp = &pt;
     printf("Hallo Lea am Punkt %d, %d\n", pp->y, pp->x);
+    real_t test_a[] = {2, 2, 3, 3}, test_b[] = {4, 4}; 
+    printf("%f\n", mtx_out(test_a, 2, 2, test_b));
     
 //    extern int c;
 //    int i, *p1, *p2, v[LEN];

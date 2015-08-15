@@ -3,6 +3,11 @@
 */
 #define fuenf 5
 #include "../include/hhmpcmath.h"
+#include "../include/mpcincmtxops.h"
+
+#test mtx_out_test
+    real_t test_a[] = {2., 2., 3., 3.}, test_b[] = {4., 4.}; 
+    fail_unless(mtx_out(test_a, 2., 2., test_b) == 16., "mtx_out function confuses me");
 
 #test simple_sum_test
     fail_unless(simple_sum(3, 2) == fuenf, "sum function borked");

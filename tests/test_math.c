@@ -11,10 +11,20 @@
 */
 #define fuenf 5
 #include "../include/hhmpcmath.h"
+#include "../include/mpcincmtxops.h"
+
+START_TEST(mtx_out_test)
+{
+#line 9
+    real_t test_a[] = {2., 2., 3., 3.}, test_b[] = {4., 4.}; 
+    fail_unless(mtx_out(test_a, 2., 2., test_b) == 16., "mtx_out function confuses me");
+
+}
+END_TEST
 
 START_TEST(simple_sum_test)
 {
-#line 8
+#line 13
     fail_unless(simple_sum(3, 2) == fuenf, "sum function borked");
     fail_unless(simple_sum(-3, 2) == -1, "sum function borked");
     fail_unless(simple_sum(3, -2) == 1, "sum function borked");
@@ -30,6 +40,7 @@ int main(void)
     int nf;
 
     suite_add_tcase(s1, tc1_1);
+    tcase_add_test(tc1_1, mtx_out_test);
     tcase_add_test(tc1_1, simple_sum_test);
 
     srunner_run_all(sr, CK_ENV);

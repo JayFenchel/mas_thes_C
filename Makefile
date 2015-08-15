@@ -35,8 +35,8 @@ clean:
 test: math-test
 	./tests/math-test
 
-math-test: test_math.o hhmpcmath.o
-	gcc -o ./tests/math-test hhmpcmath.o ./tests/test_math.o -lcheck -lpthread -lrt -lm
+math-test: test_math.o hhmpcmath.o mpcincmtxops.o
+	gcc -o ./tests/math-test hhmpcmath.o mpcincmtxops.o ./tests/test_math.o -lcheck -lpthread -lrt -lm
 
 test_math.o: test_math.c $(INC)/hhmpcmath.h
 	gcc $(FLAGS) -c -o ./tests/test_math.o ./tests/test_math.c
