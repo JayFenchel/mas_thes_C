@@ -2,10 +2,17 @@
   checkmk tests/test_math.test >tests/test_math.c
 */
 #include <math.h>
-
 #define fuenf 5
 #include "../include/hhmpcmath.h"
 #include "../include/mpcincmtxops.h"
+
+#test cholesky_test
+    real_t sol[9];
+    real_t mtx[] = {4., 2., 0., 2., 5., 2., 0., 2., 5.};
+    real_t sol_ref[] = {2., 0., 0., 1., 2., 0., 0., 1., 2.};
+    uint32_t dim = 3;
+    cholesky(sol, mtx, dim);
+    fail_unless(mtx_cmp(sol, sol_ref, 3) == 0, "cholesky failed");
 
 #test fwd_subst_test
     real_t sol[2]; 

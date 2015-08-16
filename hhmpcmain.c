@@ -22,6 +22,10 @@ struct point makept(int x, int y){
 
 int main(int argc, char *argv[]){
     
+    real_t mtx[] = {4., 2., 0., 2., 5., 2., 0., 2., 5.};
+    real_t mtx2[9];
+    uint32_t dim = 3;
+    
     struct point pt = makept(2, 3), *pp;
     pp = &pt;
     printf("Hallo Lea am Punkt %d, %d\n", pp->y, pp->x);
@@ -37,6 +41,9 @@ int main(int argc, char *argv[]){
     bwd_subst(sol, testss_a, 2., testss_b);
     printf("%f %f\n", sol[0], sol[1]);
     printf("%f\n", smpl_sqrt(2., 2.));
+    cholesky(mtx2, mtx, dim);
+    
+    
     
 //    extern int c;
 //    int i, *p1, *p2, v[LEN];

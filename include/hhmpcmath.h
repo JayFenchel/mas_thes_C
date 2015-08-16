@@ -6,6 +6,8 @@
 #include "arithmetic.h"
 #include "mpcincmtxops.h"
 
+void cholesky(real_t solution[],
+              const real_t mtx[], const uint32_t dimension);
 
 void fwd_subst(real_t solution[],
                const real_t mtx[], const uint32_t dimension,

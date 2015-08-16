@@ -2,13 +2,55 @@
 #include <hhmpctestfunc.h>
 
 
+void cholesky(real_t sol[],
+              const real_t mtx[], const uint32_t dim)
+{
+    uint32_t i, j, k; /* loop counters */
+//     for (i = 0; i < dim*dim; i++)
+//         printf("%f ", mtx[i]);
+//     printf("\n");
+    for (i = 0; i < dim*dim; i++)
+    sol[i] = mtx[i]; /* mit "*" Zugriff auf die Werte in den Zeigern */
+//     sol[(dim-1)*dim] = 0.1;
+    for (i = 0; i < dim*dim; i++)
+        printf("%f ", sol[i]);
+    printf("\n");
+//     for (i = 0; i < dim*dim; i++)
+//         printf("%f ", mtx[i]);
+//     printf("\n");
+    
+    for (i = 0; i < dim; i++){
+        for (j = 0; j < i; j++){
+            sol[i*dim+i] -= sol[i*dim+j]*sol[i*dim+j];
+        }
+        sol[i*dim+i] = smpl_sqrt(smpl_abs(sol[i*dim+i]), 2.);
+        for (j = i+1; j < dim; j++){
+            for (k = 0; k < i; k++){
+                sol[j*dim+i] -= sol[j*dim+k]*sol[i*dim+k];
+            }
+            sol[j*dim+i] /= sol[i*dim+i];             
+        }        
+    }
+    
+    for (i = 0; i < dim*dim; i++)
+        printf("%f ", sol[i]);
+    printf("\n");
+    
+    for (i = 0; i < dim; i++){
+        for (j = i+1; j < dim; j++){
+            sol[i*dim+j] = 0.;
+        }
+    }
+    for (i = 0; i < dim*dim; i++)
+        printf("%f ", sol[i]);
+    printf("\n");
+}
+
 void fwd_subst(real_t sol[],
                const real_t mtx[], const uint32_t dim,
                const real_t vec[])
 {
     uint32_t i, j; /* loop counters */
-    
-    printf("%f, %f, %f, %f\n", mtx[0], mtx[1], mtx[2], mtx[3]);
     
     for (i = 0; i < dim; i++){
         sol[i] = vec[i];

@@ -10,14 +10,26 @@
   checkmk tests/test_math.test >tests/test_math.c
 */
 #include <math.h>
-
 #define fuenf 5
 #include "../include/hhmpcmath.h"
 #include "../include/mpcincmtxops.h"
 
+START_TEST(cholesky_test)
+{
+#line 10
+    real_t sol[9];
+    real_t mtx[] = {4., 2., 0., 2., 5., 2., 0., 2., 5.};
+    real_t sol_ref[] = {2., 0., 0., 1., 2., 0., 0., 1., 2.};
+    uint32_t dim = 3;
+    cholesky(sol, mtx, dim);
+    fail_unless(mtx_cmp(sol, sol_ref, 3) == 0, "cholesky failed");
+
+}
+END_TEST
+
 START_TEST(fwd_subst_test)
 {
-#line 11
+#line 18
     real_t sol[2]; 
     real_t test_a[] = {2., 0., 3., 1.}, test_b[] = {4., 4.};
     real_t sol_ref[] = {2., -2.};
@@ -32,9 +44,9 @@ END_TEST
 
 START_TEST(bwd_subst_test)
 {
-#line 21
+#line 28
     real_t sol[2]; 
-    real_t test_a[] = {4., 1., 0., 2.000}, test_b[] = {4., 4.};
+    real_t test_a[] = {4., 1., 0., 2.}, test_b[] = {4., 4.};
     real_t sol_ref[] = {.5, 2.};
     bwd_subst(sol, test_a, 2, test_b);
     printf("%.8f, %.8f\n", sol[0], sol[1]);
@@ -47,7 +59,7 @@ END_TEST
 
 START_TEST(mtx_out_test)
 {
-#line 31
+#line 38
     real_t test_a[] = {2., 2., 3., 3.}, test_b[] = {4., 4.}; 
     fail_unless(mtx_out(test_a, 2, 2, test_b) == 16., "mtx_out function confuses me");
 
@@ -56,7 +68,7 @@ END_TEST
 
 START_TEST(simple_sum_test)
 {
-#line 35
+#line 42
     fail_unless(simple_sum(3, 2) == fuenf, "sum function borked");
     fail_unless(simple_sum(-3, 2) == -1, "sum function borked");
     fail_unless(simple_sum(3, -2) == 1, "sum function borked");
@@ -72,6 +84,7 @@ int main(void)
     int nf;
 
     suite_add_tcase(s1, tc1_1);
+    tcase_add_test(tc1_1, cholesky_test);
     tcase_add_test(tc1_1, fwd_subst_test);
     tcase_add_test(tc1_1, bwd_subst_test);
     tcase_add_test(tc1_1, mtx_out_test);
