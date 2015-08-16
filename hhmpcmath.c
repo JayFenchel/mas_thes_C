@@ -1,5 +1,4 @@
 #include "include/hhmpcmath.h"
-#include <hhmpctestfunc.h>
 
 
 void cholesky(real_t sol[],
