@@ -20,7 +20,7 @@ START_TEST(cholesky_test)
     real_t sol_ref[] = {2., 0., 0., 1., 2., 0., 0., 1., 2.};
     uint32_t dim = 3;
     cholesky(sol, mtx, dim);
-    fail_unless(mtx_cmp(sol, sol_ref, 3) == 0, "cholesky failed");
+    fail_unless(mtx_cmp(sol, sol_ref, 9) == 0, "cholesky failed");
 
 }
 END_TEST
