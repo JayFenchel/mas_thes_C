@@ -2,6 +2,31 @@
   checkmk tests/test_alg.test >tests/test_alg.c
 */
 #include "../include/hhmpcalg.h"
+#include "../include/hhmpcmath.h"
 
 #test form_Y_test
+    /*real_t Phi[] = {1., 0., 0., 0., 0., 0.,
+                    0., 2., 2., -2., 0., 0.,
+                    0., 2., -2., 2., 0., 0.,
+                    0., -2., 2., 2., 0., 0.,
+                    0., 0., 0., 0., 3., -3.,
+                    0., 0., 0., 0., -3., 3.};
+    uint32_t n = 2, m = 1;*/
+    
     fail_unless(0 == 0, "form_Y failed");
+
+#test getBlock_test
+    real_t Phi[] = {1., 0., 0., 0., 0., 0.,
+                    0., 2., 2., -2., 0., 0.,
+                    0., 2., -2., 2., 0., 0.,
+                    0., -2., 2., 2., 0., 0.,
+                    0., 0., 0., 0., 3., -3.,
+                    0., 0., 0., 0., -3., 3.};
+    uint32_t dim = 6;
+    real_t block[9];
+    real_t block_ref[] = {-2., 2., 0., 2., 2., 0., 0., 0., 3.};
+    uint32_t first = 2, size = 3;
+    getBlock(block, Phi, dim, first, size);
+    fail_unless(mtx_cmp(block, block_ref, 3) == 0);
+    
+    
