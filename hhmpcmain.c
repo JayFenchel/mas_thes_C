@@ -36,6 +36,7 @@ int main(int argc, char *argv[]){
     real_t testss_a[] = {4., 1., 0, 2}, testss_b[] = {4, 4}; 
     bwd_subst(sol, testss_a, 2., testss_b);
     printf("%f %f\n", sol[0], sol[1]);
+    printf("%f\n", smpl_sqrt(2., 2.));
     
 //    extern int c;
 //    int i, *p1, *p2, v[LEN];

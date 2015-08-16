@@ -45,6 +45,20 @@ uint32_t mtx_cmp(const real_t mtxA[], const real_t mtxB[], real_t dim)
     return cmp;
 }
 
+real_t smpl_sqrt(real_t r, real_t e)
+{
+    if  (smpl_abs(r/e - e) < SQRT_ACC)
+        return e;
+    else
+        return smpl_sqrt(r, (e + r/e) / 2);
+}
+
+real_t smpl_abs(real_t x)
+{
+    return (x < 0) ? -x : x;
+}
+    
+
 real_t mtx_out(real_t mtx[], uint32_t rows, uint32_t cols, real_t vec[]){
     real_t out[2];
     mpcinc_mtx_multiply_mtx_vec(out, mtx, vec, rows, cols);
