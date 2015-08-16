@@ -4,16 +4,42 @@
 #include "../include/hhmpcalg.h"
 #include "../include/hhmpcmath.h"
 
+#define N 2
+#define M 1
+#define T 2
+
 #test form_Y_test
-    /*real_t Phi[] = {1., 0., 0., 0., 0., 0.,
+    real_t A[] = {1., 2., 1., 2.};
+    real_t B[] = {-3.};
+    real_t Y[T*N*T*N];
+    real_t Phi[] = {1., 0., 0., 0., 0., 0.,
                     0., 2., 2., -2., 0., 0.,
                     0., 2., -2., 2., 0., 0.,
                     0., -2., 2., 2., 0., 0.,
                     0., 0., 0., 0., 3., -3.,
                     0., 0., 0., 0., -3., 3.};
-    uint32_t n = 2, m = 1;*/
+    form_Y(Y, Phi, T, A, N, B, M);
+    
     
     fail_unless(0 == 0, "form_Y failed");
+
+#test setBlock_test
+    real_t Phi[] = {1., 0., 0., 0., 0., 0.,
+                    0., 2., 2., -2., 0., 0.,
+                    0., 2., -2., 2., 0., 0.,
+                    0., -2., 2., 2., 0., 0.,
+                    0., 0., 0., 0., 3., -3.,
+                    0., 0., 0., 0., -3., 3.};
+    uint32_t dim = 6;
+    real_t block[] = {1., 1., 0., 0., 1., 1., 0., 1., 0.};
+    real_t Phi_ref[] = {1., 0., 0., 0., 0., 0.,
+                    0., 2., 2., -2., 0., 0.,
+                    0., 2., 1., 1., 0., 0.,
+                    0., -2., 0., 1., 1., 0.,
+                    0., 0., 0., 1., 0., -3.,
+                    0., 0., 0., 0., -3., 3.};
+    setBlock(Phi, dim, block, 3, 2);
+    fail_unless(mtx_cmp(Phi, Phi_ref, 36) == 0, "setBlock failed");
 
 #test getBlock_test
     real_t Phi[] = {1., 0., 0., 0., 0., 0.,
@@ -27,6 +53,6 @@
     real_t block_ref[] = {-2., 2., 0., 2., 2., 0., 0., 0., 3.};
     uint32_t first = 2, size = 3;
     getBlock(block, Phi, dim, first, size);
-    fail_unless(mtx_cmp(block, block_ref, 3) == 0);
+    fail_unless(mtx_cmp(block, block_ref, 9) == 0, "getBlock failed");
     
     
