@@ -1,0 +1,7 @@
+/*DO 
+  checkmk tests/test_alg.test >tests/test_alg.c
+*/
+#include "../include/hhmpcalg.h"
+
+#test form_Y_test
+    fail_unless(0 == 0, "form_Y failed");

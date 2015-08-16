@@ -32,8 +32,20 @@ clean:
 	rm -vfr main $(OBJ) $(LIB)/*
 
 # Teil für Tests
-test: math-test
-	./tests/math-test
+test: math-test alg-test
+	./tests/math-test # Test für grundlegendere Mathefunktionen
+	./tests/alg-test # Test für Teile des Algorithmus
+
+
+alg-test: test_alg.o hhmpcalg.o hhmpcmath.o mpcincmtxops.o
+	gcc -o ./tests/alg-test hhmpcalg.o hhmpcmath.o mpcincmtxops.o ./tests/test_alg.o -lcheck -lpthread -lrt -lm
+
+test_alg.o: test_alg.c $(INC)/hhmpcalg.h
+	gcc $(FLAGS) -c -o ./tests/test_alg.o ./tests/test_alg.c
+
+test_alg.c: ./tests/test_alg.test
+	checkmk tests/test_alg.test >tests/test_alg.c
+
 
 math-test: test_math.o hhmpcmath.o mpcincmtxops.o
 	gcc -o ./tests/math-test hhmpcmath.o mpcincmtxops.o ./tests/test_math.o -lcheck -lpthread -lrt -lm
