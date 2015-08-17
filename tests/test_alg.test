@@ -9,7 +9,7 @@
 #define T 2
 
 #test form_Y_test
-    real_t A[] = {1., 2., 1., 2.};
+    /*real_t A[] = {1., 2., 1., 2.};
     real_t B[] = {-3.};
     real_t Y[T*N*T*N];
     real_t Phi[] = {1., 0., 0., 0., 0., 0.,
@@ -18,10 +18,20 @@
                     0., -2., 2., 2., 0., 0.,
                     0., 0., 0., 0., 3., -3.,
                     0., 0., 0., 0., -3., 3.};
-    form_Y(Y, Phi, T, A, N, B, M);
+    form_Y(Y, Phi, T, A, N, B, M);*/
     
     
     fail_unless(0 == 0, "form_Y failed");
+    
+#test form_Y11_test
+    real_t sol[N*N];
+    real_t B[] = {-3., 1.};
+    real_t R0_I[] = {-.5};
+    real_t Q1[] = {1., 0., 0., 1.};
+    
+    real_t sol_ref[] = {37., -12., -12., 5.};
+    form_Y11(sol, B, N, M, R0_I, Q1);
+    fail_unless(mtx_cmp(sol, sol_ref, 4) == 0, "form_Y11 failed");
 
 #test setBlock_test
     real_t Phi[] = {1., 0., 0., 0., 0., 0.,
