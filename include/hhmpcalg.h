@@ -18,13 +18,13 @@ void form_Y11(real_t solution[],
               const real_t Q1[]);
 
 void setBlock(real_t mtx[], const uint32_t dimension, 
-              const real_t block[], const uint32_t size,
+              const real_t block[], const uint32_t size_row, const uint32_t size_col,
               const uint32_t first_row, const uint32_t first_col);
 
 void getBlock(real_t block[], 
               const real_t mtx[], const uint32_t dimension,
               const uint32_t first_row, const uint32_t first_col,
-              const uint32_t size);
+              const uint32_t size_row, const uint32_t size_col);
 
 
 #endif
