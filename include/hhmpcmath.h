@@ -10,13 +10,19 @@
 void cholesky(real_t solution[],
               const real_t mtx[], const uint32_t dimension);
 
+/* forward substitution: mtxA * solution = mtxB
+ * mtxA has shape (dimA x dimA), lower Dreiecksmatrix
+ * sulution and mtxB have shape (dimA x columsB)*/
 void fwd_subst(real_t solution[],
-               const real_t mtx[], const uint32_t dimension,
-               const real_t vec[]);
+               const real_t mtxA[], const uint32_t dimensionA,
+               const real_t mtxB[], const uint32_t columsB);
 
+/* backward substitution: mtxA * solution = mtxB
+ * mtxA has shape (dimA x dimA), upper Dreiecksmatrix
+ * sulution and mtxB have shape (dimA x columsB)*/
 void bwd_subst(real_t solution[],
-               const real_t mtx[], const uint32_t dimension,
-               const real_t vec[]);
+               const real_t mtxA[], const uint32_t dimensionA,
+               const real_t mtxB[], const uint32_t columsB);
 
 uint32_t mtx_cmp(const real_t mtxA[], const real_t mtxB[], real_t dim);
 

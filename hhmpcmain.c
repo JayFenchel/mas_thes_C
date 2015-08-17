@@ -33,12 +33,12 @@ int main(int argc, char *argv[]){
     printf("%f\n", mtx_out(test_a, 2, 2, test_b));
     real_t sol[2]; 
     real_t tests_a[] = {2, 0, 3, 1}, tests_b[] = {4, 4}; 
-    fwd_subst(sol, tests_a, 2., tests_b);
+    fwd_subst(sol, tests_a, 2., tests_b, 1);
     printf("%f %f\n", sol[0], sol[1]);
     printf("%d\n", mtx_cmp(sol, tests_b, 2));
     
     real_t testss_a[] = {4., 1., 0, 2}, testss_b[] = {4, 4}; 
-    bwd_subst(sol, testss_a, 2., testss_b);
+    bwd_subst(sol, testss_a, 2., testss_b, 1);
     printf("%f %f\n", sol[0], sol[1]);
     printf("%f\n", smpl_sqrt(2., 2.));
     cholesky(mtx2, mtx, dim);

@@ -28,11 +28,11 @@ END_TEST
 START_TEST(fwd_subst_test)
 {
 #line 16
-    real_t sol[2]; 
-    real_t test_a[] = {2., 0., 3., 1.}, test_b[] = {4., 4.};
-    real_t sol_ref[] = {2., -2.};
-    fwd_subst(sol, test_a, 2, test_b);
-    fail_unless(mtx_cmp(sol, sol_ref, 2) == 0, "forward substitution failed");
+    real_t sol[4]; 
+    real_t test_a[] = {2., 0., 3., 1.}, test_b[] = {4., 8., 4., 8.};
+    real_t sol_ref[] = {2., 4., -2., -4.};
+    fwd_subst(sol, test_a, 2, test_b, 2);
+    fail_unless(mtx_cmp(sol, sol_ref, 4) == 0, "forward substitution failed");
 
 }
 END_TEST
@@ -40,11 +40,11 @@ END_TEST
 START_TEST(bwd_subst_test)
 {
 #line 23
-    real_t sol[2]; 
-    real_t test_a[] = {4., 1., 0., 2.}, test_b[] = {4., 4.};
-    real_t sol_ref[] = {.5, 2.};
-    bwd_subst(sol, test_a, 2, test_b);
-    fail_unless(mtx_cmp(sol, sol_ref, 2) == 0, "backward substitution failed");
+    real_t sol[4]; 
+    real_t test_a[] = {4., 1., 0., 2.}, test_b[] = {4., 8., 4., 8.};
+    real_t sol_ref[] = {.5, 1., 2., 4.};
+    bwd_subst(sol, test_a, 2, test_b, 2);
+    fail_unless(mtx_cmp(sol, sol_ref, 4) == 0, "backward substitution failed");
 
 }
 END_TEST

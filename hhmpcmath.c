@@ -31,34 +31,35 @@ void cholesky(real_t sol[],
 }
 
 void fwd_subst(real_t sol[],
-               const real_t mtx[], const uint32_t dim,
-               const real_t vec[])
+               const real_t mtxA[], const uint32_t dim,
+               const real_t mtxB[], const uint32_t colsB)
 {
-    uint32_t i, j; /* loop counters */
-    
-    for (i = 0; i < dim; i++){
-        sol[i] = vec[i];
-        for (j = 0; j < i; j++){
-            sol[i] -= mtx[i*dim+j]*sol[j];
+    uint32_t i, j, k; /* loop counters */
+    for (k = 0; k < colsB; k++){
+        for (i = 0; i < dim; i++){
+            sol[colsB*i+k] = mtxB[colsB*i+k];
+            for (j = 0; j < i; j++){
+                sol[colsB*i+k] -= mtxA[i*dim+j]*sol[colsB*j+k];
+            }
+            sol[colsB*i+k] /= mtxA[i*dim+j];
         }
-        printf("%f %d\n",mtx[1], 1);
-        sol[i] /= mtx[i*dim+j];
     }
+    
 }
 
 void bwd_subst(real_t sol[],
-               const real_t mtx[], const uint32_t dim,
-               const real_t vec[])
+               const real_t mtxA[], const uint32_t dim,
+               const real_t mtxB[], const uint32_t colsB)
 {
-    uint32_t i, j; /* loop counters */
-    
-    for (i = 0; i < dim; i++){
-        sol[dim-i-1] = vec[dim-i-1];
-        for (j = 0; j < i; j++){
-            sol[dim-i-1] -= mtx[dim*dim-i*dim-j-1]*sol[dim-j-1];
+    uint32_t i, j, k; /* loop counters */
+    for (k = colsB; k > 0; k--){
+        for (i = 0; i < dim; i++){
+            sol[colsB*(dim-i)-k] = mtxB[colsB*(dim-i)-k];
+            for (j = 0; j < i; j++){
+                sol[colsB*(dim-i)-k] -= mtxA[dim*dim-i*dim-j-1]*sol[colsB*(dim-j)-k];
+            }
+            sol[colsB*(dim-i)-k] /= mtxA[dim*dim-i*dim-j-1];
         }
-        printf("%f %d\n",mtx[1], 1);
-        sol[dim-i-1] /= mtx[dim*dim-i*dim-j-1];
     }
 }
 
