@@ -28,26 +28,27 @@ void form_Y11(real_t sol[],
 
 void setBlock(real_t mtx[], const uint32_t dim,
               const real_t blk[], const uint32_t s,
-              const uint32_t fst)
+              const uint32_t row_fst, const uint32_t col_fst)
 {
     uint32_t i, j; /* loop counters */
     
     for (i = 0; i < s; i++){
         for (j = 0; j < s; j++){
-            mtx[(i+fst)*dim+j+fst] = blk[i*s+j];
+            mtx[(i+row_fst)*dim+j+col_fst] = blk[i*s+j];
         }
     }
 }
 
 void getBlock(real_t blk[],
               const real_t mtx[], const uint32_t dim,
-              const uint32_t fst, const uint32_t s)
+              const uint32_t row_fst, const uint32_t col_fst,
+              const uint32_t s)
 {
     uint32_t i, j; /* loop counters */
     
     for (i = 0; i < s; i++){
         for (j = 0; j < s; j++){
-            blk[i*s+j] = mtx[(i+fst)*dim+j+fst];
+            blk[i*s+j] = mtx[(i+row_fst)*dim+j+col_fst];
         }
     }
 }

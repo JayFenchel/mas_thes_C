@@ -44,11 +44,11 @@
     real_t block[] = {1., 1., 0., 0., 1., 1., 0., 1., 0.};
     real_t Phi_ref[] = {1., 0., 0., 0., 0., 0.,
                     0., 2., 2., -2., 0., 0.,
-                    0., 2., 1., 1., 0., 0.,
-                    0., -2., 0., 1., 1., 0.,
-                    0., 0., 0., 1., 0., -3.,
+                    0., 2., -2., 1., 1., 0.,
+                    0., -2., 2., 0., 1., 1.,
+                    0., 0., 0., 0., 1., 0.,
                     0., 0., 0., 0., -3., 3.};
-    setBlock(Phi, dim, block, 3, 2);
+    setBlock(Phi, dim, block, 3, 2, 3);
     fail_unless(mtx_cmp(Phi, Phi_ref, 36) == 0, "setBlock failed");
 
 #test getBlock_test
@@ -60,9 +60,9 @@
                     0., 0., 0., 0., -3., 3.};
     uint32_t dim = 6;
     real_t block[9];
-    real_t block_ref[] = {-2., 2., 0., 2., 2., 0., 0., 0., 3.};
-    uint32_t first = 2, size = 3;
-    getBlock(block, Phi, dim, first, size);
+    real_t block_ref[] = {2., 0., 0., 2., 0., 0., 0., 3., -3.};
+    uint32_t first_row = 2, first_col = 3, size = 3;
+    getBlock(block, Phi, dim, first_row, first_col, size);
     fail_unless(mtx_cmp(block, block_ref, 9) == 0, "getBlock failed");
     
     
