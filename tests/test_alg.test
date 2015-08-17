@@ -9,17 +9,20 @@
 #define T 2
 
 #test form_Y_test
-    /*real_t A[] = {1., 2., 1., 2.};
+    uint32_t i;
+    real_t A[] = {1., 2., 1., 2.};
     real_t B[] = {-3.};
-    real_t Y[T*N*T*N];
+    real_t Y[T*N*T*N] = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
     real_t Phi[] = {1., 0., 0., 0., 0., 0.,
                     0., 2., 2., -2., 0., 0.,
                     0., 2., -2., 2., 0., 0.,
                     0., -2., 2., 2., 0., 0.,
                     0., 0., 0., 0., 3., -3.,
                     0., 0., 0., 0., -3., 3.};
-    form_Y(Y, Phi, T, A, N, B, M);*/
-    
+    form_Y(Y, Phi, T, A, N, B, M);
+    for (i = 0; i < 16; i++)
+        printf("%f ", Y[i]);
+    printf("\n");
     
     fail_unless(0 == 0, "form_Y failed");
     
