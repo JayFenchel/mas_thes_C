@@ -10,8 +10,21 @@ A = [1, 2; 1, 2];
 B = [-3; 1];
 mAB = -[A';B']
 
+AB = [A,B]
+
 Phi_bl_I*mAB
 
 sol_H = 2\B';
 sol_H2 = 2\sol_H;
 sol = B*sol_H2 + Q1_tilde;
+
+Phi_bl_I*AB'
+AB*Phi_bl_I*AB'
+
+f = [4 -3; -3 4];
+fc = chol(f)';
+
+help = fc\eye(2);
+solu = fc'\help
+
+AB*Phi_bl_I*AB'+solu
