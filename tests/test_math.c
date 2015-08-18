@@ -22,7 +22,7 @@ START_TEST(cholesky_test)
     uint32_t dim = 3;
     cholesky(sol, mtx, dim);
     fail_unless(mtx_cmp(sol, sol_ref, 9, 0) == 0, "cholesky failed");
-    
+
 }
 END_TEST
 

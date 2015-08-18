@@ -19,13 +19,13 @@
                     0., 0., -1., 2., 0., 0.,
                     0., 0., 0., 0., 3., -3.,
                     0., 0., 0., 0., -3., 3.};
-    real_t Y_ref[] = {271./108., -97/108., 0., 0., -97/108., 67/108., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
+    real_t Y_ref[] = {271./108., -97/108., -5./27., 1./9., -97/108., 67/108., -1./27., -7./9., 0., 0., 0., 0., 0., 0., 0., 0.};
    
     form_Y(Y, Phi, T, A, N, B, M);
     print_mtx(Y_ref, 4, 4);
     print_mtx(Y, T*N, T*N);
     
-    fail_unless(mtx_cmp(Y, Y_ref, 16, 1e-11) == 0, "form_Y failed");
+    fail_unless(mtx_cmp(Y, Y_ref, 16, 1e-10) == 0, "form_Y failed");
     
 #test form_Y11_test
     real_t sol[N*N];
