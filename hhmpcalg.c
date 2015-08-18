@@ -23,7 +23,8 @@ void form_Y(real_t Y[],
     getBlock(PhiBlock, Phi, T*(n+m), m, m, n+m, n+m);
     cholesky(PhiBlock_C, PhiBlock, n+m);
     fwd_subst(hilf1, PhiBlock_C, n+m, eye, n+m);
-    bwd_subst(hilf2, PhiBlock_C_T, n+m, hilf1, n+m); 
+    mpcinc_mtx_transpose(PhiBlock_C_T, PhiBlock_C, n+m, n+m);
+    bwd_subst(hilf2, PhiBlock_C_T, n+m, hilf1, n+m);
     getBlock(Q1, hilf2, n+m, 0, 0, n, n);
     form_Y11(Y11, B, n, m, R0_C, Q1);
     setBlock(Y, T*n, Y11, n, n, 0, 0);
