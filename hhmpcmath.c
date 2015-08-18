@@ -63,11 +63,11 @@ void bwd_subst(real_t sol[],
     }
 }
 
-uint32_t mtx_cmp(const real_t mtxA[], const real_t mtxB[], real_t dim)
+uint32_t mtx_cmp(const real_t mtxA[], const real_t mtxB[], real_t dim, real_t acc)
 {
     uint32_t i, cmp = 0;
     for (i = 0; i<dim; i++){
-        cmp += (mtxA[i] != mtxB[i]) ? 1 : 0;
+        cmp += smpl_abs((mtxA[i] - mtxB[i])) > acc ? 1 : 0;
     }
     return cmp;
 }

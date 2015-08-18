@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "hhmpctestfunc.h"
-#include "hhmpcmath.h"
+#include "include/hhmpctestfunc.h"
+#include "include/hhmpcmath.h"
+#include "include/hhmpcalg.h"
+#include "include/hhmpcusefull.h"
 
 #define PPP     printf("help\n")
 
@@ -35,7 +37,7 @@ int main(int argc, char *argv[]){
     real_t tests_a[] = {2, 0, 3, 1}, tests_b[] = {4, 4}; 
     fwd_subst(sol, tests_a, 2., tests_b, 1);
     printf("%f %f\n", sol[0], sol[1]);
-    printf("%d\n", mtx_cmp(sol, tests_b, 2));
+    printf("%d\n", mtx_cmp(sol, tests_b, 2, 0));
     
     real_t testss_a[] = {4., 1., 0, 2}, testss_b[] = {4, 4}; 
     bwd_subst(sol, testss_a, 2., testss_b, 1);

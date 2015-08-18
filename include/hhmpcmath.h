@@ -24,7 +24,7 @@ void bwd_subst(real_t solution[],
                const real_t mtxA[], const uint32_t dimensionA,
                const real_t mtxB[], const uint32_t columsB);
 
-uint32_t mtx_cmp(const real_t mtxA[], const real_t mtxB[], real_t dim);
+uint32_t mtx_cmp(const real_t mtxA[], const real_t mtxB[], real_t dim, real_t accuracy);
 
 real_t smpl_sqrt(real_t radikant, real_t sqrt_exp);
 

@@ -4,6 +4,7 @@
 #include "arithmetic.h"
 #include "hhmpcmath.h"
 #include "mpcincmtxops.h"
+#include "hhmpcusefull.h"
 
 
 void form_Y(real_t mtxY[],
