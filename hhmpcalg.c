@@ -46,7 +46,7 @@ void form_Y(real_t Y[],
     
     getBlock(R0_I, Phi, T*(n+m), 0, 0, m, m);
     cholesky(R0_C, R0_I, m);
-    getBlock(PhiBlock, Phi, T*(n+m), m, m, n+m, n+m);
+    getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n+m, n+m);
     cholesky(PhiBlock_C, PhiBlock, n+m);
     fwd_subst(hilf1, PhiBlock_C, n+m, eye, n+m);
     mpcinc_mtx_transpose(PhiBlock_C_T, PhiBlock_C, n+m, n+m);
@@ -56,31 +56,20 @@ void form_Y(real_t Y[],
     setBlock(Y, T*n, Y11, n, n, 0, 0);
     
     }
-    if (i < T-1){
-        form_Y_i_ip1(Y11, A_T, 2, 2, B_T, 1, 2, hilf2);
-        setBlock(Y, T*n, Y11, n, n, i*n, (i+1)*n);
-        real_t Y11_T[n*n];
-        mpcinc_mtx_transpose(Y11_T, Y11, n, n);
-        setBlock(Y, T*n, Y11_T, n, n, (i+1)*n, i*n);
-    }   
     
     if (i > 0){
         for (j = 0; j < (n+m)*(n+m); j++)
             last_hilf2[j] = hilf2[j];
         if (i == T-1){
-            printf("HIER\n");
             getBlock(Q_I, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n, n);
-            print_mtx(Q_I, n, n);
             cholesky(Q_I_C, Q_I, n);
             fwd_subst(hilf4, Q_I_C, n, eye2, n);
             mpcinc_mtx_transpose(Q_I_C_T, Q_I_C, n, n);
             bwd_subst(Q1, Q_I_C_T, n, hilf4, n);
-            print_mtx(Q1, n, n);
             
             
         }else{
         getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n+m, n+m);
-        print_mtx(PhiBlock, 3, 3);
         cholesky(PhiBlock_C, PhiBlock, n+m);
         fwd_subst(hilf1, PhiBlock_C, n+m, eye, n+m);
         mpcinc_mtx_transpose(PhiBlock_C_T, PhiBlock_C, n+m, n+m);
@@ -93,6 +82,15 @@ void form_Y(real_t Y[],
         setBlock(Y, T*n, Y11, n, n, i*n, i*n);
         
     }
+    
+    if (i < T-1){
+        form_Y_i_ip1(Y11, A_T, n, n, B_T, m, n, hilf2);
+        setBlock(Y, T*n, Y11, n, n, i*n, (i+1)*n);
+        real_t Y11_T[n*n];
+        mpcinc_mtx_transpose(Y11_T, Y11, n, n);
+        setBlock(Y, T*n, Y11_T, n, n, (i+1)*n, i*n);
+    }   
+    
     }
 }
 
@@ -105,11 +103,8 @@ void form_Yii(real_t solution[],
     real_t help1[rowsA*(colsA+colsB)];
     real_t help2[colsA*rowsA];
     
-    mpcinc_mtx_multiply_mtx_mtx(help1, hilf2, A_T_B_T, 3, 3, 2);
-    print_mtx(A_B, 2, 3);
-    print_mtx(help1, 3, 2);
-    mpcinc_mtx_multiply_mtx_mtx(help2, A_B, help1, 2, 3, 2);
-    print_mtx(help2, 2, 2);
+    mpcinc_mtx_multiply_mtx_mtx(help1, hilf2, A_T_B_T, rowsB, colsB, colsC);
+    mpcinc_mtx_multiply_mtx_mtx(help2, A_B, help1, rowsA, colsA, colsC);
     mpcinc_mtx_add(solution, help2, Qi, rowsA, rowsA);
 }
 
