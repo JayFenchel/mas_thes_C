@@ -41,9 +41,10 @@
     real_t L_Phi_blocks[M*M + (T-1)*(N+M)*(N+M) + N*N]; /*blocks discribed in paper*/
     real_t L_Phi[T*(N+M)*T*(N+M)];
     uint32_t g;
-    for(g = 0; g < T*(N+M)*T*(N+M); g++)
-        L_Phi[g] = 0;
+    
     real_t L_Phi_ref[T*(N+M)*T*(N+M)];
+    
+
                     
     real_t Y_ref[] = {271./108., -97/108., -5./27., 1./9., 0., 0.,
                       -97/108., 67/108., -1./27., -7./9., 0., 0.,
@@ -52,6 +53,37 @@
                       0., 0., -5./43., -9./43., 1173./301., 10./301.,
                       0., 0., 3./43., -29./43., 10./301.,        725./301.};
    
+                      
+                      
+    real_t beta[T*N];
+    real_t rd[] = {1., 1., 1., 1., 1., 1., 1., 1., 1.};
+    real_t rp[] = {1., 1., 1., 1., 1., 1.};
+    real_t delta_v[T*N];
+    real_t delta_z[T*(N+M)];
+    real_t delta_z_ref[] = {-1.497130713389783, 
+3.491392140169356, 
+-2.497130713389777, 
+-1.311592177863274, 
+1.431907246979609, 
+-3.814461464473480, 
+-0.282106439809970, 
+-6.350696362537439, 
+-7.479122121777321};
+    real_t delta_v_ref[] = {32.608067797050708, 
+92.835680537592992, 
+11.299205178363676, 
+34.771561892754256, 
+1.965419084817798, 
+9.864399399496964};
+
+    
+    real_t C_T[T*N+M * T*N];
+    real_t help1[T*(N+M)];                      
+                      
+    for(g = 0; g < T*(N+M)*T*(N+M); g++)
+        L_Phi[g] = 0;
+
+    
     form_Y(Y, L_Phi_blocks, Phi, T, A, N, B, M);
     
     setBlock(L_Phi, T*(N+M), L_Phi_blocks, M, M, 0, 0);
@@ -59,22 +91,27 @@
     setBlock(L_Phi, T*(N+M), L_Phi_blocks+M*M+1*(N+M)*(N+M), N+M, N+M, M+1*(N+M), M+1*(N+M));
     setBlock(L_Phi, T*(N+M), L_Phi_blocks+M*M+2*(N+M)*(N+M), N, N, M+2*(N+M), M+2*(N+M));
     
-    print_mtx(L_Phi, T*(N+M), T*(N+M));
-    
     cholesky(L_Phi_ref, Phi, T*(N+M));
     
     fail_unless(mtx_cmp(Y, Y_ref, 36, 1e-9) == 0, "form_Y failed");
     fail_unless(mtx_cmp(L_Phi, L_Phi_ref, T*(N+M)*T*(N+M), 0) == 0, "false L_Phi");
     
-    real_t beta[T*N];
-    real_t rd[] = {1., 1., 1., 1., 1., 1., 1., 1., 1.};
-    real_t rp[] = {1., 1., 1., 1., 1., 1.};
+
+    
     form_beta(beta, L_Phi_blocks, rd, rp, T, C, N, M);
     
-    real_t delta_v[T*N];
+
     
     form_delta_v(delta_v, Y, beta, T, N);
-    print_mtx(delta_v, T*N, 1);
+    
+    
+    mpcinc_mtx_transpose(C_T, C, T*N, T*(N+M));
+    
+    form_delta_z(delta_z, delta_v, L_Phi, rd, C_T, T, N, M);
+    print_mtx(delta_z, T*(N+M), 1);
+    
+    fail_unless(mtx_cmp(delta_v, delta_v_ref, 6, 1e-9) == 0, "form_delta_v failed");
+    fail_unless(mtx_cmp(delta_z, delta_z_ref, 9, 1e-10) == 0, "form_delta_z failed");
     
 #test form_Y11_test
     real_t sol[N*N];
