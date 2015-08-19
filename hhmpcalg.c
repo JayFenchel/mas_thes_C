@@ -49,10 +49,14 @@ void form_delta_v(real_t delta_v[],
     for (i = 0; i < T*n; i++)
         mbeta[i] = -beta[i];
     
-    mpcinc_mtx_transpose(L_Y_T, L_Y, T*n, T*n);
+    
     cholesky(L_Y, Y, T*n);
+    mpcinc_mtx_transpose(L_Y_T, L_Y, T*n, T*n);
+    print_mtx(L_Y, T*n, T*n);
     fwd_subst(help1, L_Y, T*n, mbeta, 1);
+    print_mtx(help1, T*n, 1);
     bwd_subst(delta_v, L_Y_T, T*n, help1, 1);
+    print_mtx(delta_v, T*n, 1);
     
 }
 

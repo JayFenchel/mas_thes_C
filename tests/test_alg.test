@@ -71,7 +71,10 @@
     real_t rp[] = {1., 1., 1., 1., 1., 1.};
     form_beta(beta, L_Phi_blocks, rd, rp, T, C, N, M);
     
-    print_mtx(beta, T*N, 1);
+    real_t delta_v[T*N];
+    
+    form_delta_v(delta_v, Y, beta, T, N);
+    print_mtx(delta_v, T*N, 1);
     
 #test form_Y11_test
     real_t sol[N*N];
