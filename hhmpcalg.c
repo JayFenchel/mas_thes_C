@@ -1,7 +1,7 @@
 #include "include/hhmpcalg.h"
 
 
-void form_Y(real_t Y[],
+void form_Y(real_t Y[], real_t L_Phi[],
             const real_t Phi[],
             const uint32_t T,
             const real_t A[], const uint32_t n,
@@ -9,9 +9,7 @@ void form_Y(real_t Y[],
 {
     uint32_t i, j;
     real_t R0_I[m*m];
-    real_t R0_C[m*m];
     real_t PhiBlock[(n+m)*(n+m)];
-    real_t PhiBlock_C[(n+m)*(n+m)];
     real_t PhiBlock_C_T[(n+m)*(n+m)];
     real_t hilf1[(n+m)*(n+m)];
     real_t hilf2[(n+m)*(n+m)];
@@ -24,7 +22,6 @@ void form_Y(real_t Y[],
     real_t B_T[m*n];
     
     real_t Q_I[n*n];
-    real_t Q_I_C[n*n];
     real_t Q_I_C_T[n*n];
     real_t hilf4[n*n];
     
@@ -45,14 +42,14 @@ void form_Y(real_t Y[],
     
     
     getBlock(R0_I, Phi, T*(n+m), 0, 0, m, m);
-    cholesky(R0_C, R0_I, m);
+    cholesky(L_Phi, R0_I, m);
     getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n+m, n+m);
-    cholesky(PhiBlock_C, PhiBlock, n+m);
-    fwd_subst(hilf1, PhiBlock_C, n+m, eye, n+m);
-    mpcinc_mtx_transpose(PhiBlock_C_T, PhiBlock_C, n+m, n+m);
+    cholesky(L_Phi+m*m, PhiBlock, n+m);
+    fwd_subst(hilf1, L_Phi+m*m, n+m, eye, n+m);
+    mpcinc_mtx_transpose(PhiBlock_C_T, L_Phi+m*m, n+m, n+m);
     bwd_subst(hilf2, PhiBlock_C_T, n+m, hilf1, n+m);
     getBlock(Q1, hilf2, n+m, 0, 0, n, n);
-    form_Y11(Y11, B, n, m, R0_C, Q1);
+    form_Y11(Y11, B, n, m, L_Phi, Q1);
     setBlock(Y, T*n, Y11, n, n, 0, 0);
     
     }
@@ -62,17 +59,17 @@ void form_Y(real_t Y[],
             last_hilf2[j] = hilf2[j];
         if (i == T-1){
             getBlock(Q_I, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n, n);
-            cholesky(Q_I_C, Q_I, n);
-            fwd_subst(hilf4, Q_I_C, n, eye2, n);
-            mpcinc_mtx_transpose(Q_I_C_T, Q_I_C, n, n);
+            cholesky(L_Phi+m*m+i*(n+m)*(n+m), Q_I, n);
+            fwd_subst(hilf4, L_Phi+m*m+i*(n+m)*(n+m), n, eye2, n);
+            mpcinc_mtx_transpose(Q_I_C_T, L_Phi+m*m+i*(n+m)*(n+m), n, n);
             bwd_subst(Q1, Q_I_C_T, n, hilf4, n);
             
             
         }else{
         getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n+m, n+m);
-        cholesky(PhiBlock_C, PhiBlock, n+m);
-        fwd_subst(hilf1, PhiBlock_C, n+m, eye, n+m);
-        mpcinc_mtx_transpose(PhiBlock_C_T, PhiBlock_C, n+m, n+m);
+        cholesky(L_Phi+m*m+i*(n+m)*(n+m), PhiBlock, n+m);
+        fwd_subst(hilf1, L_Phi+m*m+i*(n+m)*(n+m), n+m, eye, n+m);
+        mpcinc_mtx_transpose(PhiBlock_C_T, L_Phi+m*m+i*(n+m)*(n+m), n+m, n+m);
         bwd_subst(hilf2, PhiBlock_C_T, n+m, hilf1, n+m);
         getBlock(Q1, hilf2, n+m, 0, 0, n, n);
             
