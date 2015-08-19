@@ -9,9 +9,19 @@
 #define M 1
 #define T 3
 
+#test form_beta_test
+
+
 #test form_Y_test
     real_t A[] = {1., 2., 1., 2.};
-    real_t B[] = {-3., 1.};    
+    real_t B[] = {-3., 1.};
+    real_t C[] = {3., 1., 0., 0., 0., 0., 0., 0., 0.,
+                  -1., 0., 1., 0., 0., 0., 0., 0., 0.,
+                  0., -1., -2., 3., 1., 0., 0., 0., 0.,
+                  0., -1., -2., -1., 0., 1., 0., 0., 0.,
+                  0., 0., 0., 0., -1., -2., 3., 1., 0.,
+                  0., 0., 0., 0., -1., -2., -1., 0., 1.};
+    
     real_t Y[T*N*T*N] = {0., 0., 0., 0., 0., 0.,
                          0., 0., 0., 0., 0., 0.,
                          0., 0., 0., 0., 0., 0.,
@@ -30,6 +40,9 @@
                     
     real_t L_Phi_blocks[M*M + (T-1)*(N+M)*(N+M) + N*N]; /*blocks discribed in paper*/
     real_t L_Phi[T*(N+M)*T*(N+M)];
+    uint32_t g;
+    for(g = 0; g < T*(N+M)*T*(N+M); g++)
+        L_Phi[g] = 0;
     real_t L_Phi_ref[T*(N+M)*T*(N+M)];
                     
     real_t Y_ref[] = {271./108., -97/108., -5./27., 1./9., 0., 0.,
@@ -46,10 +59,19 @@
     setBlock(L_Phi, T*(N+M), L_Phi_blocks+M*M+1*(N+M)*(N+M), N+M, N+M, M+1*(N+M), M+1*(N+M));
     setBlock(L_Phi, T*(N+M), L_Phi_blocks+M*M+2*(N+M)*(N+M), N, N, M+2*(N+M), M+2*(N+M));
     
+    print_mtx(L_Phi, T*(N+M), T*(N+M));
+    
     cholesky(L_Phi_ref, Phi, T*(N+M));
     
     fail_unless(mtx_cmp(Y, Y_ref, 36, 1e-9) == 0, "form_Y failed");
     fail_unless(mtx_cmp(L_Phi, L_Phi_ref, T*(N+M)*T*(N+M), 0) == 0, "false L_Phi");
+    
+    real_t beta[T*N];
+    real_t rd[] = {1., 1., 1., 1., 1., 1., 1., 1., 1.};
+    real_t rp[] = {1., 1., 1., 1., 1., 1.};
+    form_beta(beta, L_Phi_blocks, rd, rp, T, C, N, M);
+    
+    print_mtx(beta, T*N, 1);
     
 #test form_Y11_test
     real_t sol[N*N];

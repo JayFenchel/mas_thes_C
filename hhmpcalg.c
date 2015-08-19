@@ -70,11 +70,17 @@ void form_beta(real_t beta[],
     real_t help2[T*(n+m)];
     real_t help3[T*n];
     
+    uint32_t g;
+    for(g = 0; g < T*(n+m)*T*(n+m); g++)
+        L_Phi[g] = 0;
+    
     /*Ohne Schleife klappt es so nur für T = 3*/
     setBlock(L_Phi, T*(n+m), L_Phi_blocks, m, m, 0, 0);
     setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m, n+m, n+m, m, m);
     setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m+1*(n+m)*(n+m), n+m, n+m, m+1*(n+m), m+1*(n+m));
     setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m+2*(n+m)*(n+m), n, n, m+2*(n+m), m+2*(n+m));
+    
+    print_mtx(L_Phi, T*(n+m), T*(n+m));
     
     mpcinc_mtx_transpose(L_Phi_T, L_Phi, T*(n+m), T*(n+m));
     fwd_subst(help1, L_Phi, T*(n+m), rd, 1);
