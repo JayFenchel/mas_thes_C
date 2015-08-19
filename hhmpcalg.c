@@ -1,6 +1,61 @@
 #include "include/hhmpcalg.h"
 
 
+void form_delta_z(real_t delta_z[],
+                  const real_t delta_v[],
+                  const real_t L_Phi_blocks[],
+                  const real_t rd[],
+                  const real_t C[],
+                  const uint32_t T, const uint32_t n, const uint32_t m)
+{
+    real_t C_T[T*n+m * T*n];
+    real_t help1[T*(n+m)];
+    real_t help2[T*(n+m)];
+    real_t L_Phi[T*(n+m)*T*(n+m)];
+    real_t L_Phi_T[T*(n+m)*T*(n+m)];
+    
+    mpcinc_mtx_transpose(C_T, C, T*n, T*(n+m));
+    mpcinc_mtx_multiply_mtx_vec(help1, C_T, delta_v, T*(n+m), T*n);
+    uint32_t i;
+    for (i = 0; i < T*n; i++)
+        help1[i] = -help1[i];
+    mpcinc_mtx_substract(help2, help1, rd, T*(n+m), 1);
+    
+    /*Ohne Schleife klappt es so nur für T = 3*/
+    setBlock(L_Phi, T*(n+m), L_Phi_blocks, m, m, 0, 0);
+    setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m, n+m, n+m, m, m);
+    setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m+1*(n+m)*(n+m), n+m, n+m, m+1*(n+m), m+1*(n+m));
+    setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m+2*(n+m)*(n+m), n, n, m+2*(n+m), m+2*(n+m));
+    
+    mpcinc_mtx_transpose(L_Phi_T, L_Phi, T*(n+m), T*(n+m));
+    fwd_subst(help1, L_Phi, T*(n+m), help2, 1);
+    bwd_subst(delta_z, L_Phi_T, T*(n+m), help1, 1);
+    
+    
+}
+
+
+void form_delta_v(real_t delta_v[],
+                  const real_t Y[],
+                  const real_t beta[],
+                  const uint32_t T, const uint32_t n)
+{
+    real_t L_Y[T*n*T*n];
+    real_t L_Y_T[T*n*T*n];
+    real_t help1[T*n];
+    real_t mbeta[T*n];
+    uint32_t i;
+    
+    for (i = 0; i < T*n; i++)
+        mbeta[i] = -beta[i];
+    
+    mpcinc_mtx_transpose(L_Y_T, L_Y, T*n, T*n);
+    cholesky(L_Y, Y, T*n);
+    fwd_subst(help1, L_Y, T*n, mbeta, 1);
+    bwd_subst(delta_v, L_Y_T, T*n, help1, 1);
+    
+}
+
 void form_beta(real_t beta[],
                const real_t L_Phi_blocks[],
                const real_t rd[], const real_t rp[],
