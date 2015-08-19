@@ -6,6 +6,14 @@
 #include "mpcincmtxops.h"
 #include "hhmpcusefull.h"
 
+
+void form_beta(real_t beta[],
+               const real_t mtxL_Phi[],
+               const real_t rd[], const real_t rp[],
+               const uint32_t horizon,
+               const real_t mtxA[], const uint32_t dimA,
+               /*const real_t mtxB[],*/ const uint32_t colsB);
+
 /*returns mtxL_Phi the cholesky factorization of Phi
  */
 void form_Y(real_t mtxY[], real_t mtxL_Phi[],
