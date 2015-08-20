@@ -48,8 +48,8 @@ void form_Yii(real_t solution[],
               const real_t Q[]);
 
 void form_Y_i_ip1(real_t solution[],
-                  const real_t A[], const uint32_t rowsA, const uint32_t colsA,
-                  const real_t B[], const uint32_t rowsB, const uint32_t colsB,
+                  const real_t A_T[], const uint32_t dimA,
+                  const real_t B_T[], const uint32_t rowsB_T,
                   const real_t Qi_C[]);
 
 void form_Y11(real_t solution[],

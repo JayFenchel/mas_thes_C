@@ -34,8 +34,8 @@
     real_t delta_z[T*(n+m)], delta_v[T*n];
     
     solve_sysofleq(delta_z, delta_v, Phi, rd, rp, C, A, B, n, m, T);
-    print_mtx(delta_z, T*(n+m), 1);
-    print_mtx(delta_v, T*n, 1);
+//     print_mtx(delta_z, T*(n+m), 1);
+//     print_mtx(delta_v, T*n, 1);
 
 #test form_Y_test2
     const uint32_t n = 5, m = 2;
@@ -627,11 +627,9 @@
 -24.835093488191738};
     
     solve_sysofleq(delta_z, delta_v, Phi, rd, rp, C, A, B, n, m, T);
-    print_mtx(delta_z, T*(n+m), 1);
-    print_mtx(delta_v, T*n, 1);
     
     fail_unless(mtx_cmp(delta_z, delta_z_ref, 21, 1e-7) == 0, "form_Y2 failed");
-    fail_unless(mtx_cmp(delta_z, delta_z_ref, 15, 1e-7) == 0, "form_Y2 failed");
+    fail_unless(mtx_cmp(delta_v, delta_v_ref, 15, 1e-6) == 0, "form_Y2 failed");
     
 #test form_Y_test
     real_t A[] = {1., 2., 1., 2.};
@@ -731,8 +729,8 @@
     fail_unless(mtx_cmp(delta_v, delta_v_ref, 6, 1e-9) == 0, "form_delta_v failed");
     fail_unless(mtx_cmp(delta_z, delta_z_ref, 9, 1e-10) == 0, "form_delta_z failed");
     
-    print_mtx(delta_z, T*(N+M), 1);
-    print_mtx(delta_v, T*N, 1);
+//     print_mtx(delta_z, T*(N+M), 1);
+//     print_mtx(delta_v, T*N, 1);
     
 #test form_Y11_test
     real_t sol[N*N];

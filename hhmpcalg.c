@@ -123,8 +123,11 @@ void form_Y(real_t Y[], real_t L_Phi[],
     real_t last_hilf2[(n+m)*(n+m)];
     real_t Q1[n*n];
     real_t Y11[n*n];
-    real_t eye[] = {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1};
-    real_t eye2[] = {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1};
+    real_t eye1[(n+m)*(n+m)];
+    real_t eye2[n*n];
+    eye(eye1, n+m);
+    eye(eye2, n);
+    
     real_t A_T[n*n];
     real_t B_T[m*n];
     
@@ -152,7 +155,7 @@ void form_Y(real_t Y[], real_t L_Phi[],
     cholesky(L_Phi, R0_I, m);
     getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n+m, n+m);
     cholesky(L_Phi+m*m, PhiBlock, n+m);
-    fwd_subst(hilf1, L_Phi+m*m, n+m, eye, n+m);
+    fwd_subst(hilf1, L_Phi+m*m, n+m, eye1, n+m);
     mpcinc_mtx_transpose(PhiBlock_C_T, L_Phi+m*m, n+m, n+m);
     bwd_subst(hilf2, PhiBlock_C_T, n+m, hilf1, n+m);
     getBlock(Q1, hilf2, n+m, 0, 0, n, n);
@@ -175,7 +178,7 @@ void form_Y(real_t Y[], real_t L_Phi[],
         }else{
         getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n+m, n+m);
         cholesky(L_Phi+m*m+i*(n+m)*(n+m), PhiBlock, n+m);
-        fwd_subst(hilf1, L_Phi+m*m+i*(n+m)*(n+m), n+m, eye, n+m);
+        fwd_subst(hilf1, L_Phi+m*m+i*(n+m)*(n+m), n+m, eye1, n+m);
         mpcinc_mtx_transpose(PhiBlock_C_T, L_Phi+m*m+i*(n+m)*(n+m), n+m, n+m);
         bwd_subst(hilf2, PhiBlock_C_T, n+m, hilf1, n+m);
         getBlock(Q1, hilf2, n+m, 0, 0, n, n);
@@ -188,7 +191,7 @@ void form_Y(real_t Y[], real_t L_Phi[],
     }
     
     if (i < T-1){
-        form_Y_i_ip1(Y11, A_T, n, n, B_T, m, n, hilf2);
+        form_Y_i_ip1(Y11, A_T, n, B_T, m, hilf2);
         setBlock(Y, T*n, Y11, n, n, i*n, (i+1)*n);
         real_t Y11_T[n*n];
         mpcinc_mtx_transpose(Y11_T, Y11, n, n);
@@ -213,21 +216,20 @@ void form_Yii(real_t solution[],
 }
 
 void form_Y_i_ip1(real_t sol[],
-                  const real_t A_T[], const uint32_t rowsA_T, const uint32_t colsA_T,
-                  const real_t B_T[], const uint32_t rowsB_T, const uint32_t colsB_T,
+                  const real_t A_T[], const uint32_t n,
+                  const real_t B_T[], const uint32_t m,
                   const real_t hilf2[])
 {
     uint32_t i;
-    real_t mA_T_B_T[colsA_T*(rowsA_T+rowsB_T)];
-    for (i = 0; i < colsA_T*rowsA_T; i++)
+    real_t mA_T_B_T[n*(n+m)];
+    for (i = 0; i < n*n; i++)
         mA_T_B_T[i] = -A_T[i];
-    for (i = 0; i < colsB_T*rowsB_T; i++)
-        mA_T_B_T[colsA_T*rowsA_T+i] = -B_T[i];
+    for (i = 0; i < n*m; i++)
+        mA_T_B_T[n*n+i] = -B_T[i];
     
-    mpcinc_mtx_multiply_mtx_mtx(sol, hilf2, mA_T_B_T, 7, 7, 5);
+    mpcinc_mtx_multiply_mtx_mtx(sol, hilf2, mA_T_B_T, n+m, n+m, n);
 
 }
-
 
 void form_Y11(real_t sol[],
               const real_t B[], const uint32_t n, const uint32_t m,
