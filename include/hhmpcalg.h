@@ -6,10 +6,10 @@
 #include "mpcincmtxops.h"
 #include "hhmpcusefull.h"
 
-void quad_func(real_t f[],
+void quad_func(real_t *f,
                const real_t x, const real_t y);
 
-void backtracking_line_search(real_t good_step[],
+void backtracking_line_search(real_t *good_step,
                               const real_t ponit[],
                               const real_t direction[]);
 

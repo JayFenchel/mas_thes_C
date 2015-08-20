@@ -1,36 +1,36 @@
 #include "include/hhmpcalg.h"
 
 
-void quad_func(real_t f[],
+void quad_func(real_t *f,
                const real_t x, const real_t y)
 {
-    f[0] = x*x + y*y;
+    *f = x*x + y*y;
 }
 
-void backtracking_line_search(real_t st_size[],
+void backtracking_line_search(real_t *st_size,
                               const real_t p[], const real_t dir[])
 {
     const real_t g_step = 1e-6;
     const real_t alpha = 0.4;
     const real_t beta = 0.6;
     
-    st_size[0] = 1.;
+    *st_size = 1.;
     
-    real_t f_p[1];
-    real_t f_p_g[1];
+    real_t f_p;
+    real_t f_p_g;
     real_t g_in_dir;
     
-    quad_func(f_p, p[0], p[1]);
-    quad_func(f_p_g, p[0] + g_step*dir[0], p[1] + g_step*dir[1]);
-    g_in_dir = f_p_g[0] - f_p[0];
+    quad_func(&f_p, p[0], p[1]);
+    quad_func(&f_p_g, p[0] + g_step*dir[0], p[1] + g_step*dir[1]);
+    g_in_dir = f_p_g - f_p;
     
-    quad_func(f_p_g, p[0] + st_size[0]*dir[0], p[1] + st_size[0]*dir[1]);
-    f_p[0] += alpha*st_size[0]*g_in_dir;
+    quad_func(&f_p_g, p[0] + *st_size*dir[0], p[1] + *st_size*dir[1]);
+    f_p += alpha**st_size*g_in_dir;
     
-    while (f_p_g[0] > f_p[0])
+    while (f_p_g > f_p)
     {
-        st_size[0] *= beta;
-        quad_func(f_p_g, p[0] + st_size[0]*dir[0], p[1] + st_size[0]*dir[1]);
+        *st_size *= beta;
+        quad_func(&f_p_g, p[0] + *st_size*dir[0], p[1] + *st_size*dir[1]);
     }
 }
 
