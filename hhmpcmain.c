@@ -44,6 +44,8 @@ int main(int argc, char *argv[]){
     printf("%f %f\n", sol[0], sol[1]);
     printf("%f\n", smpl_sqrt(2., 2.));
     cholesky(mtx2, mtx, dim);
+    eye(mtx, 3);
+    print_mtx(mtx, 3, 3);
     
     
     

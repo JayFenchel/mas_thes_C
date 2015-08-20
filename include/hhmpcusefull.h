@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "arithmetic.h"
 
+void eye(real_t mtx[], const uint32_t dimension);
 
 void zeroes(real_t mtx[], const uint32_t length);
 
