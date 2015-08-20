@@ -123,8 +123,8 @@ void form_Y(real_t Y[], real_t L_Phi[],
     real_t last_hilf2[(n+m)*(n+m)];
     real_t Q1[n*n];
     real_t Y11[n*n];
-    real_t eye[] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
-    real_t eye2[] = {1, 0, 0, 1};
+    real_t eye[] = {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1};
+    real_t eye2[] = {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1};
     real_t A_T[n*n];
     real_t B_T[m*n];
     
@@ -224,7 +224,7 @@ void form_Y_i_ip1(real_t sol[],
     for (i = 0; i < colsB_T*rowsB_T; i++)
         mA_T_B_T[colsA_T*rowsA_T+i] = -B_T[i];
     
-    mpcinc_mtx_multiply_mtx_mtx(sol, hilf2, mA_T_B_T, 3, 3, 2);
+    mpcinc_mtx_multiply_mtx_mtx(sol, hilf2, mA_T_B_T, 7, 7, 5);
 
 }
 
@@ -237,7 +237,7 @@ void form_Y11(real_t sol[],
     real_t BT[m*n]; /*TODO Speicher allozieren?*/
     real_t hilf1[m*n]; /*TODO Speicher allozieren?*/
     real_t hilf2[m*n]; /*TODO Speicher allozieren?*/
-    real_t R0_C_T[m+m];
+    real_t R0_C_T[m*m];
     real_t hilf3[n*n]; /*TODO Speicher allozieren?*/
     mpcinc_mtx_transpose(BT, B, n, m);
     fwd_subst(hilf1, R0_C, m, BT, n);
