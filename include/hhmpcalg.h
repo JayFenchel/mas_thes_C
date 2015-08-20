@@ -6,6 +6,13 @@
 #include "mpcincmtxops.h"
 #include "hhmpcusefull.h"
 
+void solve_sysofleq(real_t delta_z[], real_t delta_v[],
+                    const real_t Phi[],
+                    const real_t rd[], const real_t rp[],
+                    const real_t C[],
+                    const real_t A[],
+                    const real_t B[],
+                    const uint32_t dimA, const uint32_t colsB, const uint32_t horizon);
 
 void form_delta_z(real_t delta_z[],
                   const real_t delta_v[],
