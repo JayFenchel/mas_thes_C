@@ -1,10 +1,13 @@
 #include <stdio.h>
+
 #include "mpcinccvpdynmem.h"
+#include "hhmpcsocpdynmem.h"
 
 
 int main(void) {
     
     struct mpcinc_cvp *cvp = mpcinc_cvp_allocate_former();
+    struct hhmpc_socp *socp = hhmpc_socp_allocate_former();
     
     
     printf("ENDE\n");
