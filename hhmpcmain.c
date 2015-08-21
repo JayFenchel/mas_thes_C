@@ -1,54 +1,70 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "include/hhmpctestfunc.h"
-#include "include/hhmpcmath.h"
-#include "include/hhmpcalg.h"
-#include "include/hhmpcusefull.h"
+#include "mpcinccvpdynmem.h"
 
-#define PPP     printf("help\n")
 
-struct point makept(int x_koor, int y_koor);
-
-struct point{
-    int x;
-    int y;
-};
-
-struct point makept(int x, int y){
-    struct point temp;
-    temp.x = x;
-    temp.y = y;
-    return temp;
+int main(void) {
+    
+    struct mpcinc_cvp *cvp = mpcinc_cvp_allocate_former();
+    
+    
+    printf("ENDE\n");
+    return 0;
 }
 
-int main(int argc, char *argv[]){
-    
-    real_t mtx[] = {4., 2., 0., 2., 5., 2., 0., 2., 5.};
-    real_t mtx2[9];
-    uint32_t dim = 3;
-    
-    struct point pt = makept(2, 3), *pp;
-    pp = &pt;
-    printf("Hallo Lea am Punkt %d, %d\n", pp->y, pp->x);
-    real_t test_a[] = {2, 2, 3, 3}, test_b[] = {4, 4}; 
-    printf("%f\n", mtx_out(test_a, 2, 2, test_b));
-    real_t sol[2]; 
-    real_t tests_a[] = {2, 0, 3, 1}, tests_b[] = {4, 4}; 
-    fwd_subst(sol, tests_a, 2., tests_b, 1);
-    printf("%f %f\n", sol[0], sol[1]);
-    printf("%d\n", mtx_cmp(sol, tests_b, 2, 0));
-    
-    real_t testss_a[] = {4., 1., 0, 2}, testss_b[] = {4, 4}; 
-    bwd_subst(sol, testss_a, 2., testss_b, 1);
-    printf("%f %f\n", sol[0], sol[1]);
-    printf("%f\n", smpl_sqrt(2., 2.));
-    cholesky(mtx2, mtx, dim);
-    eye(mtx, 3);
-    print_mtx(mtx, 3, 3);
-    
-    
-    
+
+
+
+/*// #include <stdio.h>
+// #include <stdlib.h>
+// #include <string.h>
+// #include "include/hhmpctestfunc.h"
+// #include "include/hhmpcmath.h"
+// #include "include/hhmpcalg.h"
+// #include "include/hhmpcusefull.h"
+// 
+// #define PPP     printf("help\n")
+// 
+// struct point makept(int x_koor, int y_koor);
+// 
+// struct point{
+//     int x;
+//     int y;
+// };
+// 
+// struct point makept(int x, int y){
+//     struct point temp;
+//     temp.x = x;
+//     temp.y = y;
+//     return temp;
+// }
+// 
+// int main(int argc, char *argv[]){
+//     
+//     real_t mtx[] = {4., 2., 0., 2., 5., 2., 0., 2., 5.};
+//     real_t mtx2[9];
+//     uint32_t dim = 3;
+//     
+//     struct point pt = makept(2, 3), *pp;
+//     pp = &pt;
+//     printf("Hallo Lea am Punkt %d, %d\n", pp->y, pp->x);
+//     real_t test_a[] = {2, 2, 3, 3}, test_b[] = {4, 4}; 
+//     printf("%f\n", mtx_out(test_a, 2, 2, test_b));
+//     real_t sol[2]; 
+//     real_t tests_a[] = {2, 0, 3, 1}, tests_b[] = {4, 4}; 
+//     fwd_subst(sol, tests_a, 2., tests_b, 1);
+//     printf("%f %f\n", sol[0], sol[1]);
+//     printf("%d\n", mtx_cmp(sol, tests_b, 2, 0));
+//     
+//     real_t testss_a[] = {4., 1., 0, 2}, testss_b[] = {4, 4}; 
+//     bwd_subst(sol, testss_a, 2., testss_b, 1);
+//     printf("%f %f\n", sol[0], sol[1]);
+//     printf("%f\n", smpl_sqrt(2., 2.));
+//     cholesky(mtx2, mtx, dim);
+//     eye(mtx, 3);
+//     print_mtx(mtx, 3, 3);
+//     
+//     
+//     
 //    extern int c;
 //    int i, *p1, *p2, v[LEN];
 //    float *pc;
@@ -106,11 +122,12 @@ int main(int argc, char *argv[]){
 //    for (i = 0; i < LEN; ++i)
 //        printf("%d\n", c);
 //    PPP;
-    return 0;
-}
+//     return 0;
+// }
 
 
-// int main(/*int argc, char **argv*/) {
+// int main(/*int argc, char **argv*/
+//) {
 //     
 //     int c, d;
 //     long n[2];
@@ -137,4 +154,4 @@ int main(int argc, char *argv[]){
 //     printf("%ld", n[0]);
 //     return 0;
 // }
-
+//*/
