@@ -4,6 +4,7 @@
 #include "../include/hhmpcalg.h"
 #include "../include/hhmpcmath.h"
 #include "../include/hhmpcusefull.h"
+#include <stdlib.h>
 
 #define N 2
 #define M 1
@@ -17,12 +18,12 @@
     
     for (i = 0; i < 15; i++){
         backtracking_line_search(&step, point, dir);
-        printf("%f", step);
+        /*printf("%f", step);*/
         point[0] += step*dir[0];
         dir[0] *= -1;
         point[1] += step*dir[1];
         dir[1] *= -1;
-        print_mtx(point, 1, 2);
+        /*print_mtx(point, 1, 2);*/
     }
     
 #test form_Y_test3
@@ -47,8 +48,11 @@
     real_t rd[] = {1., 1., 1., 1., 1., 1., 1., 1., 1.};
     real_t rp[] = {1., 1., 1., 1., 1., 1.};
     
-    real_t delta_z[T*(n+m)], delta_v[T*n];
-    
+    real_t *delta_v = malloc(T*n*sizeof(real_t));
+    real_t *delta_z = malloc(T*(n+m)*sizeof(real_t));
+    /* TODO Fehler abfangen 
+     * if(delta_z == NULL)
+     */
     solve_sysofleq(delta_z, delta_v, Phi, rd, rp, C, A, B, n, m, T);
 //     print_mtx(delta_z, T*(n+m), 1);
 //     print_mtx(delta_v, T*n, 1);
@@ -604,7 +608,8 @@
 173.948409640000023, 
 -12.000000000000000};
     
-    real_t delta_z[T*(n+m)], delta_v[T*n];
+    real_t *delta_v = malloc(T*n*sizeof(real_t));
+    real_t *delta_z = malloc(T*(n+m)*sizeof(real_t));
     real_t delta_z_ref[] = {-13.997489150487263, 
 5.406972595368199, 
 4.776895838826961, 
@@ -646,6 +651,8 @@
     
     fail_unless(mtx_cmp(delta_z, delta_z_ref, 21, 1e-7) == 0, "form_Y2 failed");
     fail_unless(mtx_cmp(delta_v, delta_v_ref, 15, 1e-6) == 0, "form_Y2 failed");
+    free(delta_v);
+    free(delta_z);
     
 #test form_Y_test
     real_t A[] = {1., 2., 1., 2.};
