@@ -9,6 +9,10 @@ int main(void) {
     struct mpcinc_cvp *cvp = mpcinc_cvp_allocate_former();
     struct hhmpc_socp *socp = hhmpc_socp_allocate_former();
     
+    if (hhmpc_socp_setup_former(socp, "test01data.json")) {
+        return 0;
+    }
+    
     
     printf("ENDE\n");
     return 0;
