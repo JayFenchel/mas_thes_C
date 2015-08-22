@@ -53,6 +53,8 @@ hhmpc_dynmem_error_t hhmpc_socp_setup_former(struct hhmpc_socp *socp,
     return HHMPC_DYNMEM_OK;
 }
 
+/* Static function definitions */
+
 hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
 {
     hhmpc_get_json_term(socp->constant[HHMPC_Q_KL], data, "constant", "q");
