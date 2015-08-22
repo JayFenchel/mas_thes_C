@@ -28,5 +28,11 @@ struct hhmpc_ipm {
     real_t *tmp1_optvar_seqlen;  /* Temporary variable of length optvar_seqlen. */
 };
 
+/* External function declarations */
+
+extern void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm);
+
+extern void hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm);
+
 
 #endif /* HHMPCIPM_H */

@@ -25,6 +25,11 @@ int main(void) {
         return 0;
     }
     
+    ipm->conf->in_iter = 1;
+    
+    hhmpc_socp_form_problem(socp);
+    hhmpc_ipm_solve_problem(ipm);
+    
     printf("%f \n", socp->constant[HHMPC_R_KL]->data[0]);
     printf("ENDE\n");
     return 0;
