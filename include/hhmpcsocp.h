@@ -6,6 +6,7 @@
 
 /*Festlegen, was Parameter, Konstante oder parametrisch ist*/
 enum {
+        HHMPC_XK, /* State of the system. */
     
     HHMPC_PAR_NUM
 };
@@ -18,6 +19,9 @@ enum {
 };
 
 enum {
+    
+    HHMPC_B_KL,
+    HHMPC_H_KL,
     
     HHMPC_PMETRIC_NUM
 };
@@ -52,9 +56,9 @@ struct hhmpc_socp_prb {
 };
 
 struct hhmpc_socp {
-    /*struct hhmpc_term *par[HHMPC_PAR_NUM];*/
+    struct hhmpc_term *par[HHMPC_PAR_NUM];
     struct hhmpc_term *constant[HHMPC_CONST_NUM];
-    /*struct hhmpc_pmetric *pmetric[HHMPC_PMETRIC_NUM];*/
+    struct hhmpc_pmetric *pmetric[HHMPC_PMETRIC_NUM];
     struct hhmpc_socp_prb *prb;
 };
 

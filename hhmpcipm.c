@@ -19,7 +19,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     for (j = 0; j < *(ipm->j_in); j++) {
         /* Solve system of linear equations to obtain the step direction */
         /* Find best step size (0...1] */
-        /* Update z */
+        /* Update z and x_k*/
     }
 }
 
