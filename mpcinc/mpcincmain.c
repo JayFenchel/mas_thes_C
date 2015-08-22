@@ -15,7 +15,7 @@ if (mpcinc_cvp_setup_former(cvp, "data.json")) {
 if (mpcinc_fgm_setup_solver(fgm, cvp->prb, "data.json")) {
   return 0;
 }
-printf("MPCINC_X_K = %d\n", MPCINC_UR);
+
 cvp->par[MPCINC_X_K]->data[0] = 2.;
 cvp->par[MPCINC_X_K]->data[1] = 3.;
 cvp->par[MPCINC_XR]->data[0] = 5.;
