@@ -1,1 +1,1 @@
-{"constant": {"q": {"rows": 2, "data": [-100.0, -100.0], "cols": 1}, "r": {"rows": 2, "data": [-500.0, -100.0], "cols": 1}}}
+{"optvar": {"horizon": 2, "veclen": 1}, "constant": {"q": {"rows": 2, "data": [-100.0, -100.0], "cols": 1}, "r": {"rows": 2, "data": [-500.0, -100.0], "cols": 1}}, "kappa": 90}

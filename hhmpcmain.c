@@ -21,6 +21,9 @@ int main(void) {
     if (hhmpc_socp_setup_former(socp, "test01data.json")) {
         return 0;
     }
+    if (hhmpc_ipm_setup_solver(ipm, socp->prb, "test01data.json")) {
+        return 0;
+    }
     
     printf("%f \n", socp->constant[HHMPC_R_KL]->data[0]);
     printf("ENDE\n");
