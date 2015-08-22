@@ -1,7 +1,13 @@
 #include <stdio.h>
 
+#include "hhmpcsocp.h"
 #include "mpcinccvpdynmem.h"
 #include "hhmpcsocpdynmem.h"
+
+#include "mpcincfgm.h"
+#include "hhmpcipm.h"
+#include "mpcincfgmdynmem.h"
+#include "hhmpcipmdynmem.h"
 
 
 int main(void) {
@@ -9,11 +15,14 @@ int main(void) {
     struct mpcinc_cvp *cvp = mpcinc_cvp_allocate_former();
     struct hhmpc_socp *socp = hhmpc_socp_allocate_former();
     
+    struct mpcinc_fgm *fgm = mpcinc_fgm_allocate_solver();
+    struct hhmpc_ipm *ipm = hhmpc_ipm_allocate_solver();
+    
     if (hhmpc_socp_setup_former(socp, "test01data.json")) {
         return 0;
     }
     
-    
+    printf("%f \n", socp->constant[HHMPC_R_KL]->data[0]);
     printf("ENDE\n");
     return 0;
 }
