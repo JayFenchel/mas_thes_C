@@ -58,5 +58,7 @@ struct hhmpc_socp {
     struct hhmpc_socp_prb *prb;
 };
 
+extern void hhmpc_socp_form_problem(struct hhmpc_socp *socp);
+
 
 #endif /* HHMPCSOCP_H */
