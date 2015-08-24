@@ -26,6 +26,22 @@ int main(void) {
         return 0;
     }
     
+    ipm->z_ini[0] = 0.9;
+    ipm->z_ini[1] = 0.7;
+    ipm->z_ini[2] = 0.2;
+    ipm->z_ini[3] = 0.2;
+    ipm->z_ini[4] = 0.5;
+    ipm->z_ini[5] = 0.9;
+    ipm->z_ini[6] = 0.7;
+    ipm->z_ini[7] = 0.2;
+    ipm->z_ini[8] = 0.2;
+    ipm->z_ini[9] = 0.5;
+    ipm->z_ini[10] = 0.9;
+    ipm->z_ini[11] = 0.7;
+    ipm->z_ini[12] = 0.2;
+    ipm->z_ini[13] = 0.2;
+    ipm->z_ini[14] = 0.5;
+    
     ipm->conf->in_iter = 1;
     hhmpc_socp_form_problem(socp);
     hhmpc_ipm_solve_problem(ipm);

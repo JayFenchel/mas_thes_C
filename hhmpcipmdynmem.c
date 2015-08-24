@@ -59,6 +59,9 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     
     ipm->tmp1_optvar_seqlen = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
     if (NULL == ipm->tmp1_optvar_seqlen) {return HHMPC_DYNMEM_FAIL;}
+    
+    ipm->tmp2_optvar_dual = (real_t *)malloc(ipm->sizeof_optvar_dual);
+    if (NULL == ipm->tmp2_optvar_dual) {return HHMPC_DYNMEM_FAIL;}
 
     return HHMPC_DYNMEM_OK;
 }
