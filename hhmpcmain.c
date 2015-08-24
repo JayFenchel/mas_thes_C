@@ -1,14 +1,15 @@
 #include <stdio.h>
 
-#include "hhmpcsocp.h"
-#include "mpcinccvpdynmem.h"
-#include "hhmpcsocpdynmem.h"
+#include "include/hhmpcsocp.h"
+#include "include/mpcinccvpdynmem.h"
+#include "include/hhmpcsocpdynmem.h"
 
-#include "mpcincfgm.h"
-#include "hhmpcipm.h"
-#include "mpcincfgmdynmem.h"
-#include "hhmpcipmdynmem.h"
+#include "include/mpcincfgm.h"
+#include "include/hhmpcipm.h"
+#include "include/mpcincfgmdynmem.h"
+#include "include/hhmpcipmdynmem.h"
 
+#include "include/hhmpcusefull.h"
 
 int main(void) {
     
@@ -26,8 +27,11 @@ int main(void) {
     }
     
     ipm->conf->in_iter = 1;
-    
+    print_mtx(socp->pmetric[HHMPC_B_KL]->val->data, 9, 1);
+    print_mtx(socp->pmetric[HHMPC_H_KL]->val->data, 36, 1);
     hhmpc_socp_form_problem(socp);
+    print_mtx(socp->pmetric[HHMPC_B_KL]->val->data, 9, 1);
+    print_mtx(socp->pmetric[HHMPC_H_KL]->val->data, 36, 1);
     hhmpc_ipm_solve_problem(ipm);
     
     printf("%f \n", socp->constant[HHMPC_R_KL]->data[0]);
