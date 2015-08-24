@@ -14,6 +14,7 @@ enum {
 enum {
         HHMPC_Q_KL,
         HHMPC_R_KL,
+        HHMPC_C,
         
     HHMPC_CONST_NUM
 };
@@ -51,8 +52,11 @@ struct hhmpc_socp_prb {
     struct hhmpc_term *u_lb;
     struct hhmpc_term *u_ub;
     /*eigene*/
+    struct hhmpc_term *b;
+    struct hhmpc_term *h;    
     struct hhmpc_term *q;
     struct hhmpc_term *r;
+    struct hhmpc_term *C;
 };
 
 struct hhmpc_socp {

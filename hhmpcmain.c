@@ -27,11 +27,7 @@ int main(void) {
     }
     
     ipm->conf->in_iter = 1;
-    print_mtx(socp->pmetric[HHMPC_B_KL]->val->data, 9, 1);
-    print_mtx(socp->pmetric[HHMPC_H_KL]->val->data, 36, 1);
     hhmpc_socp_form_problem(socp);
-    print_mtx(socp->pmetric[HHMPC_B_KL]->val->data, 9, 1);
-    print_mtx(socp->pmetric[HHMPC_H_KL]->val->data, 36, 1);
     hhmpc_ipm_solve_problem(ipm);
     
     printf("%f \n", socp->constant[HHMPC_R_KL]->data[0]);

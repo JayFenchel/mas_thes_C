@@ -16,6 +16,13 @@ struct hhmpc_ipm {
     real_t *z_ini;  /* Initial guess for the optimal control sequence. */
     real_t *q;
     real_t *r;
+    real_t *C;
+    
+    real_t *b;
+    real_t *h;
+    
+    real_t *r_p;
+    real_t *r_d;
     
     uint32_t *j_in;
     
@@ -23,6 +30,9 @@ struct hhmpc_ipm {
     uint32_t horizon; /* Prediction horizon. */
     uint32_t optvar_veclen;  /* The length of each vector in the optimation variable sequence. */
     uint32_t optvar_seqlen;  /* The full length of optimization variable sequence. */
+    uint32_t dim_state;
+    uint32_t optvar_dual;
+    uint32_t sizeof_optvar_dual;
     uint32_t sizeof_optvar_seqlen;  /* Number of bytes in the optimization variable sequence. */
     
     real_t *tmp1_optvar_seqlen;  /* Temporary variable of length optvar_seqlen. */

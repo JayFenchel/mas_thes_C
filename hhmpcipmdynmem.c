@@ -36,11 +36,16 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ret = hhmpc_ipm_parse_elements(ipm, data);
     if (HHMPC_DYNMEM_OK != ret) {return ret;}
     
+    ipm->b = prb->b->data;
+    ipm->h = prb->h->data;
     ipm->q = prb->q->data;
     ipm->r = prb->r->data;
+    ipm->C = prb->C->data;
     
-    ipm->optvar_seqlen = ipm->optvar_veclen*ipm->horizon;
+    ipm->optvar_seqlen = ipm->optvar_veclen * ipm->horizon;
+    ipm->optvar_dual = ipm->dim_state * ipm->horizon;
     ipm->sizeof_optvar_seqlen = sizeof(real_t) * ipm->optvar_seqlen;
+    ipm->sizeof_optvar_dual = sizeof(real_t) * ipm->optvar_dual;
     
     ipm->j_in = &(ipm->conf->in_iter);
     
@@ -48,6 +53,9 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     if (NULL == ipm->z_ini) {return HHMPC_DYNMEM_FAIL;}
     ipm->z_opt = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
     if (NULL == ipm->z_opt) {return HHMPC_DYNMEM_FAIL;}
+    
+    ipm->r_p = (real_t *)malloc(ipm->sizeof_optvar_dual);
+    if (NULL == ipm->r_p) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->tmp1_optvar_seqlen = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
     if (NULL == ipm->tmp1_optvar_seqlen) {return HHMPC_DYNMEM_FAIL;}
@@ -59,7 +67,7 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
 
 hhmpc_dynmem_error_t hhmpc_ipm_parse_elements(struct hhmpc_ipm *ipm, cJSON *data)
 {
-    cJSON *kappa, *optvar, *veclen, *horizon;
+    cJSON *kappa, *optvar, *veclen, *horizon, *dim_state;
     
     kappa = cJSON_GetObjectItem(data, "kappa");
     if (NULL == kappa) {
@@ -86,6 +94,13 @@ hhmpc_dynmem_error_t hhmpc_ipm_parse_elements(struct hhmpc_ipm *ipm, cJSON *data
         return HHMPC_DYNMEM_FAIL;
     }
     ipm->horizon = (uint32_t)horizon->valueint;
+    
+    dim_state = cJSON_GetObjectItem(optvar, "dim_state");
+    if (NULL == dim_state) {
+        printf("ERROR: could not parse item %s \n", "dim_state");
+        return HHMPC_DYNMEM_FAIL;
+    }
+    ipm->dim_state = (uint32_t)dim_state->valueint;
     
     return HHMPC_DYNMEM_OK;
 }
