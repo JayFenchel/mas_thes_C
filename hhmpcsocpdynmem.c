@@ -53,7 +53,35 @@ struct hhmpc_socp *hhmpc_socp_allocate_former(void)
         socp->pmetric[i]->fac0 = (struct hhmpc_term*)malloc(sizeof(struct hhmpc_term));
         if (NULL == socp->pmetric[i]->fac0) {return NULL;}
     }
-    /* TODO Hier weiter machen*/
+    
+    /* pmetric B_KL allocieren und mit richtigem par verknüpfen*/
+    socp->pmetric[HHMPC_B_KL]->fac_num[0] = 1;
+    socp->pmetric[HHMPC_B_KL]->fac =
+            (struct hhmpc_term**)calloc(1, sizeof(struct hhmpc_term*));
+    if (NULL == socp->pmetric[HHMPC_B_KL]->fac) {return NULL;}
+    socp->pmetric[HHMPC_B_KL]->par =
+            (struct hhmpc_term**)calloc(1, sizeof(struct hhmpc_term*));
+    if (NULL == socp->pmetric[HHMPC_B_KL]->par) {return NULL;}
+    t = (struct hhmpc_term*)calloc(1, sizeof(struct hhmpc_term));
+    if (NULL == t) {return NULL;}
+    
+    socp->pmetric[HHMPC_B_KL]->fac[0] = &t[0];
+    socp->pmetric[HHMPC_B_KL]->par[0] = socp->par[HHMPC_XK];
+    
+    /* pmetric H_KL allocieren und mit richtigem par verknüpfen*/
+    socp->pmetric[HHMPC_H_KL]->fac_num[0] = 1;
+    socp->pmetric[HHMPC_H_KL]->fac =
+            (struct hhmpc_term**)calloc(1, sizeof(struct hhmpc_term*));
+    if (NULL == socp->pmetric[HHMPC_H_KL]->fac) {return NULL;}
+    socp->pmetric[HHMPC_H_KL]->par =
+            (struct hhmpc_term**)calloc(1, sizeof(struct hhmpc_term*));
+    if (NULL == socp->pmetric[HHMPC_H_KL]->par) {return NULL;}
+    t = (struct hhmpc_term*)calloc(1, sizeof(struct hhmpc_term));
+    if (NULL == t) {return NULL;}
+    
+    socp->pmetric[HHMPC_H_KL]->fac[0] = &t[0];
+    socp->pmetric[HHMPC_H_KL]->par[0] = socp->par[HHMPC_XK];
+    
     
     /* the evaluated problem itself */
     socp->prb = (struct hhmpc_socp_prb*)malloc(sizeof(struct hhmpc_socp_prb));
@@ -81,6 +109,7 @@ hhmpc_dynmem_error_t hhmpc_socp_setup_former(struct hhmpc_socp *socp,
 
 hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
 {
+    hhmpc_get_json_term(socp->par[HHMPC_XK], data, "par", "xk");
     hhmpc_get_json_term(socp->constant[HHMPC_Q_KL], data, "constant", "q");
     hhmpc_get_json_term(socp->constant[HHMPC_R_KL], data, "constant", "r");
     
