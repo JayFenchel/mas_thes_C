@@ -126,10 +126,10 @@ hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
     hhmpc_get_json_sub_term(socp->pmetric[HHMPC_B_KL]->aux, data, "pmetric", "b", "aux");
     hhmpc_get_json_fac_term(socp->pmetric[HHMPC_B_KL]->fac[0], data, "pmetric", "b", 0);
     
-    hhmpc_get_json_sub_term(socp->pmetric[HHMPC_H_KL]->val, data, "pmetric", "b", "val");
-    hhmpc_get_json_sub_term(socp->pmetric[HHMPC_H_KL]->fac0, data, "pmetric", "b", "fac0");
-    hhmpc_get_json_sub_term(socp->pmetric[HHMPC_H_KL]->aux, data, "pmetric", "b", "aux");
-    hhmpc_get_json_fac_term(socp->pmetric[HHMPC_H_KL]->fac[0], data, "pmetric", "b", 0);
+    hhmpc_get_json_sub_term(socp->pmetric[HHMPC_H_KL]->val, data, "pmetric", "h", "val");
+    hhmpc_get_json_sub_term(socp->pmetric[HHMPC_H_KL]->fac0, data, "pmetric", "h", "fac0");
+    hhmpc_get_json_sub_term(socp->pmetric[HHMPC_H_KL]->aux, data, "pmetric", "h", "aux");
+    hhmpc_get_json_fac_term(socp->pmetric[HHMPC_H_KL]->fac[0], data, "pmetric", "h", 0);
     
     hhmpc_get_json_term(socp->constant[HHMPC_Q_KL], data, "constant", "q");
     hhmpc_get_json_term(socp->constant[HHMPC_R_KL], data, "constant", "r");
