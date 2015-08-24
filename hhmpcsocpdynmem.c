@@ -9,6 +9,16 @@ static hhmpc_dynmem_error_t hhmpc_get_json_term(struct hhmpc_term *term,
                                                 cJSON *data,
                                                 char *jname,
                                                 char *term_name);
+static hhmpc_dynmem_error_t hhmpc_get_json_sub_term(struct hhmpc_term *term,
+                                                    cJSON *data,
+                                                    char *jname,
+                                                    char *term_name,
+                                                    char *sub_name);
+static hhmpc_dynmem_error_t hhmpc_get_json_fac_term(struct hhmpc_term *term,
+                                                    cJSON *data,
+                                                    char *jname,
+                                                    char *list_name,
+                                                    int fac_pos);
 static hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp,
                                                  cJSON *data);
 static hhmpc_dynmem_error_t hhmpc_get_json_term_items(struct hhmpc_term *term,
@@ -134,6 +144,65 @@ hhmpc_dynmem_error_t hhmpc_get_json_term (struct hhmpc_term *term, cJSON *data,
 
     return HHMPC_DYNMEM_OK;
 }
+
+hhmpc_dynmem_error_t hhmpc_get_json_sub_term(struct hhmpc_term *term,
+                                             cJSON *data, char *jname,
+                                             char *term_name, char *sub_name)
+{
+    hhmpc_dynmem_error_t ret;
+    cJSON *jobj = cJSON_GetObjectItem(data, jname);
+    if (NULL == jobj) {
+        printf("ERROR: could not get item %s \n", jname);
+        return HHMPC_DYNMEM_FAIL;
+    }
+    cJSON *jpmetric = cJSON_GetObjectItem(jobj, term_name);
+    if (NULL == jpmetric) {
+        printf("ERROR: could not get item %s \n", term_name);
+        return HHMPC_DYNMEM_FAIL;
+    }
+    cJSON *jterm = cJSON_GetObjectItem(jpmetric, sub_name);
+    if (NULL == jterm) {
+        printf("ERROR: could not get item %s \n", sub_name);
+        return HHMPC_DYNMEM_FAIL;
+    }
+    ret = hhmpc_get_json_term_items(term, jterm);
+    if (HHMPC_DYNMEM_OK != ret) {return ret;}
+    
+    return HHMPC_DYNMEM_OK;
+}
+
+hhmpc_dynmem_error_t hhmpc_get_json_fac_term(struct hhmpc_term *term,
+                                             cJSON *data, char *jname,
+                                             char *list_name, int fac_pos)
+{
+    hhmpc_dynmem_error_t ret;
+    cJSON *jobj = cJSON_GetObjectItem(data, jname);
+    if (NULL == jobj) {
+        printf("ERROR: could not get item %s \n", jname);
+        return HHMPC_DYNMEM_FAIL;
+    }
+    cJSON *jpmetric = cJSON_GetObjectItem(jobj, list_name);
+    if (NULL == jpmetric) {
+        printf("ERROR: could not get item %s \n", list_name);
+        return HHMPC_DYNMEM_FAIL;
+    }
+    cJSON *jfac_list = cJSON_GetObjectItem(jpmetric, "fac");
+    if (NULL == jfac_list) {
+        printf("ERROR: could not get item %s \n", "fac");
+        return HHMPC_DYNMEM_FAIL;
+    }
+    cJSON *jfac = cJSON_GetArrayItem(jfac_list, fac_pos);
+    if (NULL == jfac) {
+        printf("ERROR: could not get array item in position %d \n", fac_pos);
+        return HHMPC_DYNMEM_FAIL;
+    }
+    
+    ret = hhmpc_get_json_term_items(term, jfac);
+    if (HHMPC_DYNMEM_OK != ret) {return ret;}
+
+    return HHMPC_DYNMEM_OK;
+}
+
 
 hhmpc_dynmem_error_t hhmpc_get_json_term_items(struct hhmpc_term *term,
                                                cJSON *jobj)
