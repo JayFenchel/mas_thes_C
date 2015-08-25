@@ -42,6 +42,8 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->g = prb->g->data;
     ipm->C = prb->C->data;
     ipm->P = prb->P->data;
+    ipm->H = prb->H->data;
+    
     
     ipm->optvar_seqlen = ipm->optvar_veclen * ipm->horizon;
     ipm->dual_seqlen = ipm->state_veclen * ipm->horizon;
