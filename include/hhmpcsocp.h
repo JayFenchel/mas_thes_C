@@ -19,6 +19,7 @@ enum {
         HHMPC_S,
         HHMPC_S_T,
         
+        HHMPC_P,
         HHMPC_C,
         
     HHMPC_CONST_NUM
@@ -63,6 +64,7 @@ struct hhmpc_socp_prb {
     struct hhmpc_term *S_T;
     
     struct hhmpc_term *C;
+    struct hhmpc_term *P;
     struct hhmpc_term *b;
     
     struct hhmpc_term *h;
