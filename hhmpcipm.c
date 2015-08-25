@@ -23,7 +23,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     for (j = 0; j < *(ipm->j_in); j++) {
         /* Calculate the residual */
         res_primal(ipm);
-        print_mtx(ipm->r_p, ipm->optvar_dual, 1);
+        print_mtx(ipm->r_p, ipm->dual_seqlen, 1);
         /* Solve system of linear equations to obtain the step direction */
         /* Find best step size (0...1] */
         /* Update z */
@@ -36,11 +36,11 @@ void hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm)
     /* TODO Über return FEHLER nachdenken, falls check_valid fehlschlägt.*/
 }
 
-void res_primal(struct hhmpc_ipm *ipm)
+void residual(struct hhmpc_ipm *ipm)
 {
-    print_mtx(ipm->z_ini, ipm->optvar_seqlen, 1);
-    real_t *help = ipm->tmp2_optvar_dual;
-    mpcinc_mtx_scale(ipm->r_p, ipm->b, -1, ipm->optvar_dual, 1);
+    /*print_mtx(ipm->z_ini, ipm->optvar_seqlen, 1);*/
+    real_t *help = ipm->tmp2_dual_seqlen;
+    mpcinc_mtx_scale(ipm->r_p, ipm->b, -1, ipm->dual_seqlen, 1);
     mpcinc_mtx_mul_add(ipm->r_p, help, ipm->C, ipm->z_opt,
-                       ipm->optvar_dual, ipm->optvar_seqlen);
+                       ipm->dual_seqlen, ipm->optvar_seqlen);
 }

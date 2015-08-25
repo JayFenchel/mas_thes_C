@@ -30,13 +30,13 @@ struct hhmpc_ipm {
     uint32_t horizon; /* Prediction horizon. */
     uint32_t optvar_veclen;  /* The length of each vector in the optimation variable sequence. */
     uint32_t optvar_seqlen;  /* The full length of optimization variable sequence. */
-    uint32_t dim_state;
-    uint32_t optvar_dual;
-    uint32_t sizeof_optvar_dual;
+    uint32_t state_veclen;  /* Dimension of state variable x_k. */
+    uint32_t dual_seqlen;  /* Full length of dual variable v associated with the eq constr. */
+    uint32_t sizeof_dual_seqlen;
     uint32_t sizeof_optvar_seqlen;  /* Number of bytes in the optimization variable sequence. */
     
     real_t *tmp1_optvar_seqlen;  /* Temporary variable of length optvar_seqlen. */
-    real_t *tmp2_optvar_dual;  /* Temporary variable of length optvar_seqlen. */
+    real_t *tmp2_dual_seqlen;  /* Temporary variable of length optvar_seqlen. */
 };
 
 /* External function declarations */

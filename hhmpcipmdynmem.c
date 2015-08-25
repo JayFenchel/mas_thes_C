@@ -43,9 +43,9 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->C = prb->C->data;
     
     ipm->optvar_seqlen = ipm->optvar_veclen * ipm->horizon;
-    ipm->optvar_dual = ipm->dim_state * ipm->horizon;
+    ipm->dual_seqlen = ipm->state_veclen * ipm->horizon;
     ipm->sizeof_optvar_seqlen = sizeof(real_t) * ipm->optvar_seqlen;
-    ipm->sizeof_optvar_dual = sizeof(real_t) * ipm->optvar_dual;
+    ipm->sizeof_dual_seqlen = sizeof(real_t) * ipm->dual_seqlen;
     
     ipm->j_in = &(ipm->conf->in_iter);
     
@@ -54,14 +54,14 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->z_opt = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
     if (NULL == ipm->z_opt) {return HHMPC_DYNMEM_FAIL;}
     
-    ipm->r_p = (real_t *)malloc(ipm->sizeof_optvar_dual);
+    ipm->r_p = (real_t *)malloc(ipm->sizeof_dual_seqlen);
     if (NULL == ipm->r_p) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->tmp1_optvar_seqlen = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
     if (NULL == ipm->tmp1_optvar_seqlen) {return HHMPC_DYNMEM_FAIL;}
     
-    ipm->tmp2_optvar_dual = (real_t *)malloc(ipm->sizeof_optvar_dual);
-    if (NULL == ipm->tmp2_optvar_dual) {return HHMPC_DYNMEM_FAIL;}
+    ipm->tmp2_dual_seqlen = (real_t *)malloc(ipm->sizeof_dual_seqlen);
+    if (NULL == ipm->tmp2_dual_seqlen) {return HHMPC_DYNMEM_FAIL;}
 
     return HHMPC_DYNMEM_OK;
 }
@@ -70,7 +70,7 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
 
 hhmpc_dynmem_error_t hhmpc_ipm_parse_elements(struct hhmpc_ipm *ipm, cJSON *data)
 {
-    cJSON *kappa, *optvar, *veclen, *horizon, *dim_state;
+    cJSON *kappa, *optvar, *veclen, *horizon, *state_veclen;
     
     kappa = cJSON_GetObjectItem(data, "kappa");
     if (NULL == kappa) {
@@ -98,12 +98,12 @@ hhmpc_dynmem_error_t hhmpc_ipm_parse_elements(struct hhmpc_ipm *ipm, cJSON *data
     }
     ipm->horizon = (uint32_t)horizon->valueint;
     
-    dim_state = cJSON_GetObjectItem(optvar, "dim_state");
-    if (NULL == dim_state) {
-        printf("ERROR: could not parse item %s \n", "dim_state");
+    state_veclen = cJSON_GetObjectItem(optvar, "state_veclen");
+    if (NULL == state_veclen) {
+        printf("ERROR: could not parse item %s \n", "state_veclen");
         return HHMPC_DYNMEM_FAIL;
     }
-    ipm->dim_state = (uint32_t)dim_state->valueint;
+    ipm->state_veclen = (uint32_t)state_veclen->valueint;
     
     return HHMPC_DYNMEM_OK;
 }
