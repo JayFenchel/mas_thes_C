@@ -118,6 +118,8 @@ struct hhmpc_socp *hhmpc_socp_allocate_former(void)
         socp->prb->r = socp->constant[HHMPC_R_KL];
         socp->prb->S = socp->constant[HHMPC_S];
         socp->prb->S_T = socp->constant[HHMPC_S_T];
+        socp->prb->A = socp->constant[HHMPC_A];
+        socp->prb->B = socp->constant[HHMPC_B];
         socp->prb->C = socp->constant[HHMPC_C];
         socp->prb->P = socp->constant[HHMPC_P];
         socp->prb->H = socp->constant[HHMPC_H];
@@ -184,6 +186,8 @@ hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
     hhmpc_get_json_term(socp->constant[HHMPC_Q_KL], data, "constant", "q");
     hhmpc_get_json_term(socp->constant[HHMPC_R_KL], data, "constant", "r");
     hhmpc_get_json_term(socp->constant[HHMPC_S], data, "constant", "S");
+    hhmpc_get_json_term(socp->constant[HHMPC_A], data, "constant", "A");
+    hhmpc_get_json_term(socp->constant[HHMPC_B], data, "constant", "B");
     hhmpc_get_json_term(socp->constant[HHMPC_C], data, "constant", "C");
     hhmpc_get_json_term(socp->constant[HHMPC_P], data, "constant", "P");
     hhmpc_get_json_term(socp->constant[HHMPC_H], data, "constant", "H");

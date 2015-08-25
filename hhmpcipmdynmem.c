@@ -40,6 +40,8 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->b = prb->b->data;
     ipm->h = prb->h->data;
     ipm->g = prb->g->data;
+    ipm->A = prb->A->data;
+    ipm->B = prb->B->data;
     ipm->C = prb->C->data;
     ipm->P = prb->P->data;
     ipm->H = prb->H->data;
