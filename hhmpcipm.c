@@ -6,7 +6,7 @@
 #include <hhmpcusefull.h>
 /* static functions declaration */
 
-static void res_primal(struct hhmpc_ipm *ipm);
+static void residual(const struct hhmpc_ipm *ipm);
 
 /* external functions definition */
 
@@ -22,7 +22,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     /*Improve z for a fixed number of steps j_in*/
     for (j = 0; j < *(ipm->j_in); j++) {
         /* Calculate the residual */
-        res_primal(ipm);
+        residual(ipm);
         print_mtx(ipm->r_p, ipm->dual_seqlen, 1);
         /* Solve system of linear equations to obtain the step direction */
         /* Find best step size (0...1] */
@@ -36,7 +36,7 @@ void hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm)
     /* TODO Über return FEHLER nachdenken, falls check_valid fehlschlägt.*/
 }
 
-void residual(struct hhmpc_ipm *ipm)
+void residual(const struct hhmpc_ipm *ipm)
 {
     /*print_mtx(ipm->z_ini, ipm->optvar_seqlen, 1);*/
     real_t *help = ipm->tmp2_dual_seqlen;
