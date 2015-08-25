@@ -16,7 +16,10 @@ struct hhmpc_ipm {
     real_t *z_ini;  /* Initial guess for the optimal control sequence. */
     real_t *q;
     real_t *r;
+    real_t *g;
     real_t *C;
+    real_t *H;
+    real_t *P;
     
     real_t *b;
     real_t *h;
