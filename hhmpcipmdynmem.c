@@ -70,6 +70,9 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->d = (real_t *)malloc(sizeof(real_t) * prb->h->rows);
     if (NULL == ipm->d) {return HHMPC_DYNMEM_FAIL;}
     
+    ipm->diag_d_sq = (real_t *)malloc(sizeof(real_t) * prb->h->rows*prb->h->rows);
+    if (NULL == ipm->diag_d_sq) {return HHMPC_DYNMEM_FAIL;}
+    
     ipm->Phi = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
     if (NULL == ipm->Phi) {return HHMPC_DYNMEM_FAIL;}
     
@@ -93,8 +96,8 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->tmp2_dual_seqlen = (real_t *)malloc(ipm->sizeof_dual_seqlen);
     if (NULL == ipm->tmp2_dual_seqlen) {return HHMPC_DYNMEM_FAIL;}
     
-    ipm->tmp3_mtx_optvar_seqlen = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
-    if (NULL == ipm->tmp3_mtx_optvar_seqlen) {return HHMPC_DYNMEM_FAIL;}
+    ipm->tmp3_mtx_optvar_nb_of_ueq = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->nb_of_ueq_constr);
+    if (NULL == ipm->tmp3_mtx_optvar_nb_of_ueq) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->tmp4_nb_of_constr = (real_t *)malloc(sizeof(real_t) * ipm->nb_of_ueq_constr);
     if (NULL == ipm->tmp4_nb_of_constr) {return HHMPC_DYNMEM_FAIL;}

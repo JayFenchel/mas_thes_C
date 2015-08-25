@@ -31,6 +31,7 @@ struct hhmpc_ipm {
     real_t *h;
     
     real_t *d;
+    real_t *diag_d_sq;
     real_t *Phi;
     real_t *r_p;
     real_t *r_d;
@@ -49,7 +50,7 @@ struct hhmpc_ipm {
     
     real_t *tmp1_optvar_seqlen;  /* Temporary variable of length optvar_seqlen. */
     real_t *tmp2_dual_seqlen;  /* Temporary variable of length optvar_seqlen. */
-    real_t *tmp3_mtx_optvar_seqlen;
+    real_t *tmp3_mtx_optvar_nb_of_ueq;
     real_t *tmp4_nb_of_constr;
     real_t *tmp5_nb_of_constr;
 };
