@@ -55,12 +55,24 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->z_opt = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
     if (NULL == ipm->z_opt) {return HHMPC_DYNMEM_FAIL;}
     
+    ipm->v_ini = (real_t *)malloc(ipm->sizeof_dual_seqlen);
+    if (NULL == ipm->v_ini) {return HHMPC_DYNMEM_FAIL;}
+    ipm->v_opt = (real_t *)malloc(ipm->sizeof_dual_seqlen);
+    if (NULL == ipm->v_opt) {return HHMPC_DYNMEM_FAIL;}
+    
     ipm->d = (real_t *)malloc(sizeof(real_t) * prb->h->rows);
     if (NULL == ipm->d) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->P_T = (real_t *)malloc(sizeof(real_t) * prb->P->rows*prb->P->cols);
     if (NULL == ipm->P_T) {return HHMPC_DYNMEM_FAIL;}
     mpcinc_mtx_transpose(ipm->P_T, ipm->P, prb->P->rows, prb->P->cols);
+    
+    ipm->C_T = (real_t *)malloc(sizeof(real_t) * prb->C->rows*prb->C->cols);
+    if (NULL == ipm->C_T) {return HHMPC_DYNMEM_FAIL;}
+    mpcinc_mtx_transpose(ipm->C_T, ipm->C, prb->C->rows, prb->C->cols);
+    
+    ipm->r_d = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
+    if (NULL == ipm->r_d) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->r_p = (real_t *)malloc(ipm->sizeof_dual_seqlen);
     if (NULL == ipm->r_p) {return HHMPC_DYNMEM_FAIL;}

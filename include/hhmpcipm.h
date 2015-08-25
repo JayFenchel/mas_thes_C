@@ -14,10 +14,13 @@ struct hhmpc_ipm {
     struct hhmpc_ipm_conf *conf;  /* Algorithm configuration data. */
     real_t *z_opt;  /* Solution to the optimal control problem. */
     real_t *z_ini;  /* Initial guess for the optimal control sequence. */
+    real_t *v_ini;
+    real_t *v_opt;
     real_t *q;
     real_t *r;
     real_t *g;
     real_t *C;
+    real_t *C_T;
     real_t *H;
     real_t *P;
     real_t *P_T;
