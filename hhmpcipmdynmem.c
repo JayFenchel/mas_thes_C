@@ -4,6 +4,7 @@
 #include "mc04types.h"
 #include "include/cjson.h"
 #include "include/hhmpcipmdynmem.h"
+#include "include/mpcincmtxops.h"
 
 /* Static functions declarations */
 hhmpc_dynmem_error_t hhmpc_ipm_parse_elements(struct hhmpc_ipm *ipm, cJSON *data);
@@ -56,6 +57,10 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     
     ipm->d = (real_t *)malloc(sizeof(real_t) * prb->h->rows);
     if (NULL == ipm->d) {return HHMPC_DYNMEM_FAIL;}
+    
+    ipm->P_T = (real_t *)malloc(sizeof(real_t) * prb->P->rows*prb->P->cols);
+    if (NULL == ipm->P_T) {return HHMPC_DYNMEM_FAIL;}
+    mpcinc_mtx_transpose(ipm->P_T, ipm->P, prb->P->rows, prb->P->cols);
     
     ipm->r_p = (real_t *)malloc(ipm->sizeof_dual_seqlen);
     if (NULL == ipm->r_p) {return HHMPC_DYNMEM_FAIL;}
