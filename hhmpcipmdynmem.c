@@ -53,6 +53,9 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->z_opt = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
     if (NULL == ipm->z_opt) {return HHMPC_DYNMEM_FAIL;}
     
+    ipm->d = (real_t *)malloc(sizeof(real_t) * prb->h->rows);
+    if (NULL == ipm->d) {return HHMPC_DYNMEM_FAIL;}
+    
     ipm->r_p = (real_t *)malloc(ipm->sizeof_dual_seqlen);
     if (NULL == ipm->r_p) {return HHMPC_DYNMEM_FAIL;}
     

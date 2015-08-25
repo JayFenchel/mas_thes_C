@@ -24,6 +24,7 @@ struct hhmpc_ipm {
     real_t *b;
     real_t *h;
     
+    real_t *d;
     real_t *r_p;
     real_t *r_d;
     
