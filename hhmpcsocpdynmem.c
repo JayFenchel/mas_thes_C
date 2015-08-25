@@ -202,7 +202,13 @@ hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
     if (NULL == socp->pmetric[HHMPC_G_KL]->aux->data) {return HHMPC_DYNMEM_FAIL;}
     socp->pmetric[HHMPC_G_KL]->aux->rows = socp->constant[HHMPC_R_KL]->rows;
     socp->pmetric[HHMPC_G_KL]->aux->cols = 1;
-    socp->pmetric[HHMPC_G_KL]->fac[0] = socp->prb->S_T;
+    socp->pmetric[HHMPC_G_KL]->fac[0]->data =
+            (real_t *)malloc(sizeof(real_t) * socp->prb->S_T->rows * socp->prb->S_T->cols);
+    if (NULL == socp->pmetric[HHMPC_G_KL]->fac[0]->data) {return HHMPC_DYNMEM_FAIL;}
+    mpcinc_mtx_scale(socp->pmetric[HHMPC_G_KL]->fac[0]->data, socp->prb->S_T->data, 2,
+                     socp->prb->S_T->rows, socp->prb->S_T->cols);
+    socp->pmetric[HHMPC_G_KL]->fac[0]->rows = socp->prb->S_T->rows;
+    socp->pmetric[HHMPC_G_KL]->fac[0]->cols = socp->prb->S_T->cols;
     
     socp->pmetric[HHMPC_G_KL]->fac0->data =
             (real_t *)malloc(socp->prb->sizeof_optvar_seqlen);
