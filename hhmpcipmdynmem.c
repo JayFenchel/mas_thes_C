@@ -56,11 +56,15 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     if (NULL == ipm->z_ini) {return HHMPC_DYNMEM_FAIL;}
     ipm->z_opt = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
     if (NULL == ipm->z_opt) {return HHMPC_DYNMEM_FAIL;}
+    ipm->delta_z = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
+    if (NULL == ipm->delta_z) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->v_ini = (real_t *)malloc(ipm->sizeof_dual_seqlen);
     if (NULL == ipm->v_ini) {return HHMPC_DYNMEM_FAIL;}
     ipm->v_opt = (real_t *)malloc(ipm->sizeof_dual_seqlen);
     if (NULL == ipm->v_opt) {return HHMPC_DYNMEM_FAIL;}
+    ipm->delta_v = (real_t *)malloc(ipm->sizeof_dual_seqlen);
+    if (NULL == ipm->delta_v) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->d = (real_t *)malloc(sizeof(real_t) * prb->h->rows);
     if (NULL == ipm->d) {return HHMPC_DYNMEM_FAIL;}
