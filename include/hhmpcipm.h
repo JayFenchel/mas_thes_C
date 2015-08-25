@@ -31,6 +31,7 @@ struct hhmpc_ipm {
     real_t *h;
     
     real_t *d;
+    real_t *Phi;
     real_t *r_p;
     real_t *r_d;
     
@@ -42,11 +43,15 @@ struct hhmpc_ipm {
     uint32_t optvar_seqlen;  /* The full length of optimization variable sequence. */
     uint32_t state_veclen;  /* Dimension of state variable x_k. */
     uint32_t dual_seqlen;  /* Full length of dual variable v associated with the eq constr. */
+    uint32_t nb_of_ueq_constr;
     uint32_t sizeof_dual_seqlen;
     uint32_t sizeof_optvar_seqlen;  /* Number of bytes in the optimization variable sequence. */
     
     real_t *tmp1_optvar_seqlen;  /* Temporary variable of length optvar_seqlen. */
     real_t *tmp2_dual_seqlen;  /* Temporary variable of length optvar_seqlen. */
+    real_t *tmp3_mtx_optvar_seqlen;
+    real_t *tmp4_nb_of_constr;
+    real_t *tmp5_nb_of_constr;
 };
 
 /* External function declarations */
