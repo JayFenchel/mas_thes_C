@@ -17,6 +17,7 @@ enum {
         HHMPC_R_KL,
         HHMPC_R,
         HHMPC_S,
+        HHMPC_S_T,
         
         HHMPC_C,
         

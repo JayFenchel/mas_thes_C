@@ -117,6 +117,7 @@ struct hhmpc_socp *hhmpc_socp_allocate_former(void)
         socp->prb->q = socp->constant[HHMPC_Q_KL];
         socp->prb->r = socp->constant[HHMPC_R_KL];
         socp->prb->S = socp->constant[HHMPC_S];
+        socp->prb->S_T = socp->constant[HHMPC_S_T];
         socp->prb->C = socp->constant[HHMPC_C];
     
     return socp;
@@ -207,11 +208,11 @@ hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
             (real_t *)malloc(socp->prb->sizeof_optvar_seqlen);
     for (i = 0; i < socp->prb->horizon; i++){
         for (j = 0; j < socp->constant[HHMPC_R_KL]->rows; j++){
-            socp->pmetric[HHMPC_G_KL]->fac0->data[i*socp->prb->horizon+j] =
+            socp->pmetric[HHMPC_G_KL]->fac0->data[i*socp->prb->optvar_veclen + j] =
                     socp->constant[HHMPC_R_KL]->data[j];
         }
         for (j = 0; j < socp->constant[HHMPC_Q_KL]->rows; j++){
-            socp->pmetric[HHMPC_G_KL]->fac0->data[i*socp->prb->horizon+socp->constant[HHMPC_R_KL]->rows+j] =
+            socp->pmetric[HHMPC_G_KL]->fac0->data[i*socp->prb->optvar_veclen + socp->constant[HHMPC_R_KL]->rows + j] =
                     socp->constant[HHMPC_Q_KL]->data[j];
         }
     }
