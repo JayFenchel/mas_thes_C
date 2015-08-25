@@ -28,6 +28,12 @@ extern void mpcinc_mtx_scale(real_t pout[], const real_t pmtx[],
         const real_t factor, const uint32_t rows,
         const uint32_t cols);
 
+/* element-wise matrix factorisation: pout *= factor.
+ * pout has size (rows x columns) */
+extern void mpcinc_mtx_scale_direct(real_t pout[],
+        const real_t factor, const uint32_t rows,
+        const uint32_t cols);
+
 /* matrix addition: pmtxc = pmta + pmtxb.
  * pmta, pmtb, pmtc have size (rows x columns) */
 extern void mpcinc_mtx_add(real_t pmtxc[], const real_t pmtxa[],

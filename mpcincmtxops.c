@@ -69,6 +69,19 @@ void mpcinc_mtx_scale(real_t pout[], const real_t pmtx[],
     return;
 }
 
+/* element-wise matrix factorisation: pout *= factor.
+ * pout has size (rows x columns) */
+void mpcinc_mtx_scale_direct(real_t pout[],
+        const real_t factor, const uint32_t rows,
+        const uint32_t cols)
+{
+    uint32_t k; /* matrix index (row * column) */
+    for (k = 0; k < rows * cols; k++) {
+        pout[k] *= factor;
+    }
+    return;
+}
+
 /* matrix addition: pmtxc = pmta + pmtxb.
  * pmta, pmtb, pmtc have size (rows x columns) */
 void mpcinc_mtx_add(real_t pmtxc[], const real_t pmtxa[],
