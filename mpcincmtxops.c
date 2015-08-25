@@ -82,6 +82,18 @@ void mpcinc_mtx_add(real_t pmtxc[], const real_t pmtxa[],
     return;
 }
 
+/* matrix addition: pmtxa += pmtxb.
+ * pmta, pmtb have size (rows x columns) */
+void mpcinc_mtx_add_direct(real_t pmtxa[], const real_t pmtxb[],
+                    const uint32_t rows, const uint32_t cols)
+{
+    uint32_t k; /* matrix index (row * column) */
+    for (k = 0; k < rows * cols; k++) {
+        pmtxa[k] += pmtxb[k];
+    }
+    return;
+}
+
 /* matrix substraction: pmtxc = pmta - pmtxb.
  * pmta, pmtb, pmtc have size (rows x columns) */
 void mpcinc_mtx_substract(real_t pmtxc[], const real_t pmtxa[],

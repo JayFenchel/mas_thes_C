@@ -34,6 +34,11 @@ extern void mpcinc_mtx_add(real_t pmtxc[], const real_t pmtxa[],
         const real_t pmtxb[], const uint32_t rows,
         const uint32_t cols);
 
+/* matrix addition: pmtxa += pmtxb.
+ * pmta, pmtb have size (rows x columns) */
+extern void mpcinc_mtx_add_direct(real_t pmtxa[], const real_t pmtxb[],
+                    const uint32_t rows, const uint32_t cols);
+
 /* matrix substraction: pmtxc = pmta - pmtxb.
  * pmta, pmtb, pmtc have size (rows x columns) */
 extern void mpcinc_mtx_substract(real_t pmtxc[], const real_t pmtxa[],
