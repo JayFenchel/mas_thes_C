@@ -3,6 +3,7 @@
 #include "include/cjson.h"
 
 #include "include/hhmpcsocpdynmem.h"
+#include "include/mpcincmtxops.h"
 
 /* Static functions declarations */
 static hhmpc_dynmem_error_t hhmpc_get_json_term(struct hhmpc_term *term,
@@ -92,14 +93,30 @@ struct hhmpc_socp *hhmpc_socp_allocate_former(void)
     socp->pmetric[HHMPC_H_KL]->fac[0] = &t[0];
     socp->pmetric[HHMPC_H_KL]->par[0] = socp->par[HHMPC_XK];
     
+    /* pmetric G_KL allocieren und mit richtigem par verknüpfen*/
+    socp->pmetric[HHMPC_G_KL]->fac_num[0] = 1;
+    socp->pmetric[HHMPC_G_KL]->fac =
+            (struct hhmpc_term**)calloc(1, sizeof(struct hhmpc_term*));
+    if (NULL == socp->pmetric[HHMPC_G_KL]->fac) {return NULL;}
+    socp->pmetric[HHMPC_G_KL]->par =
+            (struct hhmpc_term**)calloc(1, sizeof(struct hhmpc_term*));
+    if (NULL == socp->pmetric[HHMPC_G_KL]->par) {return NULL;}
+    t = (struct hhmpc_term*)calloc(1, sizeof(struct hhmpc_term));
+    if (NULL == t) {return NULL;}
+    
+    socp->pmetric[HHMPC_G_KL]->fac[0] = &t[0];
+    socp->pmetric[HHMPC_G_KL]->par[0] = socp->par[HHMPC_XK];
+    
     
     /* the evaluated problem itself */
     socp->prb = (struct hhmpc_socp_prb*)malloc(sizeof(struct hhmpc_socp_prb));
     if (NULL == socp->prb) {return NULL;}
         socp->prb->b = socp->pmetric[HHMPC_B_KL]->val;
         socp->prb->h = socp->pmetric[HHMPC_H_KL]->val;
+        socp->prb->g = socp->pmetric[HHMPC_G_KL]->val;
         socp->prb->q = socp->constant[HHMPC_Q_KL];
         socp->prb->r = socp->constant[HHMPC_R_KL];
+        socp->prb->S = socp->constant[HHMPC_S];
         socp->prb->C = socp->constant[HHMPC_C];
     
     return socp;
@@ -122,6 +139,33 @@ hhmpc_dynmem_error_t hhmpc_socp_setup_former(struct hhmpc_socp *socp,
 
 hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
 {
+    uint32_t i, j;
+    /* get optvar veclen an horizon to calculate length of g and ... */
+    cJSON *optvar, *veclen, *horizon;
+    
+    optvar = cJSON_GetObjectItem(data, "optvar");
+    if (NULL == optvar) {
+        printf("ERROR: could not parse item %s \n", "optvar");
+        return HHMPC_DYNMEM_FAIL;
+    }
+    veclen = cJSON_GetObjectItem(optvar, "veclen");
+    if (NULL == veclen) {
+        printf("ERROR: could not parse item %s \n", "veclen");
+        return HHMPC_DYNMEM_FAIL;
+    }
+    socp->prb->optvar_veclen = (uint32_t)veclen->valueint;
+    
+    horizon = cJSON_GetObjectItem(optvar, "horizon");
+    if (NULL == horizon) {
+        printf("ERROR: could not parse item %s \n", "horizon");
+        return HHMPC_DYNMEM_FAIL;
+    }
+    socp->prb->horizon = (uint32_t)horizon->valueint;
+    
+    socp->prb->optvar_seqlen = socp->prb->optvar_veclen * socp->prb->horizon;
+    socp->prb->sizeof_optvar_seqlen = sizeof(real_t) * socp->prb->optvar_seqlen;
+    
+    
     hhmpc_get_json_term(socp->par[HHMPC_XK], data, "par", "xk");
     
     hhmpc_get_json_sub_term(socp->pmetric[HHMPC_B_KL]->val, data, "pmetric", "b", "val");
@@ -136,7 +180,41 @@ hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
     
     hhmpc_get_json_term(socp->constant[HHMPC_Q_KL], data, "constant", "q");
     hhmpc_get_json_term(socp->constant[HHMPC_R_KL], data, "constant", "r");
+    hhmpc_get_json_term(socp->constant[HHMPC_S], data, "constant", "S");
     hhmpc_get_json_term(socp->constant[HHMPC_C], data, "constant", "C");
+    
+ /* Values of pmetric HHMPC_G_KL are set here */
+    socp->prb->S_T->rows = socp->constant[HHMPC_S]->cols;
+    socp->prb->S_T->cols = socp->constant[HHMPC_S]->rows;
+    socp->prb->S_T->data =
+            (real_t *)malloc(sizeof(real_t) * socp->prb->S_T->rows * socp->prb->S_T->cols);
+    mpcinc_mtx_transpose(socp->prb->S_T->data, socp->constant[HHMPC_S]->data,
+                         socp->constant[HHMPC_S]->rows, socp->constant[HHMPC_S]->cols);
+ 
+    socp->pmetric[HHMPC_G_KL]->val->data =
+            (real_t *)malloc(socp->prb->sizeof_optvar_seqlen);
+    if (NULL == socp->pmetric[HHMPC_G_KL]->val->data) {return HHMPC_DYNMEM_FAIL;}
+    socp->pmetric[HHMPC_G_KL]->val->rows = socp->prb->optvar_seqlen;
+    socp->pmetric[HHMPC_G_KL]->val->cols = 1;
+    socp->pmetric[HHMPC_G_KL]->aux->data =
+            (real_t *)malloc(sizeof(real_t) * socp->constant[HHMPC_R_KL]->rows);
+    if (NULL == socp->pmetric[HHMPC_G_KL]->aux->data) {return HHMPC_DYNMEM_FAIL;}
+    socp->pmetric[HHMPC_G_KL]->aux->rows = socp->constant[HHMPC_R_KL]->rows;
+    socp->pmetric[HHMPC_G_KL]->aux->cols = 1;
+    socp->pmetric[HHMPC_G_KL]->fac[0] = socp->prb->S_T;
+    
+    socp->pmetric[HHMPC_G_KL]->fac0->data =
+            (real_t *)malloc(socp->prb->sizeof_optvar_seqlen);
+    for (i = 0; i < socp->prb->horizon; i++){
+        for (j = 0; j < socp->constant[HHMPC_R_KL]->rows; j++){
+            socp->pmetric[HHMPC_G_KL]->fac0->data[i*socp->prb->horizon+j] =
+                    socp->constant[HHMPC_R_KL]->data[j];
+        }
+        for (j = 0; j < socp->constant[HHMPC_Q_KL]->rows; j++){
+            socp->pmetric[HHMPC_G_KL]->fac0->data[i*socp->prb->horizon+socp->constant[HHMPC_R_KL]->rows+j] =
+                    socp->constant[HHMPC_Q_KL]->data[j];
+        }
+    }
     
     return HHMPC_DYNMEM_OK;
 }
