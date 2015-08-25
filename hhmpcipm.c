@@ -7,6 +7,8 @@
 /* static functions declaration */
 
 static void residual(const struct hhmpc_ipm *ipm);
+static void form_d(real_t *d, const real_t *P, const real_t *h, const real_t *z,
+                   const uint32_t rowsP, const uint32_t colsP);
 
 /* external functions definition */
 
@@ -22,6 +24,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     /*Improve z for a fixed number of steps j_in*/
     for (j = 0; j < *(ipm->j_in); j++) {
         /* Calculate the residual */
+        form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt, 36, ipm->optvar_seqlen);
         residual(ipm);
         print_mtx(ipm->r_p, ipm->dual_seqlen, 1);
         /* Solve system of linear equations to obtain the step direction */
@@ -43,4 +46,20 @@ void residual(const struct hhmpc_ipm *ipm)
     mpcinc_mtx_scale(ipm->r_p, ipm->b, -1, ipm->dual_seqlen, 1);
     mpcinc_mtx_mul_add(ipm->r_p, help, ipm->C, ipm->z_opt,
                        ipm->dual_seqlen, ipm->optvar_seqlen);
+    
+    print_mtx(ipm->P, 36, 15);
+    print_mtx(ipm->d, 36, 1);
+}
+
+void form_d(real_t *d, const real_t *P, const real_t *h, const real_t *z,
+            const uint32_t rowsP, const uint32_t colsP)
+{
+    uint32_t i, j;
+    for (i = 0; i < rowsP; i++){
+        d[i] = h[i];
+        for (j = 0; j < colsP; j++){
+            d[i] -= P[i*colsP + j]*z[j];
+        }
+        d[i] = 1/d[i];
+    }
 }
