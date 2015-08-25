@@ -42,7 +42,6 @@ void hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm)
 
 void residual(const struct hhmpc_ipm *ipm)
 {
-    real_t one[] = {1.};
     real_t *help = ipm->tmp1_optvar_seqlen;
     real_t *help2 = ipm->tmp2_dual_seqlen;
     
@@ -52,8 +51,12 @@ void residual(const struct hhmpc_ipm *ipm)
     mpcinc_mtx_scale(ipm->r_d, help, 0.015, ipm->optvar_seqlen, 1);
     mpcinc_mtx_mul_add(ipm->r_d, help, ipm->C_T, ipm->v_opt,
                        ipm->optvar_seqlen, ipm->dual_seqlen);
-    mpcinc_mtx_mul_add(ipm->r_d, help, ipm->g, one,
-                       ipm->optvar_seqlen, 1);
+    mpcinc_mtx_add_direct(ipm->r_d, ipm->g,
+                          ipm->optvar_seqlen, 1);
+    mpcinc_mtx_multiply_mtx_vec(help, ipm->H, ipm->z_opt,
+                                ipm->optvar_seqlen, ipm->optvar_seqlen);
+    mpcinc_mtx_scale_direct(help, 2, ipm->optvar_seqlen, 1);
+    mpcinc_mtx_add_direct(ipm->r_d, help, ipm->optvar_seqlen, 1);
     
     mpcinc_mtx_scale(ipm->r_p, ipm->b, -1, ipm->dual_seqlen, 1);
     mpcinc_mtx_mul_add(ipm->r_p, help2, ipm->C, ipm->z_opt,
