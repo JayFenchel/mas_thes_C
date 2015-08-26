@@ -56,7 +56,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         
         /* Solve system of linear equations to obtain the step direction */
         solve_sysofleq(ipm->delta_z, ipm->delta_v, ipm->Phi, ipm->r_d, ipm->r_p,
-                       ipm->C, ipm->A, ipm->B, ipm->state_veclen, 2, ipm->horizon,
+                       ipm->C, ipm->C_T, ipm->A, ipm->B, ipm->state_veclen, 2, ipm->horizon,
                        t_solve_optvar_seqlen,
                        t_solve_dual_seqlen);
         /* Find best step size (0...1] */

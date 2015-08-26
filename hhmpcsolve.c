@@ -4,7 +4,8 @@
 void solve_sysofleq(real_t delta_z[], real_t delta_v[],
                     const real_t Phi[],
                     const real_t rd[], const real_t rp[],
-                    const real_t C[], const real_t A[], const real_t B[],
+                    const real_t C[], const real_t *C_T,
+                    const real_t A[], const real_t B[],
                     const uint32_t n, const uint32_t m, const uint32_t T,
                     real_t *tmp_optvar_seqlen,
                     real_t *tmp_dual_seqlen)
@@ -13,7 +14,6 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     real_t L_Phi[T*(n+m)*T*(n+m)];
     real_t L_Phi_T[T*(n+m)*T*(n+m)];
     real_t beta[T*n];
-    real_t C_T[T*(n+m) * T*n];
     real_t Y[T*n*T*n];
     zeroes(Y, T*n*T*n);
     zeroes(L_Phi, T*(n+m)*T*(n+m));
@@ -28,8 +28,6 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m+2*(n+m)*(n+m), n, n, m+2*(n+m), m+2*(n+m));
     
     mpcinc_mtx_transpose(L_Phi_T, L_Phi, T*(n+m), T*(n+m));
-    
-    mpcinc_mtx_transpose(C_T, C, T*n, T*(n+m));
     
     form_beta(beta, L_Phi, L_Phi_T, rd, rp, T, C, n, m);
     form_delta_v(delta_v, tmp_dual_seqlen, Y, beta, T, n);
@@ -79,6 +77,7 @@ void form_beta(real_t beta[],
                /*const real_t A[], const uint32_t n,
                const real_t B[], const uint32_t m*/)
 {
+    /* TODO beta lässt sich sicher auch parallel zu Y formen */
     real_t help1[T*(n+m)];
     real_t help2[T*(n+m)];
     real_t help3[T*n];
