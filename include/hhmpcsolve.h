@@ -12,9 +12,11 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
                     const real_t C[],
                     const real_t A[],
                     const real_t B[],
-                    const uint32_t dimA, const uint32_t colsB, const uint32_t horizon);
+                    const uint32_t dimA, const uint32_t colsB, const uint32_t horizon,
+                    real_t *tmp_optvar_seqlen);
 
 void form_delta_z(real_t delta_z[],
+                  real_t *tmp_optvar_seqlen,
                   const real_t delta_v[],
                   const real_t mtxL_Phi[],
                   const real_t mtxL_Phi_T[],

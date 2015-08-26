@@ -5,7 +5,8 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
                     const real_t Phi[],
                     const real_t rd[], const real_t rp[],
                     const real_t C[], const real_t A[], const real_t B[],
-                    const uint32_t n, const uint32_t m, const uint32_t T)
+                    const uint32_t n, const uint32_t m, const uint32_t T,
+                    real_t *tmp_optvar_seqlen)
 {
     real_t L_Phi_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
     real_t L_Phi[T*(n+m)*T*(n+m)];
@@ -31,10 +32,12 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     
     form_beta(beta, L_Phi, L_Phi_T, rd, rp, T, C, n, m);
     form_delta_v(delta_v, Y, beta, T, n);
-    form_delta_z(delta_z, delta_v, L_Phi, L_Phi_T, rd, C_T, T, n, m);   
+    form_delta_z(delta_z, tmp_optvar_seqlen, delta_v,
+                 L_Phi, L_Phi_T, rd, C_T, T, n, m);   
 }
 
 void form_delta_z(real_t delta_z[],
+                  real_t *tmp_optvar_seqlen,
                   const real_t delta_v[],
                   const real_t L_Phi[],
                   const real_t L_Phi_T[],
@@ -42,13 +45,11 @@ void form_delta_z(real_t delta_z[],
                   const real_t C_T[],
                   const uint32_t T, const uint32_t n, const uint32_t m)
 {
-    real_t help1[T*(n+m)];
-    
     mpcinc_mtx_multiply_mtx_vec(delta_z, C_T, delta_v, T*(n+m), T*n);
     mpcinc_mtx_add_direct(delta_z, rd, T*(n+m), 1);
     mpcinc_mtx_scale_direct(delta_z, -1, T*(n+m), 1);
-    fwd_subst(help1, L_Phi, T*(n+m), delta_z, 1);
-    bwd_subst(delta_z, L_Phi_T, T*(n+m), help1, 1);    
+    fwd_subst(tmp_optvar_seqlen, L_Phi, T*(n+m), delta_z, 1);
+    bwd_subst(delta_z, L_Phi_T, T*(n+m), tmp_optvar_seqlen, 1);    
 }
 
 void form_delta_v(real_t delta_v[],
