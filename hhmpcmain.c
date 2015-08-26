@@ -42,7 +42,8 @@ int main(void) {
     ipm->z_ini[13] = 0.2;
     ipm->z_ini[14] = 0.5;
     
-    ipm->conf->in_iter = 1;
+    ipm->conf->in_iter = 5;
+    
     hhmpc_socp_form_problem(socp);
     hhmpc_ipm_solve_problem(ipm);
     
