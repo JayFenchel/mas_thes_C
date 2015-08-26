@@ -59,9 +59,9 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     /* Update x_k (und andere Parameter) */
 }
 
-void hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_check)
+uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_check)
 {
-    /* TODO Über return FEHLER nachdenken, falls check_valid fehlschlägt.*/
+    uint32_t i;
     real_t *help1 = ipm->tmp4_nb_of_constr;
     real_t *help2 = ipm->tmp5_nb_of_constr;
     mpcinc_mtx_scale(help1, ipm->h, -1, ipm->nb_of_ueq_constr, 1);
@@ -69,6 +69,10 @@ void hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_check)
                        ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
     printf("check:\n");
     print_mtx(help1, ipm->nb_of_ueq_constr, 1);
+    for (i = 0; i < ipm->nb_of_ueq_constr; i++){
+        if (help1[i] >= 0) {return 1;}
+    }
+    return 0;
 }
 
 void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
@@ -117,9 +121,8 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
                   ipm->optvar_seqlen, ipm->dual_seqlen);
     print_mtx(help_z, ipm->optvar_seqlen, 1);
     printf("%f, %f\n", f_p_g, f_p + alpha**st_size*g_in_dir);
-    while ( (f_p_g < 0) || (f_p_g > (f_p + alpha**st_size*g_in_dir)) )
+    while (hhmpc_ipm_check_valid(ipm, help_z) || (f_p_g > (f_p + alpha**st_size*g_in_dir)) )
     {   printf("HIER\n");
-        hhmpc_ipm_check_valid(ipm, help_z);
         *st_size *= beta;
         
         mpcinc_mtx_scale(help_z, ipm->delta_z, st_size[0], ipm->optvar_seqlen, 1);

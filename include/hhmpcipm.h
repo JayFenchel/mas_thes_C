@@ -64,7 +64,7 @@ struct hhmpc_ipm {
 
 extern void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm);
 
-extern void hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_check);
+extern uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_check);
 
 
 #endif /* HHMPCIPM_H */
