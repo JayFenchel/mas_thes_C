@@ -4,7 +4,7 @@
 #include "include/hhmpcipm.h"
 #include "include/mpcincmtxops.h"
 #include <hhmpcusefull.h>
-#include "hhmpcalg.h"
+#include "hhmpcsolve.h"
 /* static functions declaration */
 
 static void residual(const struct hhmpc_ipm *ipm,
@@ -32,9 +32,11 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     
     /*Check if initial value is valid*/
     hhmpc_ipm_check_valid(ipm, ipm->z_ini);
+    
     /*Take initial value*/
     memcpy(ipm->z_opt, ipm->z_ini, ipm->sizeof_optvar_seqlen);
     memcpy(ipm->v_opt, ipm->v_ini, ipm->sizeof_dual_seqlen);
+    
     /* Calculate Kappa once for every time_step */
     calc_kappa(ipm->kappa, ipm, ipm->z_opt);
     
@@ -49,13 +51,14 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
         residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
         printf("res_norm = %f\n", f);
-        /* Solve system of linear equations to obtain the step direction */
         
+        /* Solve system of linear equations to obtain the step direction */
         solve_sysofleq(ipm->delta_z, ipm->delta_v, ipm->Phi, ipm->r_d, ipm->r_p,
                        ipm->C, ipm->A, ipm->B, ipm->state_veclen, 2, ipm->horizon);
         /* Find best step size (0...1] */
         bt_line_search(ipm->st_size, ipm);
         print_mtx(ipm->st_size, 1,1);
+        
         /* Update z */
         mpcinc_mtx_scale_direct(ipm->delta_z, ipm->st_size[0],
                                 ipm->optvar_seqlen, 1);
@@ -69,7 +72,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         print_mtx(ipm->v_opt, ipm->dual_seqlen, 1);
     }
     
-    residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa);
+    residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
     residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
     printf("res_norm = %f\n", f);
     /* Update x_k (und andere Parameter) */

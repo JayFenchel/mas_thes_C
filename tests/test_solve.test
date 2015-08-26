@@ -1,7 +1,7 @@
 /*DO 
   checkmk tests/test_alg.test >tests/test_alg.c
 */
-#include "../include/hhmpcalg.h"
+#include "../include/hhmpcsolve.h"
 #include "../include/hhmpcmath.h"
 #include "../include/hhmpcusefull.h"
 #include <stdlib.h>
@@ -10,21 +10,6 @@
 #define M 1
 #define T 3
 
-#test backtracking_line_search_test
-    real_t point[] = {1, 1};
-    real_t dir[] = {-4, -4};
-    real_t step;
-    uint32_t i;
-    
-    for (i = 0; i < 15; i++){
-        backtracking_line_search(&step, point, dir);
-        /*printf("%f", step);*/
-        point[0] += step*dir[0];
-        dir[0] *= -1;
-        point[1] += step*dir[1];
-        dir[1] *= -1;
-        /*print_mtx(point, 1, 2);*/
-    }
     
 #test form_Y_test3
     const uint32_t n = 2, m = 1;

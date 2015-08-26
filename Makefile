@@ -32,19 +32,19 @@ clean:
 	rm -vfr main $(OBJ) $(LIB)/*
 
 # Teil für Tests
-test: math-test alg-test
+test: math-test solve-test
 	./tests/math-test # Test für grundlegendere Mathefunktionen
-	./tests/alg-test # Test für Teile des Algorithmus
+	./tests/solve-test # Test für Teile des Algorithmus
 
 
-alg-test: test_alg.o hhmpcalg.o hhmpcmath.o hhmpcusefull.o mpcincmtxops.o
-	gcc -o ./tests/alg-test hhmpcalg.o hhmpcmath.o hhmpcusefull.o mpcincmtxops.o ./tests/test_alg.o -lcheck -lpthread -lrt -lm
+solve-test: test_solve.o hhmpcsolve.o hhmpcmath.o hhmpcusefull.o mpcincmtxops.o
+	gcc -o ./tests/solve-test hhmpcsolve.o hhmpcmath.o hhmpcusefull.o mpcincmtxops.o ./tests/test_solve.o -lcheck -lpthread -lrt -lm
 
-test_alg.o: test_alg.c $(INC)/hhmpcalg.h
-	gcc $(FLAGS) -c -o ./tests/test_alg.o ./tests/test_alg.c
+test_solve.o: test_solve.c $(INC)/hhmpcsolve.h
+	gcc $(FLAGS) -c -o ./tests/test_solve.o ./tests/test_solve.c
 
-test_alg.c: ./tests/test_alg.test
-	checkmk tests/test_alg.test >tests/test_alg.c
+test_solve.c: ./tests/test_solve.test
+	checkmk tests/test_solve.test >tests/test_solve.c
 
 
 math-test: test_math.o hhmpcmath.o hhmpcusefull.o mpcincmtxops.o
