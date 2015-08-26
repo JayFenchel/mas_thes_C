@@ -43,13 +43,11 @@ void form_delta_z(real_t delta_z[],
                   const uint32_t T, const uint32_t n, const uint32_t m)
 {
     real_t help1[T*(n+m)];
-    real_t help2[T*(n+m)];
-    uint32_t i;
-    mpcinc_mtx_multiply_mtx_vec(help1, C_T, delta_v, T*(n+m), T*n);
-    for (i = 0; i < T*(n+m); i++)
-        help1[i] = -help1[i];
-    mpcinc_mtx_substract(help2, help1, rd, T*(n+m), 1);
-    fwd_subst(help1, L_Phi, T*(n+m), help2, 1);
+    
+    mpcinc_mtx_multiply_mtx_vec(delta_z, C_T, delta_v, T*(n+m), T*n);
+    mpcinc_mtx_add_direct(delta_z, rd, T*(n+m), 1);
+    mpcinc_mtx_scale_direct(delta_z, -1, T*(n+m), 1);
+    fwd_subst(help1, L_Phi, T*(n+m), delta_z, 1);
     bwd_subst(delta_z, L_Phi_T, T*(n+m), help1, 1);    
 }
 
