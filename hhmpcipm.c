@@ -33,7 +33,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     
     /*Improve z for a fixed number of steps j_in*/
     for (j = 0; j < *(ipm->j_in); j++) {
-        form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt, 36, ipm->optvar_seqlen);
+        form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
         form_diag_d_sq(ipm->diag_d_sq, ipm->d, ipm->nb_of_ueq_constr);
         form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->H, ipm->P_T,
                  ipm->P, ipm->diag_d_sq,
@@ -99,7 +99,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     mpcinc_mtx_add_direct(help_v, ipm->v_opt, ipm->dual_seqlen, 1);
     print_mtx(ipm->z_opt, ipm->optvar_seqlen, 1);
     print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
-    form_d(ipm->d, ipm->P, ipm->h, help_z, 36, ipm->optvar_seqlen);
+    form_d(ipm->d, ipm->P, ipm->h, help_z, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
     residual(ipm, help_z, help_v, ipm->d);
     print_mtx(help_z, ipm->optvar_seqlen, 1);
     print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
@@ -115,7 +115,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     hhmpc_ipm_check_valid(ipm, help_z);
     mpcinc_mtx_scale(help_v, ipm->delta_v, st_size[0], ipm->dual_seqlen, 1);
     mpcinc_mtx_add_direct(help_v, ipm->v_opt, ipm->dual_seqlen, 1);
-    form_d(ipm->d, ipm->P, ipm->h, help_z, 36, ipm->optvar_seqlen);
+    form_d(ipm->d, ipm->P, ipm->h, help_z, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
     residual(ipm, help_z, help_v, ipm->d);
     residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
                   ipm->optvar_seqlen, ipm->dual_seqlen);
@@ -129,7 +129,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
         mpcinc_mtx_add_direct(help_z, ipm->z_opt, ipm->optvar_seqlen, 1);
         mpcinc_mtx_scale(help_v, ipm->delta_v, st_size[0], ipm->dual_seqlen, 1);
         mpcinc_mtx_add_direct(help_v, ipm->v_opt, ipm->dual_seqlen, 1);
-        form_d(ipm->d, ipm->P, ipm->h, help_z, 36, ipm->optvar_seqlen);
+        form_d(ipm->d, ipm->P, ipm->h, help_z, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
         residual(ipm, help_z, help_v, ipm->d);
         residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
                       ipm->optvar_seqlen, ipm->dual_seqlen);
@@ -156,7 +156,7 @@ void residual(const struct hhmpc_ipm *ipm,
     real_t *help = ipm->tmp1_optvar_seqlen;
     real_t *help2 = ipm->tmp2_dual_seqlen;
     
-    mpcinc_mtx_multiply_mtx_vec(help, ipm->P_T, d, ipm->optvar_seqlen, 36);
+    mpcinc_mtx_multiply_mtx_vec(help, ipm->P_T, d, ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
     mpcinc_mtx_scale(ipm->r_d, help, 0.015, ipm->optvar_seqlen, 1);
     mpcinc_mtx_mul_add(ipm->r_d, help, ipm->C_T, v,
                        ipm->optvar_seqlen, ipm->dual_seqlen);
