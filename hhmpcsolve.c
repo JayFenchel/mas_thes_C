@@ -9,6 +9,7 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
 {
     real_t L_Phi_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
     real_t L_Phi[T*(n+m)*T*(n+m)];
+    real_t L_Phi_T[T*(n+m)*T*(n+m)];
     real_t beta[T*n];
     real_t C_T[T*(n+m) * T*n];
     real_t Y[T*n*T*n];
@@ -24,35 +25,33 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m+1*(n+m)*(n+m), n+m, n+m, m+1*(n+m), m+1*(n+m));
     setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m+2*(n+m)*(n+m), n, n, m+2*(n+m), m+2*(n+m));
     
+    mpcinc_mtx_transpose(L_Phi_T, L_Phi, T*(n+m), T*(n+m));
+    
     mpcinc_mtx_transpose(C_T, C, T*n, T*(n+m));
     
-    form_beta(beta, L_Phi_blocks, rd, rp, T, C, n, m);
+    form_beta(beta, L_Phi, L_Phi_T, rd, rp, T, C, n, m);
     form_delta_v(delta_v, Y, beta, T, n);
-    form_delta_z(delta_z, delta_v, L_Phi, rd, C_T, T, n, m);   
+    form_delta_z(delta_z, delta_v, L_Phi, L_Phi_T, rd, C_T, T, n, m);   
 }
 
 void form_delta_z(real_t delta_z[],
                   const real_t delta_v[],
                   const real_t L_Phi[],
+                  const real_t L_Phi_T[],
                   const real_t rd[],
                   const real_t C_T[],
                   const uint32_t T, const uint32_t n, const uint32_t m)
 {
     real_t help1[T*(n+m)];
     real_t help2[T*(n+m)];
-    real_t L_Phi_T[T*(n+m)*T*(n+m)];
     uint32_t i;
     mpcinc_mtx_multiply_mtx_vec(help1, C_T, delta_v, T*(n+m), T*n);
     for (i = 0; i < T*(n+m); i++)
         help1[i] = -help1[i];
     mpcinc_mtx_substract(help2, help1, rd, T*(n+m), 1);
-    mpcinc_mtx_transpose(L_Phi_T, L_Phi, T*(n+m), T*(n+m));
     fwd_subst(help1, L_Phi, T*(n+m), help2, 1);
-    bwd_subst(delta_z, L_Phi_T, T*(n+m), help1, 1);
-    
-    
+    bwd_subst(delta_z, L_Phi_T, T*(n+m), help1, 1);    
 }
-
 
 void form_delta_v(real_t delta_v[],
                   const real_t Y[],
@@ -73,35 +72,21 @@ void form_delta_v(real_t delta_v[],
     mpcinc_mtx_transpose(L_Y_T, L_Y, T*n, T*n);
     fwd_subst(help1, L_Y, T*n, mbeta, 1);
     bwd_subst(delta_v, L_Y_T, T*n, help1, 1);
-    
 }
 
 void form_beta(real_t beta[],
-               const real_t L_Phi_blocks[],
+               const real_t L_Phi[],
+               const real_t L_Phi_T[],
                const real_t rd[], const real_t rp[],
                const uint32_t T,
                const real_t C[], const uint32_t n, const uint32_t m
                /*const real_t A[], const uint32_t n,
                const real_t B[], const uint32_t m*/)
 {
-    real_t L_Phi[T*(n+m)*T*(n+m)];
-    real_t L_Phi_T[T*(n+m)*T*(n+m)];
     real_t help1[T*(n+m)];
     real_t help2[T*(n+m)];
     real_t help3[T*n];
     
-    uint32_t g;
-    for(g = 0; g < T*(n+m)*T*(n+m); g++)
-        L_Phi[g] = 0;
-    
-    /*Ohne Schleife klappt es so nur für T = 3*/
-    setBlock(L_Phi, T*(n+m), L_Phi_blocks, m, m, 0, 0);
-    setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m, n+m, n+m, m, m);
-    setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m+1*(n+m)*(n+m), n+m, n+m, m+1*(n+m), m+1*(n+m));
-    setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m+2*(n+m)*(n+m), n, n, m+2*(n+m), m+2*(n+m));
-    
-    
-    mpcinc_mtx_transpose(L_Phi_T, L_Phi, T*(n+m), T*(n+m));
     fwd_subst(help1, L_Phi, T*(n+m), rd, 1);
     bwd_subst(help2, L_Phi_T, T*(n+m), help1, 1);
     mpcinc_mtx_multiply_mtx_vec(help3, C, help2, T*n, T*(n+m));

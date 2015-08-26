@@ -667,6 +667,7 @@
                     
     real_t L_Phi_blocks[M*M + (T-1)*(N+M)*(N+M) + N*N]; /*blocks discribed in paper*/
     real_t L_Phi[T*(N+M)*T*(N+M)];
+    real_t L_Phi_T[T*(N+M)*T*(N+M)];
     uint32_t g;
     
     real_t L_Phi_ref[T*(N+M)*T*(N+M)];
@@ -723,16 +724,16 @@
     fail_unless(mtx_cmp(Y, Y_ref, 36, 1e-9) == 0, "form_Y failed");
     fail_unless(mtx_cmp(L_Phi, L_Phi_ref, T*(N+M)*T*(N+M), 0) == 0, "false L_Phi");
     
-
+    mpcinc_mtx_transpose(L_Phi_T, L_Phi, T*(N+M), T*(N+M));
     
-    form_beta(beta, L_Phi_blocks, rd, rp, T, C, N, M);
+    form_beta(beta, L_Phi, L_Phi_T, rd, rp, T, C, N, M);
     
     form_delta_v(delta_v, Y, beta, T, N);
     
     
     mpcinc_mtx_transpose(C_T, C, T*N, T*(N+M));
     
-    form_delta_z(delta_z, delta_v, L_Phi, rd, C_T, T, N, M);
+    form_delta_z(delta_z, delta_v, L_Phi, L_Phi_T, rd, C_T, T, N, M);
     
     fail_unless(mtx_cmp(delta_v, delta_v_ref, 6, 1e-9) == 0, "form_delta_v failed");
     fail_unless(mtx_cmp(delta_z, delta_z_ref, 9, 1e-10) == 0, "form_delta_z failed");
