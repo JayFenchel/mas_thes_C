@@ -6,7 +6,8 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
                     const real_t rd[], const real_t rp[],
                     const real_t C[], const real_t A[], const real_t B[],
                     const uint32_t n, const uint32_t m, const uint32_t T,
-                    real_t *tmp_optvar_seqlen)
+                    real_t *tmp_optvar_seqlen,
+                    real_t *tmp_dual_seqlen)
 {
     real_t L_Phi_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
     real_t L_Phi[T*(n+m)*T*(n+m)];
@@ -31,7 +32,7 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     mpcinc_mtx_transpose(C_T, C, T*n, T*(n+m));
     
     form_beta(beta, L_Phi, L_Phi_T, rd, rp, T, C, n, m);
-    form_delta_v(delta_v, Y, beta, T, n);
+    form_delta_v(delta_v, tmp_dual_seqlen, Y, beta, T, n);
     form_delta_z(delta_z, tmp_optvar_seqlen, delta_v,
                  L_Phi, L_Phi_T, rd, C_T, T, n, m);   
 }
@@ -53,24 +54,20 @@ void form_delta_z(real_t delta_z[],
 }
 
 void form_delta_v(real_t delta_v[],
+                  real_t *tmp_dual_seqlen,
                   const real_t Y[],
                   const real_t beta[],
                   const uint32_t T, const uint32_t n)
 {
     real_t L_Y[T*n*T*n];
     real_t L_Y_T[T*n*T*n];
-    real_t help1[T*n];
-    real_t mbeta[T*n];
-    uint32_t i;
-    
-    for (i = 0; i < T*n; i++)
-        mbeta[i] = -beta[i];
-    
-    
+    /* TODO LY effizienter bilen */
     cholesky(L_Y, Y, T*n);
     mpcinc_mtx_transpose(L_Y_T, L_Y, T*n, T*n);
-    fwd_subst(help1, L_Y, T*n, mbeta, 1);
-    bwd_subst(delta_v, L_Y_T, T*n, help1, 1);
+    
+    mpcinc_mtx_scale(delta_v, beta, -1., T*n, 1);
+    fwd_subst(tmp_dual_seqlen, L_Y, T*n, delta_v, 1);
+    bwd_subst(delta_v, L_Y_T, T*n, tmp_dual_seqlen, 1);
 }
 
 void form_beta(real_t beta[],

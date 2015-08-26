@@ -13,7 +13,8 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
                     const real_t A[],
                     const real_t B[],
                     const uint32_t dimA, const uint32_t colsB, const uint32_t horizon,
-                    real_t *tmp_optvar_seqlen);
+                    real_t *tmp_optvar_seqlen,
+                    real_t *tmp_dual_seqlen);
 
 void form_delta_z(real_t delta_z[],
                   real_t *tmp_optvar_seqlen,
@@ -25,6 +26,7 @@ void form_delta_z(real_t delta_z[],
                   const uint32_t T, const uint32_t n, const uint32_t m);
 
 void form_delta_v(real_t delta_v[],
+                  real_t *tmp_dual_seqlen,
                   const real_t Y[], 
                   const real_t beta[],
                   const uint32_t T, const uint32_t n);

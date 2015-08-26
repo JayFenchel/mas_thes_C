@@ -36,11 +36,13 @@
     real_t *delta_v = malloc(T*n*sizeof(real_t));
     real_t *delta_z = malloc(T*(n+m)*sizeof(real_t));
     real_t *tmp_optvar_seqlen = (real_t *)malloc(sizeof(real_t) * T*(n+m));
+    real_t *tmp_dual_seqlen = (real_t *)malloc(sizeof(real_t) * T*n);
     /* TODO Fehler abfangen 
      * if(delta_z == NULL)
      */
     solve_sysofleq(delta_z, delta_v, Phi, rd, rp, C, A, B, n, m, T,
-                   tmp_optvar_seqlen);
+                   tmp_optvar_seqlen,
+                   tmp_dual_seqlen);
 //     print_mtx(delta_z, T*(n+m), 1);
 //     print_mtx(delta_v, T*n, 1);
 
@@ -598,6 +600,7 @@
     real_t *delta_v = malloc(T*n*sizeof(real_t));
     real_t *delta_z = malloc(T*(n+m)*sizeof(real_t));
     real_t *tmp_optvar_seqlen = (real_t *)malloc(sizeof(real_t) * T*(n+m));
+    real_t *tmp_dual_seqlen = (real_t *)malloc(sizeof(real_t) * T*n);
     real_t delta_z_ref[] = {-13.997489150487263, 
 5.406972595368199, 
 4.776895838826961, 
@@ -636,13 +639,15 @@
 -24.835093488191738};
     
     solve_sysofleq(delta_z, delta_v, Phi, rd, rp, C, A, B, n, m, T,
-                   tmp_optvar_seqlen);
+                   tmp_optvar_seqlen,
+                   tmp_dual_seqlen);
     
     fail_unless(mtx_cmp(delta_z, delta_z_ref, 21, 1e-7) == 0, "form_Y2 failed");
     fail_unless(mtx_cmp(delta_v, delta_v_ref, 15, 1e-6) == 0, "form_Y2 failed");
     free(delta_v);
     free(delta_z);
     free(tmp_optvar_seqlen);
+    free(tmp_dual_seqlen);
     
 #test form_Y_test
     real_t A[] = {1., 2., 1., 2.};
@@ -671,6 +676,7 @@
                     0., 0., 0., 0., 0., 0., 0., -3., 4.};
                     
     real_t *tmp_optvar_seqlen = (real_t *)malloc(sizeof(real_t) * T*(N+M));
+    real_t *tmp_dual_seqlen = (real_t *)malloc(sizeof(real_t) * T*N);
     real_t L_Phi_blocks[M*M + (T-1)*(N+M)*(N+M) + N*N]; /*blocks discribed in paper*/
     real_t L_Phi[T*(N+M)*T*(N+M)];
     real_t L_Phi_T[T*(N+M)*T*(N+M)];
@@ -734,7 +740,7 @@
     
     form_beta(beta, L_Phi, L_Phi_T, rd, rp, T, C, N, M);
     
-    form_delta_v(delta_v, Y, beta, T, N);
+    form_delta_v(delta_v, tmp_dual_seqlen, Y, beta, T, N);
     
     
     mpcinc_mtx_transpose(C_T, C, T*N, T*(N+M));
