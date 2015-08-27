@@ -105,8 +105,8 @@ void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[], real_t *L_Phi_T,
     uint32_t i, j, bl;
     
     real_t hilf1[(n+m)*(n+m)];
-    real_t hilf2[(n+m)*(n+m)];
-    real_t last_hilf2[(n+m)*(n+m)];
+    real_t PhiBlock_I[(n+m)*(n+m)];
+    real_t last_PhiBlock_I[(n+m)*(n+m)];
     real_t Qi_tilde[n*n];
     real_t Y11[n*n];
     
@@ -134,9 +134,9 @@ void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[], real_t *L_Phi_T,
         cholesky(L_Phi+bl, PhiBlock, n+m);
         mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, n+m, n+m);
         fwd_subst(hilf1, L_Phi+bl, n+m, eye_nm, n+m);
-        bwd_subst(hilf2, L_Phi_T+bl, n+m, hilf1, n+m);
+        bwd_subst(PhiBlock_I, L_Phi_T+bl, n+m, hilf1, n+m);
         
-        getBlock(Qi_tilde, hilf2, n+m, 0, 0, n, n);
+        getBlock(Qi_tilde, PhiBlock_I, n+m, 0, 0, n, n);
         form_Y11(Y11, B, n, m, L_Phi, Qi_tilde);
         
         setBlock(Y, T*n, Y11, n, n, 0, 0);
@@ -145,7 +145,7 @@ void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[], real_t *L_Phi_T,
     for (i = 0; i < T; i++){
     if (i > 0){
         for (j = 0; j < (n+m)*(n+m); j++)
-            last_hilf2[j] = hilf2[j];
+            last_PhiBlock_I[j] = PhiBlock_I[j];
         if (i == T-1){
             getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n, n);
             bl = m*m+i*(n+m)*(n+m);
@@ -161,18 +161,19 @@ void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[], real_t *L_Phi_T,
         cholesky(L_Phi+bl, PhiBlock, n+m);
         mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, n+m, n+m);
         fwd_subst(hilf1, L_Phi+bl, n+m, eye_nm, n+m);
-        bwd_subst(hilf2, L_Phi_T+bl, n+m, hilf1, n+m);
-        getBlock(Qi_tilde, hilf2, n+m, 0, 0, n, n);
+        bwd_subst(PhiBlock_I, L_Phi_T+bl, n+m, hilf1, n+m);
+        
+        getBlock(Qi_tilde, PhiBlock_I, n+m, 0, 0, n, n);
             
         }
         
-        form_Yii(Y11, A_B, n, n+m, last_hilf2, n+m, n+m, A_T_B_T, n+m, n, Qi_tilde);
+        form_Yii(Y11, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T, n+m, n, Qi_tilde);
         setBlock(Y, T*n, Y11, n, n, i*n, i*n);
         
     }
     
     if (i < T-1){
-        form_Y_i_ip1(Y11, A_T, n, B_T, m, hilf2);
+        form_Y_i_ip1(Y11, A_T, n, B_T, m, PhiBlock_I);
         setBlock(Y, T*n, Y11, n, n, i*n, (i+1)*n);
         real_t Y11_T[n*n];
         mpcinc_mtx_transpose(Y11_T, Y11, n, n);
