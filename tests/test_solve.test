@@ -42,6 +42,11 @@
     real_t *C_T = (real_t *)malloc(sizeof(real_t) * T*(n+m)*T*n);
     real_t *A_T = (real_t *)malloc(sizeof(real_t) * n*n);
     real_t *B_T = (real_t *)malloc(sizeof(real_t) * m*n);
+    real_t eye_nm[] = {1., 0., 0.,
+                       0., 1., 0.,
+                       0., 0., 1};
+    real_t eye_n[] = {1., 0.,
+                      0., 1.};                  
     mpcinc_mtx_transpose(A_T, A, n, n);
     mpcinc_mtx_transpose(B_T, B, n, m);
     mpcinc_mtx_transpose(C_T, C, T*n, T*(n+m));
@@ -50,6 +55,7 @@
      * if(delta_z == NULL)
      */
     solve_sysofleq(delta_z, delta_v, Phi, rd, rp, C, C_T, A, A_T, B, B_T, n, m, T,
+                   eye_nm, eye_n,
                    tmp_optvar_seqlen,
                    tmp_dual_seqlen,
                    L_Y, L_Y_T);
@@ -650,10 +656,23 @@
 4.343104636331974, 
 -11.941383543336487, 
 -24.835093488191738};
+    real_t eye_nm[] = {1., 0., 0., 0., 0., 0., 0.,
+                       0., 1., 0., 0., 0., 0., 0.,
+                       0., 0., 1., 0., 0., 0., 0.,
+                       0., 0., 0., 1., 0., 0., 0.,
+                       0., 0., 0., 0., 1., 0., 0.,
+                       0., 0., 0., 0., 0., 1., 0.,
+                       0., 0., 0., 0., 0., 0., 1.};
+    real_t eye_n[] = {1., 0., 0., 0., 0.,
+                      0., 1., 0., 0., 0.,
+                      0., 0., 1., 0., 0.,
+                      0., 0., 0., 1., 0.,
+                      0., 0., 0., 0., 1.};
     mpcinc_mtx_transpose(A_T, A, n, n);
     mpcinc_mtx_transpose(B_T, B, n, m);
     mpcinc_mtx_transpose(C_T, C, T*n, T*(n+m));
     solve_sysofleq(delta_z, delta_v, Phi, rd, rp, C, C_T, A, A_T, B, B_T, n, m, T,
+                   eye_nm, eye_n,
                    tmp_optvar_seqlen,
                    tmp_dual_seqlen,
                    L_Y, L_Y_T);
@@ -699,6 +718,11 @@
     real_t L_Phi[T*(N+M)*T*(N+M)];
     real_t L_Phi_T[T*(N+M)*T*(N+M)];
     uint32_t g;
+    real_t eye_nm[] = {1., 0., 0.,
+                       0., 1., 0.,
+                       0., 0., 1};
+    real_t eye_n[] = {1., 0.,
+                      0., 1.}; 
     
     real_t L_Phi_ref[T*(N+M)*T*(N+M)];
     
@@ -747,6 +771,7 @@
 
     
     form_Y(Y, L_Y, L_Phi_blocks, Phi, T, A, A_T, N, B, B_T, M,
+           eye_nm, eye_n,
            t_R_bl_I);
     
     setBlock(L_Phi, T*(N+M), L_Phi_blocks, M, M, 0, 0);

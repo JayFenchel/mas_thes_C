@@ -16,6 +16,7 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
                     const real_t B[],
                     const real_t B_T[],
                     const uint32_t dimA, const uint32_t colsB, const uint32_t horizon,
+                    const real_t *eye_nm, const real_t *eye_n,
                     real_t *tmp_optvar_seqlen,
                     real_t *tmp_dual_seqlen,
                     real_t *L_Y, real_t *L_Y_T);
@@ -50,6 +51,7 @@ void form_Y(real_t mtxY[], real_t *mtxL_Y, real_t mtxL_Phi[],
             const uint32_t horizon,
             const real_t mtxA[], const real_t *A_T, const uint32_t dimA,
             const real_t mtxB[], const real_t *B_T, const uint32_t colsB,
+            const real_t *eye_nm, const real_t *eye_n,
             real_t * tmp_R_block_invers);
 
 void form_Yii(real_t solution[],

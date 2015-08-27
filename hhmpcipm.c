@@ -32,6 +32,8 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     real_t *t_solve_dual_seqlen = ipm->tmp2_dual_seqlen;
     real_t *t_L_Y = ipm->tmp8_L_Y;
     real_t *t_L_Y_T = ipm->tmp9_L_Y_T;
+    real_t *eye_nm = ipm->eye_optvar_veclen;
+    real_t *eye_n = ipm->eye_state_veclen;
     real_t f;
     
     /*Check if initial value is valid*/
@@ -60,6 +62,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         solve_sysofleq(ipm->delta_z, ipm->delta_v, ipm->Phi, ipm->r_d, ipm->r_p,
                        ipm->C, ipm->C_T, ipm->A, ipm->A_T, ipm->B, ipm->B_T,
                        ipm->state_veclen, 2, ipm->horizon,
+                       eye_nm, eye_n,
                        t_solve_optvar_seqlen,
                        t_solve_dual_seqlen,
                        t_L_Y, t_L_Y_T);
