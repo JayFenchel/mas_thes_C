@@ -13,7 +13,7 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
                     real_t *tmp_dual_seqlen,
                     real_t *L_Y, real_t *L_Y_T)
 {
-    real_t t_R_bl_I[m*m];
+    real_t PhiBlock[(n+m)*(n+m)];
     
     real_t L_Phi_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
     real_t L_Phi_T_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
@@ -25,7 +25,7 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     zeroes(L_Phi, T*(n+m)*T*(n+m));
 
 
-    form_Y(Y, L_Y, L_Phi_blocks, L_Phi_T_blocks, Phi, T, A, A_T, n, B, B_T, m, eye_nm, eye_n, t_R_bl_I);
+    form_Y(Y, L_Y, L_Phi_blocks, L_Phi_T_blocks, Phi, T, A, A_T, n, B, B_T, m, eye_nm, eye_n, PhiBlock);
 
     /*Ohne Schleife klappt es so nur für T = 3*/
     setBlock(L_Phi, T*(n+m), L_Phi_blocks, m, m, 0, 0);
@@ -100,19 +100,16 @@ void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[], real_t *L_Phi_T,
             const real_t A[], const real_t *A_T, const uint32_t n,
             const real_t B[], const real_t *B_T, const uint32_t m,
             const real_t *eye_nm, const real_t *eye_n,
-            real_t *R_bl_I)
+            real_t *PhiBlock)
 {
     uint32_t i, j, bl;
     
-    real_t PhiBlock[(n+m)*(n+m)];
     real_t hilf1[(n+m)*(n+m)];
     real_t hilf2[(n+m)*(n+m)];
     real_t last_hilf2[(n+m)*(n+m)];
-    real_t Q1[n*n];
+    real_t Qi_tilde[n*n];
     real_t Y11[n*n];
     
-    real_t Q_I[n*n];
-    real_t Q_I_C_T[n*n];
     real_t hilf4[n*n];
         
     real_t A_T_B_T[n*(n+m)];
@@ -127,9 +124,9 @@ void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[], real_t *L_Phi_T,
     
 
         /* first Block: i = 0 */
-        getBlock(R_bl_I, Phi, T*(n+m), 0, 0, m, m);
+        getBlock(PhiBlock, Phi, T*(n+m), 0, 0, m, m);
         bl = 0;
-        cholesky(L_Phi+bl, R_bl_I, m);
+        cholesky(L_Phi+bl, PhiBlock, m);
         mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, m, m);
         
         getBlock(PhiBlock, Phi, T*(n+m), m, m, n+m, n+m);
@@ -139,8 +136,8 @@ void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[], real_t *L_Phi_T,
         fwd_subst(hilf1, L_Phi+bl, n+m, eye_nm, n+m);
         bwd_subst(hilf2, L_Phi_T+bl, n+m, hilf1, n+m);
         
-        getBlock(Q1, hilf2, n+m, 0, 0, n, n);
-        form_Y11(Y11, B, n, m, L_Phi, Q1);
+        getBlock(Qi_tilde, hilf2, n+m, 0, 0, n, n);
+        form_Y11(Y11, B, n, m, L_Phi, Qi_tilde);
         
         setBlock(Y, T*n, Y11, n, n, 0, 0);
     
@@ -150,11 +147,12 @@ void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[], real_t *L_Phi_T,
         for (j = 0; j < (n+m)*(n+m); j++)
             last_hilf2[j] = hilf2[j];
         if (i == T-1){
-            getBlock(Q_I, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n, n);
-            cholesky(L_Phi+m*m+i*(n+m)*(n+m), Q_I, n);
-            fwd_subst(hilf4, L_Phi+m*m+i*(n+m)*(n+m), n, eye_n, n);
-            mpcinc_mtx_transpose(Q_I_C_T, L_Phi+m*m+i*(n+m)*(n+m), n, n);
-            bwd_subst(Q1, Q_I_C_T, n, hilf4, n);
+            getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n, n);
+            bl = m*m+i*(n+m)*(n+m);
+            cholesky(L_Phi+bl, PhiBlock, n);
+            mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, n, n);
+            fwd_subst(hilf4, L_Phi+bl, n, eye_n, n);
+            bwd_subst(Qi_tilde, L_Phi_T+bl, n, hilf4, n);
             
             
         }else{
@@ -164,11 +162,11 @@ void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[], real_t *L_Phi_T,
         mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, n+m, n+m);
         fwd_subst(hilf1, L_Phi+bl, n+m, eye_nm, n+m);
         bwd_subst(hilf2, L_Phi_T+bl, n+m, hilf1, n+m);
-        getBlock(Q1, hilf2, n+m, 0, 0, n, n);
+        getBlock(Qi_tilde, hilf2, n+m, 0, 0, n, n);
             
         }
         
-        form_Yii(Y11, A_B, n, n+m, last_hilf2, n+m, n+m, A_T_B_T, n+m, n, Q1);
+        form_Yii(Y11, A_B, n, n+m, last_hilf2, n+m, n+m, A_T_B_T, n+m, n, Qi_tilde);
         setBlock(Y, T*n, Y11, n, n, i*n, i*n);
         
     }
@@ -217,7 +215,7 @@ void form_Y_i_ip1(real_t sol[],
 void form_Y11(real_t sol[],
               const real_t B[], const uint32_t n, const uint32_t m,
               const real_t R0_C[],
-              const real_t Q1[])
+              const real_t Q_tilde[])
 {
     real_t BT[m*n]; /*TODO Speicher allozieren?*/
     real_t hilf1[m*n]; /*TODO Speicher allozieren?*/
@@ -229,7 +227,7 @@ void form_Y11(real_t sol[],
     mpcinc_mtx_transpose(R0_C_T, R0_C, m, m);
     bwd_subst(hilf2, R0_C_T, m, hilf1, n);
     mpcinc_mtx_multiply_mtx_mtx(hilf3, B, hilf2, n, m, n);
-    mpcinc_mtx_add(sol, hilf3, Q1, n, n);
+    mpcinc_mtx_add(sol, hilf3, Q_tilde, n, n);
 }
 
 void setBlock(real_t mtx[], const uint32_t dim,
