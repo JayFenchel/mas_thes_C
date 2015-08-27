@@ -15,7 +15,8 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
                     const real_t B[],
                     const uint32_t dimA, const uint32_t colsB, const uint32_t horizon,
                     real_t *tmp_optvar_seqlen,
-                    real_t *tmp_dual_seqlen);
+                    real_t *tmp_dual_seqlen,
+                    real_t *L_Y, real_t *L_Y_T);
 
 void form_delta_z(real_t delta_z[],
                   real_t *tmp_optvar_seqlen,
@@ -42,7 +43,7 @@ void form_beta(real_t beta[],
 
 /*returns also mtxL_Phi the cholesky factorization of Phi
  */
-void form_Y(real_t mtxY[], real_t mtxL_Phi[],
+void form_Y(real_t mtxY[], real_t *mtxL_Y, real_t mtxL_Phi[],
             const real_t mtxPhi[],
             const uint32_t horizon,
             const real_t mtxA[], const uint32_t dimA,

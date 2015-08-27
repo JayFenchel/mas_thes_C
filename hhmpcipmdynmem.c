@@ -116,6 +116,12 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->tmp7_dual_seqlen = (real_t *)malloc(ipm->sizeof_dual_seqlen);
     if (NULL == ipm->tmp7_dual_seqlen) {return HHMPC_DYNMEM_FAIL;}
     
+    ipm->tmp8_L_Y = (real_t *)malloc(sizeof(real_t) * ipm->dual_seqlen*ipm->dual_seqlen);
+    if (NULL == ipm->tmp8_L_Y) {return HHMPC_DYNMEM_FAIL;}
+    
+    ipm->tmp9_L_Y_T = (real_t *)malloc(sizeof(real_t) * ipm->dual_seqlen*ipm->dual_seqlen);
+    if (NULL == ipm->tmp9_L_Y_T) {return HHMPC_DYNMEM_FAIL;}
+    
     return HHMPC_DYNMEM_OK;
 }
 
