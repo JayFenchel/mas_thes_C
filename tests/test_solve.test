@@ -676,6 +676,8 @@
                    tmp_optvar_seqlen,
                    tmp_dual_seqlen,
                    L_Y, L_Y_T);
+    print_mtx(delta_v, 15, 1);
+//     print_mtx(delta_z_ref, 21, 1);
     fail_unless(mtx_cmp(delta_z, delta_z_ref, 21, 1e-6) == -1, "form_Y2 failed");
     fail_unless(mtx_cmp(delta_v, delta_v_ref, 15, 1e-5) == -1, "form_Y2 failed");
     free(delta_v);

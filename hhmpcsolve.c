@@ -26,6 +26,7 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
 
 
     form_Y(Y, L_Y, L_Phi_blocks, L_Phi_T_blocks, Phi, T, A, A_T, n, B, B_T, m, eye_nm, eye_n, PhiBlock);
+//     print_mtx(L_Phi_blocks, T*n, T*n);
 
     /*Ohne Schleife klappt es so nur für T = 3*/
     setBlock(L_Phi, T*(n+m), L_Phi_blocks, m, m, 0, 0);
@@ -66,12 +67,14 @@ void form_delta_v(real_t delta_v[],
     real_t L_Y[T*n*T*n];
     real_t L_Y_T[T*n*T*n];
     /* TODO LY effizienter bilen */
+    print_mtx(Y, T*n, T*n);
     cholesky(L_Y, Y, T*n);
     mpcinc_mtx_transpose(L_Y_T, L_Y, T*n, T*n);
     
     mpcinc_mtx_scale(delta_v, beta, -1., T*n, 1);
     fwd_subst(tmp_dual_seqlen, L_Y, T*n, delta_v, 1);
     bwd_subst(delta_v, L_Y_T, T*n, tmp_dual_seqlen, 1);
+    print_mtx(delta_v, T*n, 1);
 }
 
 void form_beta(real_t beta[],
@@ -104,13 +107,15 @@ void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[], real_t *L_Phi_T,
 {
     uint32_t i, j, bl;
     
-    real_t hilf1[(n+m)*(n+m)];
     real_t PhiBlock_I[(n+m)*(n+m)];
     real_t last_PhiBlock_I[(n+m)*(n+m)];
+    
+    real_t hilf1[(n+m)*(n+m)]; /* Auch einmal als temporäre Variable für [n*n] verwendet */
+
     real_t Qi_tilde[n*n];
     real_t Y11[n*n];
     
-    real_t hilf4[n*n];
+        real_t Y11_T[n*n];
         
     real_t A_T_B_T[n*(n+m)];
     for (i = 0; i < n*n; i++)
@@ -122,63 +127,56 @@ void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[], real_t *L_Phi_T,
     mpcinc_mtx_transpose(A_B, A_T_B_T, n+m, n);
     
     
-
-        /* first Block: i = 0 */
+for (i = 0; i < T; i++){
+    
+    for (j = 0; j < (n+m)*(n+m); j++){
+        last_PhiBlock_I[j] = PhiBlock_I[j];
+    }
+    if (i < (T-1)){
+        if (i == 0){        
         getBlock(PhiBlock, Phi, T*(n+m), 0, 0, m, m);
         bl = 0;
         cholesky(L_Phi+bl, PhiBlock, m);
         mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, m, m);
-        
-        getBlock(PhiBlock, Phi, T*(n+m), m, m, n+m, n+m);
-        bl = m*m;
-        cholesky(L_Phi+bl, PhiBlock, n+m);
-        mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, n+m, n+m);
-        fwd_subst(hilf1, L_Phi+bl, n+m, eye_nm, n+m);
-        bwd_subst(PhiBlock_I, L_Phi_T+bl, n+m, hilf1, n+m);
-        
-        getBlock(Qi_tilde, PhiBlock_I, n+m, 0, 0, n, n);
-        form_Y11(Y11, B, n, m, L_Phi, Qi_tilde);
-        
-        setBlock(Y, T*n, Y11, n, n, 0, 0);
-    
-
-    for (i = 0; i < T; i++){
-    if (i > 0){
-        for (j = 0; j < (n+m)*(n+m); j++)
-            last_PhiBlock_I[j] = PhiBlock_I[j];
-        if (i == T-1){
-            getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n, n);
-            bl = m*m+i*(n+m)*(n+m);
-            cholesky(L_Phi+bl, PhiBlock, n);
-            mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, n, n);
-            fwd_subst(hilf4, L_Phi+bl, n, eye_n, n);
-            bwd_subst(Qi_tilde, L_Phi_T+bl, n, hilf4, n);
-            
-            
-        }else{
-        getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n+m, n+m);
-        bl = m*m+i*(n+m)*(n+m);
-        cholesky(L_Phi+bl, PhiBlock, n+m);
-        mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, n+m, n+m);
-        fwd_subst(hilf1, L_Phi+bl, n+m, eye_nm, n+m);
-        bwd_subst(PhiBlock_I, L_Phi_T+bl, n+m, hilf1, n+m);
-        
-        getBlock(Qi_tilde, PhiBlock_I, n+m, 0, 0, n, n);
             
         }
         
-        form_Yii(Y11, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T, n+m, n, Qi_tilde);
-        setBlock(Y, T*n, Y11, n, n, i*n, i*n);
+        getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n+m, n+m);
+        bl = m*m + i*(n+m)*(n+m);
+        cholesky(L_Phi+bl, PhiBlock, n+m);
+        mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, n+m, n+m);
+        fwd_subst(hilf1, L_Phi+bl, n+m, eye_nm, n+m);
+        bwd_subst(PhiBlock_I, L_Phi_T+bl, n+m, hilf1, n+m);
+        getBlock(Qi_tilde, PhiBlock_I, n+m, 0, 0, n, n);
+        if (i == 0){        
         
-    }
-    
-    if (i < T-1){
+        form_Y11(Y11, B, n, m, L_Phi, Qi_tilde);
+        setBlock(Y, T*n, Y11, n, n, i*n, i*n);
+        }else{
+        form_Yii(Y11, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T, n+m, n, Qi_tilde);
+        setBlock(Y, T*n, Y11, n, n, i*n, i*n);}
+        
         form_Y_i_ip1(Y11, A_T, n, B_T, m, PhiBlock_I);
         setBlock(Y, T*n, Y11, n, n, i*n, (i+1)*n);
-        real_t Y11_T[n*n];
         mpcinc_mtx_transpose(Y11_T, Y11, n, n);
         setBlock(Y, T*n, Y11_T, n, n, (i+1)*n, i*n);
-    }   
+        
+        
+    } else {
+        getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n, n);
+        bl = m*m + i*(n+m)*(n+m);
+        cholesky(L_Phi+bl, PhiBlock, n);
+        mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, n, n);
+        fwd_subst(hilf1, L_Phi+bl, n, eye_n, n);
+        bwd_subst(Qi_tilde, L_Phi_T+bl, n, hilf1, n);
+        form_Yii(Y11, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T, n+m, n, Qi_tilde);
+        setBlock(Y, T*n, Y11, n, n, i*n, i*n);
+    }
+    /* first Block: i = 0 */
+    
+    if (i>0) {
+        
+    }
     
     }
 }
