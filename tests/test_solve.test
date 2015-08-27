@@ -40,12 +40,16 @@
     real_t *L_Y = (real_t *)malloc(sizeof(real_t) * T*n*T*n);
     real_t *L_Y_T = (real_t *)malloc(sizeof(real_t) * T*n*T*n);
     real_t *C_T = (real_t *)malloc(sizeof(real_t) * T*(n+m)*T*n);
+    real_t *A_T = (real_t *)malloc(sizeof(real_t) * n*n);
+    real_t *B_T = (real_t *)malloc(sizeof(real_t) * m*n);
+    mpcinc_mtx_transpose(A_T, A, n, n);
+    mpcinc_mtx_transpose(B_T, B, n, m);
     mpcinc_mtx_transpose(C_T, C, T*n, T*(n+m));
     
     /* TODO Fehler abfangen 
      * if(delta_z == NULL)
      */
-    solve_sysofleq(delta_z, delta_v, Phi, rd, rp, C, C_T, A, B, n, m, T,
+    solve_sysofleq(delta_z, delta_v, Phi, rd, rp, C, C_T, A, A_T, B, B_T, n, m, T,
                    tmp_optvar_seqlen,
                    tmp_dual_seqlen,
                    L_Y, L_Y_T);
@@ -608,6 +612,8 @@
     real_t *L_Y = (real_t *)malloc(sizeof(real_t) * T*n*T*n);
     real_t *L_Y_T = (real_t *)malloc(sizeof(real_t) * T*n*T*n);
     real_t *C_T = (real_t *)malloc(sizeof(real_t) * T*(n+m)*T*n);
+    real_t *A_T = (real_t *)malloc(sizeof(real_t) * n*n);
+    real_t *B_T = (real_t *)malloc(sizeof(real_t) * m*n);
     real_t delta_z_ref[] = {-13.997489150487263, 
 5.406972595368199, 
 4.776895838826961, 
@@ -644,9 +650,10 @@
 4.343104636331974, 
 -11.941383543336487, 
 -24.835093488191738};
-    
+    mpcinc_mtx_transpose(A_T, A, n, n);
+    mpcinc_mtx_transpose(B_T, B, n, m);
     mpcinc_mtx_transpose(C_T, C, T*n, T*(n+m));
-    solve_sysofleq(delta_z, delta_v, Phi, rd, rp, C, C_T, A, B, n, m, T,
+    solve_sysofleq(delta_z, delta_v, Phi, rd, rp, C, C_T, A, A_T, B, B_T, n, m, T,
                    tmp_optvar_seqlen,
                    tmp_dual_seqlen,
                    L_Y, L_Y_T);
@@ -728,13 +735,17 @@
 9.864399399496964};
 
     
-    real_t C_T[T*(N+M) * T*N];                    
+    real_t C_T[T*(N+M) * T*N];              
+    real_t *A_T = (real_t *)malloc(sizeof(real_t) * N*N);
+    real_t *B_T = (real_t *)malloc(sizeof(real_t) * M*N);
+    mpcinc_mtx_transpose(A_T, A, N, N);
+    mpcinc_mtx_transpose(B_T, B, N, M);
                       
     for(g = 0; g < T*(N+M)*T*(N+M); g++)
         L_Phi[g] = 0;
 
     
-    form_Y(Y, L_Y, L_Phi_blocks, Phi, T, A, N, B, M);
+    form_Y(Y, L_Y, L_Phi_blocks, Phi, T, A, A_T, N, B, B_T, M);
     
     setBlock(L_Phi, T*(N+M), L_Phi_blocks, M, M, 0, 0);
     setBlock(L_Phi, T*(N+M), L_Phi_blocks+M*M, N+M, N+M, M, M);

@@ -82,6 +82,14 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     if (NULL == ipm->P_T) {return HHMPC_DYNMEM_FAIL;}
     mpcinc_mtx_transpose(ipm->P_T, ipm->P, prb->P->rows, prb->P->cols);
     
+    ipm->A_T = (real_t *)malloc(sizeof(real_t) * prb->A->rows*prb->A->cols);
+    if (NULL == ipm->A_T) {return HHMPC_DYNMEM_FAIL;}
+    mpcinc_mtx_transpose(ipm->A_T, ipm->A, prb->A->rows, prb->A->cols);
+    
+    ipm->B_T = (real_t *)malloc(sizeof(real_t) * prb->B->rows*prb->B->cols);
+    if (NULL == ipm->B_T) {return HHMPC_DYNMEM_FAIL;}
+    mpcinc_mtx_transpose(ipm->B_T, ipm->B, prb->B->rows, prb->B->cols);
+    
     ipm->C_T = (real_t *)malloc(sizeof(real_t) * prb->C->rows*prb->C->cols);
     if (NULL == ipm->C_T) {return HHMPC_DYNMEM_FAIL;}
     mpcinc_mtx_transpose(ipm->C_T, ipm->C, prb->C->rows, prb->C->cols);
