@@ -676,9 +676,8 @@
                    tmp_optvar_seqlen,
                    tmp_dual_seqlen,
                    L_Y, L_Y_T);
-    
-    fail_unless(mtx_cmp(delta_z, delta_z_ref, 21, 1e-7) == 0, "form_Y2 failed");
-    fail_unless(mtx_cmp(delta_v, delta_v_ref, 15, 1e-6) == 0, "form_Y2 failed");
+    fail_unless(mtx_cmp(delta_z, delta_z_ref, 21, 1e-6) == -1, "form_Y2 failed");
+    fail_unless(mtx_cmp(delta_v, delta_v_ref, 15, 1e-5) == -1, "form_Y2 failed");
     free(delta_v);
     free(delta_z);
     free(tmp_optvar_seqlen);
@@ -782,8 +781,8 @@
     
     cholesky(L_Phi_ref, Phi, T*(N+M));
     
-    fail_unless(mtx_cmp(Y, Y_ref, 36, 1e-9) == 0, "form_Y failed");
-    fail_unless(mtx_cmp(L_Phi, L_Phi_ref, T*(N+M)*T*(N+M), 0) == 0, "false L_Phi");
+    fail_unless(mtx_cmp(Y, Y_ref, 36, 1e-9) == -1, "form_Y failed");
+    fail_unless(mtx_cmp(L_Phi, L_Phi_ref, T*(N+M)*T*(N+M), 0) == -1, "false L_Phi");
     
     mpcinc_mtx_transpose(L_Phi_T, L_Phi, T*(N+M), T*(N+M));
     
@@ -796,8 +795,8 @@
     
     form_delta_z(delta_z, tmp_optvar_seqlen, delta_v, L_Phi, L_Phi_T, rd, C_T, T, N, M);
     
-    fail_unless(mtx_cmp(delta_v, delta_v_ref, 6, 1e-9) == 0, "form_delta_v failed");
-    fail_unless(mtx_cmp(delta_z, delta_z_ref, 9, 1e-10) == 0, "form_delta_z failed");
+    fail_unless(mtx_cmp(delta_v, delta_v_ref, 6, 1e-8) == -1, "form_delta_v failed");
+    fail_unless(mtx_cmp(delta_z, delta_z_ref, 9, 1e-10) == -1, "form_delta_z failed");
     
 #test form_Y11_test
     real_t sol[N*N];
@@ -807,7 +806,7 @@
     
     real_t sol_ref[] = {37., -12., -12., 5.};
     form_Y11(sol, B, N, M, R0_I, Q1);
-    fail_unless(mtx_cmp(sol, sol_ref, 4, 0) == 0, "form_Y11 failed");
+    fail_unless(mtx_cmp(sol, sol_ref, 4, 0) == -1, "form_Y11 failed");
 
 #test setBlock_test
     real_t Phi[] = {1., 0., 0., 0., 0., 0.,
@@ -826,7 +825,7 @@
                     0., 0., 0., 0., 0., 0.};
 
     setBlock(Phi, dim, block, 3, 4, 2, 3);
-    fail_unless(mtx_cmp(Phi, Phi_ref, 36, 0) == 0, "setBlock failed");
+    fail_unless(mtx_cmp(Phi, Phi_ref, 36, 0) == -1, "setBlock failed");
 
 #test getBlock_test
     real_t Phi[] = {1., 0., 0., 0., 0., 0.,
@@ -840,6 +839,6 @@
     real_t block_ref[] = {2., 0., 0., 2., 0., 0., 0., 3., -3., 0., -3., 3.};
     uint32_t first_row = 2, first_col = 3, size_row = 3, size_col = 4;
     getBlock(block, Phi, dim, first_row, first_col, size_row, size_col);
-    fail_unless(mtx_cmp(block, block_ref, 12, 0) == 0, "getBlock failed");
+    fail_unless(mtx_cmp(block, block_ref, 12, 0) == -1, "getBlock failed");
     
     

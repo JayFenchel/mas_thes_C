@@ -21,7 +21,7 @@ START_TEST(cholesky_test)
     real_t sol_ref[] = {2., 0., 0., 1., 2., 0., 0., 1., 2.};
     uint32_t dim = 3;
     cholesky(sol, mtx, dim);
-    fail_unless(mtx_cmp(sol, sol_ref, 9, 0) == 0, "cholesky failed");
+    fail_unless(mtx_cmp(sol, sol_ref, 9, 0) == -1, "cholesky failed");
 
 }
 END_TEST
@@ -33,7 +33,7 @@ START_TEST(fwd_subst_test)
     real_t test_a[] = {2., 0., 3., 1.}, test_b[] = {4., 8., 4., 8.};
     real_t sol_ref[] = {2., 4., -2., -4.};
     fwd_subst(sol, test_a, 2, test_b, 2);
-    fail_unless(mtx_cmp(sol, sol_ref, 4, 0) == 0, "forward substitution failed");
+    fail_unless(mtx_cmp(sol, sol_ref, 4, 0) == -1, "forward substitution failed");
 
 }
 END_TEST
@@ -45,7 +45,7 @@ START_TEST(bwd_subst_test)
     real_t test_a[] = {4., 1., 0., 2.}, test_b[] = {4., 8., 4., 8.};
     real_t sol_ref[] = {.5, 1., 2., 4.};
     bwd_subst(sol, test_a, 2, test_b, 2);
-    fail_unless(mtx_cmp(sol, sol_ref, 4, 0) == 0, "backward substitution failed");
+    fail_unless(mtx_cmp(sol, sol_ref, 4, 0) == -1, "backward substitution failed");
 
 }
 END_TEST
