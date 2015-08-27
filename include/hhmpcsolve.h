@@ -49,7 +49,8 @@ void form_Y(real_t mtxY[], real_t *mtxL_Y, real_t mtxL_Phi[],
             const real_t mtxPhi[],
             const uint32_t horizon,
             const real_t mtxA[], const real_t *A_T, const uint32_t dimA,
-            const real_t mtxB[], const real_t *B_T, const uint32_t colsB);
+            const real_t mtxB[], const real_t *B_T, const uint32_t colsB,
+            real_t * tmp_R_block_invers);
 
 void form_Yii(real_t solution[],
               const real_t A[], const uint32_t rowsA, const uint32_t colsA,

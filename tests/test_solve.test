@@ -734,6 +734,7 @@
 1.965419084817798, 
 9.864399399496964};
 
+    real_t t_R_bl_I[M*M];
     
     real_t C_T[T*(N+M) * T*N];              
     real_t *A_T = (real_t *)malloc(sizeof(real_t) * N*N);
@@ -745,7 +746,8 @@
         L_Phi[g] = 0;
 
     
-    form_Y(Y, L_Y, L_Phi_blocks, Phi, T, A, A_T, N, B, B_T, M);
+    form_Y(Y, L_Y, L_Phi_blocks, Phi, T, A, A_T, N, B, B_T, M,
+           t_R_bl_I);
     
     setBlock(L_Phi, T*(N+M), L_Phi_blocks, M, M, 0, 0);
     setBlock(L_Phi, T*(N+M), L_Phi_blocks+M*M, N+M, N+M, M, M);
