@@ -46,7 +46,8 @@ void form_beta(real_t beta[],
 
 /*returns also mtxL_Phi the cholesky factorization of Phi
  */
-void form_Y(real_t mtxY[], real_t *mtxL_Y, real_t mtxL_Phi[],
+void form_Y(real_t mtxY[], real_t *mtxL_Y,
+            real_t mtxL_Phi_blocks[], real_t mtxL_Phi_T_blocks[],
             const real_t mtxPhi[],
             const uint32_t horizon,
             const real_t mtxA[], const real_t *A_T, const uint32_t dimA,

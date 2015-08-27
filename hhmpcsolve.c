@@ -16,6 +16,7 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     real_t t_R_bl_I[m*m];
     
     real_t L_Phi_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
+    real_t L_Phi_T_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
     real_t L_Phi[T*(n+m)*T*(n+m)];
     real_t L_Phi_T[T*(n+m)*T*(n+m)];
     real_t beta[T*n];
@@ -24,7 +25,7 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     zeroes(L_Phi, T*(n+m)*T*(n+m));
 
 
-    form_Y(Y, L_Y, L_Phi_blocks, Phi, T, A, A_T, n, B, B_T, m, eye_nm, eye_n, t_R_bl_I);
+    form_Y(Y, L_Y, L_Phi_blocks, L_Phi_T_blocks, Phi, T, A, A_T, n, B, B_T, m, eye_nm, eye_n, t_R_bl_I);
 
     /*Ohne Schleife klappt es so nur für T = 3*/
     setBlock(L_Phi, T*(n+m), L_Phi_blocks, m, m, 0, 0);
@@ -93,7 +94,7 @@ void form_beta(real_t beta[],
     mpcinc_mtx_substract(beta, help3, rp, T*n, 1);
 }
 
-void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[],
+void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[], real_t *L_Phi_T,
             const real_t Phi[],
             const uint32_t T,
             const real_t A[], const real_t *A_T, const uint32_t n,
@@ -131,8 +132,9 @@ void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[],
     cholesky(L_Phi, R_bl_I, m);
     getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n+m, n+m);
     cholesky(L_Phi+m*m, PhiBlock, n+m);
-    fwd_subst(hilf1, L_Phi+m*m, n+m, eye_nm, n+m);
     mpcinc_mtx_transpose(PhiBlock_C_T, L_Phi+m*m, n+m, n+m);
+    
+    fwd_subst(hilf1, L_Phi+m*m, n+m, eye_nm, n+m);
     bwd_subst(hilf2, PhiBlock_C_T, n+m, hilf1, n+m);
     getBlock(Q1, hilf2, n+m, 0, 0, n, n);
     form_Y11(Y11, B, n, m, L_Phi, Q1);

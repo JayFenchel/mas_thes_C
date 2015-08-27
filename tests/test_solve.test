@@ -715,6 +715,7 @@
     real_t *L_Y = (real_t *)malloc(sizeof(real_t) * T*N*T*N);
     real_t *L_Y_T = (real_t *)malloc(sizeof(real_t) * T*N*T*N);
     real_t L_Phi_blocks[M*M + (T-1)*(N+M)*(N+M) + N*N]; /*blocks discribed in paper*/
+    real_t L_Phi_T_blocks[M*M + (T-1)*(N+M)*(N+M) + N*N]; /*blocks discribed in paper*/
     real_t L_Phi[T*(N+M)*T*(N+M)];
     real_t L_Phi_T[T*(N+M)*T*(N+M)];
     uint32_t g;
@@ -770,7 +771,7 @@
         L_Phi[g] = 0;
 
     
-    form_Y(Y, L_Y, L_Phi_blocks, Phi, T, A, A_T, N, B, B_T, M,
+    form_Y(Y, L_Y, L_Phi_blocks, L_Phi_T_blocks, Phi, T, A, A_T, N, B, B_T, M,
            eye_nm, eye_n,
            t_R_bl_I);
     
