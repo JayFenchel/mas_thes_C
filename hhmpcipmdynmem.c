@@ -5,6 +5,7 @@
 #include "include/cjson.h"
 #include "include/hhmpcipmdynmem.h"
 #include "include/mpcincmtxops.h"
+#include "include/hhmpcusefull.h"
 
 /* Static functions declarations */
 hhmpc_dynmem_error_t hhmpc_ipm_parse_elements(struct hhmpc_ipm *ipm, cJSON *data);
@@ -129,6 +130,14 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     
     ipm->tmp9_L_Y_T = (real_t *)malloc(sizeof(real_t) * ipm->dual_seqlen*ipm->dual_seqlen);
     if (NULL == ipm->tmp9_L_Y_T) {return HHMPC_DYNMEM_FAIL;}
+    
+    ipm->eye_optvar_veclen = (real_t *)malloc(sizeof(real_t) * ipm->optvar_veclen*ipm->optvar_veclen);
+    if (NULL == ipm->eye_optvar_veclen) {return HHMPC_DYNMEM_FAIL;}
+    eye(ipm->eye_optvar_veclen, ipm->optvar_veclen);
+    
+    ipm->eye_state_veclen = (real_t *)malloc(sizeof(real_t) * ipm->state_veclen*ipm->state_veclen);
+    if (NULL == ipm->eye_state_veclen) {return HHMPC_DYNMEM_FAIL;}
+    eye(ipm->eye_state_veclen, ipm->state_veclen);
     
     return HHMPC_DYNMEM_OK;
 }

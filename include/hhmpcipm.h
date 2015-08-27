@@ -62,6 +62,8 @@ struct hhmpc_ipm {
     real_t *tmp7_dual_seqlen;  /* Temporary variable of length optvar_seqlen. */
     real_t *tmp8_L_Y;
     real_t *tmp9_L_Y_T;
+    real_t *eye_optvar_veclen;
+    real_t *eye_state_veclen;
 };
 
 /* External function declarations */
