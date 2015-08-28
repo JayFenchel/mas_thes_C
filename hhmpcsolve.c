@@ -14,6 +14,8 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
                     real_t *L_Y, real_t *L_Y_T)
 {
     real_t PhiBlock[(n+m)*(n+m)];
+    real_t PhiBlock_I[(n+m)*(n+m)];
+    real_t PhiBlock_I_last[(n+m)*(n+m)];
     
     real_t L_Phi_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
     real_t L_Phi_T_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
@@ -38,7 +40,9 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     mpcinc_mtx_transpose(A_B, A_T_B_T, n+m, n);
     
     
-    form_Y(L_Y_blocks, L_Y_T_blocks, L_Phi_blocks, L_Phi_T_blocks, Phi, T, A_B, A_T_B_T, n, B, B_T, m, eye_nm, eye_n, PhiBlock);
+    form_Y(L_Y_blocks, L_Y_T_blocks, L_Phi_blocks, L_Phi_T_blocks,
+           Phi, T, A_B, A_T_B_T, n, B, B_T, m, eye_nm, eye_n,
+           PhiBlock, PhiBlock_I, PhiBlock_I_last);
 
     /*Ohne Schleife klappt es so nur für T = 3*/
     setBlock(L_Y, T*n, L_Y_blocks, n, n, 0, 0);
@@ -118,12 +122,9 @@ void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
             const real_t *A_B, const real_t *A_T_B_T, const uint32_t n,
             const real_t B[], const real_t *B_T, const uint32_t m,
             const real_t *eye_nm, const real_t *eye_n,
-            real_t *PhiBlock)
+            real_t *PhiBlock, real_t *PhiBlock_I, real_t *last_PhiBlock_I)
 {
     uint32_t i, j, bl;
-    
-    real_t PhiBlock_I[(n+m)*(n+m)];
-    real_t last_PhiBlock_I[(n+m)*(n+m)];
     /* hilf1 auch mehrmal als temporäre Variable für [n*n] und andere Größen verwendet */
     real_t hilf1[(n+m)*(n+m)]; 
 

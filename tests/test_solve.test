@@ -778,6 +778,8 @@
 9.864399399496964};
     uint32_t i;
     real_t PhiBlock[(N+M)*(N+M)];
+    real_t PhiBlock2[(N+M)*(N+M)];
+    real_t PhiBlock3[(N+M)*(N+M)];
     
     real_t C_T[T*(N+M) * T*N];              
     real_t *A_T = (real_t *)malloc(sizeof(real_t) * N*N);
@@ -800,9 +802,10 @@
         L_Phi[g] = 0;
 
     
-    form_Y(L_Y_blocks, L_Y_T_blocks, L_Phi_blocks, L_Phi_T_blocks, Phi, T, A_B, A_T_B_T, N, B, B_T, M,
+    form_Y(L_Y_blocks, L_Y_T_blocks, L_Phi_blocks, L_Phi_T_blocks,
+           Phi, T, A_B, A_T_B_T, N, B, B_T, M,
            eye_nm, eye_n,
-           PhiBlock);
+           PhiBlock, PhiBlock2, PhiBlock3);
     
     setBlock(L_Phi, T*(N+M), L_Phi_blocks, M, M, 0, 0);
     setBlock(L_Phi, T*(N+M), L_Phi_blocks+M*M, N+M, N+M, M, M);
