@@ -120,6 +120,19 @@ void mpcinc_mtx_substract(real_t pmtxc[], const real_t pmtxa[],
     return;
 }
 
+/* matrix substraction: pmtxa -= pmtxb.
+ * pmta, pmtb have size (rows x columns) */
+void mpcinc_mtx_substract_direct(real_t pmtxa[],
+        const real_t pmtxb[], const uint32_t rows,
+        const uint32_t cols)
+{
+    uint32_t k; /* matrix index (row * column) */
+    for (k = 0; k < rows * cols; k++) {
+        pmtxa[k] -= pmtxb[k];
+    }
+    return;
+}
+
 /* matrix multiplication and addition: pvecc = pvecc + pmtxa*pvecb.
  * pmtxa has shape (rows x columns); pvecc and pvecb are column vectors */
 void mpcinc_mtx_mul_add(real_t pvecc[], real_t pvecab[], const real_t pmtxa[],

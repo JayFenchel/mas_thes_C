@@ -51,6 +51,12 @@ extern void mpcinc_mtx_substract(real_t pmtxc[], const real_t pmtxa[],
         const real_t pmtxb[], const uint32_t rows,
         const uint32_t cols);
 
+/* matrix substraction: pmta -= pmtxb.
+ * pmta, pmtb have size (rows x columns) */
+extern void mpcinc_mtx_substract_direct(real_t pmtxa[],
+        const real_t pmtxb[], const uint32_t rows,
+        const uint32_t cols);
+
 /* matrix multiplication and addition: pvecc = pvecc + pmtxa*pvecb.
  * pmtxa has shape (rows x columns); pvecc and pvecb are column vectors
  * pvecab = pmtxa * pvecb */

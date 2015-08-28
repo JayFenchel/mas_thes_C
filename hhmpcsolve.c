@@ -68,7 +68,7 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     mpcinc_mtx_transpose(L_Phi_T, L_Phi, T*(n+m), T*(n+m));
     
     form_beta(beta, L_Phi, L_Phi_T, rd, rp, T, C, n, m);
-    form_delta_v(delta_v, tmp_dual_seqlen, L_Y, L_Y_T, beta, T, n);
+    form_delta_v(delta_v, tmp_dual_seqlen, L_Y_blocks, L_Y_T_blocks, beta, T, n);
     form_delta_z(delta_z, tmp_optvar_seqlen, delta_v,
                  L_Phi, L_Phi_T, rd, C_T, T, n, m);   
 }
@@ -95,9 +95,23 @@ void form_delta_v(real_t delta_v[],
                   const real_t beta[],
                   const uint32_t T, const uint32_t n)
 {
+    uint32_t i;
+    real_t tmp[n];
     mpcinc_mtx_scale(delta_v, beta, -1., T*n, 1);
-    fwd_subst(tmp_dual_seqlen, L_Y, T*n, delta_v, 1);
-    bwd_subst(delta_v, L_Y_T, T*n, tmp_dual_seqlen, 1);
+    for (i = 0; i < T-1; i++) {
+        fwd_subst(tmp_dual_seqlen+i*n, L_Y+2*i*n*n, n, delta_v+i*n, 1);
+        mpcinc_mtx_multiply_mtx_vec(tmp, L_Y+2*i*n*n+n*n, tmp_dual_seqlen+i*n, n, n);
+        mpcinc_mtx_substract_direct(delta_v+i*n+n, tmp, n, 1);
+    }
+    fwd_subst(tmp_dual_seqlen+i*n, L_Y+2*i*n*n, n, delta_v+i*n, 1); /*i=T-1*/
+    
+    for (i = T-1; i > 0; i--) {
+        bwd_subst(delta_v+i*n, L_Y_T+2*i*n*n, n, tmp_dual_seqlen+i*n, 1);
+        mpcinc_mtx_multiply_mtx_vec(tmp, L_Y_T+2*i*n*n-n*n, delta_v+i*n, n, n);
+        mpcinc_mtx_substract_direct(tmp_dual_seqlen+i*n-n, tmp, n, 1);
+    }
+    bwd_subst(delta_v+i*n, L_Y_T+2*i*n*n, n, tmp_dual_seqlen+i*n, 1); /*i=0*/
+
 }
 
 void form_beta(real_t beta[],

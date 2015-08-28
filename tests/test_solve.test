@@ -835,7 +835,7 @@
     setBlock(L_Y_T, T*N, L_Y_T_blocks+2*N*N, N, N, N, N);
     setBlock(L_Y_T, T*N, L_Y_T_blocks+3*N*N, N, N, N, 2*N);
     setBlock(L_Y_T, T*N, L_Y_T_blocks+4*N*N, N, N, 2*N, 2*N);
-    form_delta_v(delta_v, tmp_dual_seqlen, L_Y, L_Y_T, beta, T, N);
+    form_delta_v(delta_v, tmp_dual_seqlen, L_Y_blocks, L_Y_T_blocks, beta, T, N);
     
     
     mpcinc_mtx_transpose(C_T, C, T*N, T*(N+M));
