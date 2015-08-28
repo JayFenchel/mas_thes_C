@@ -157,7 +157,7 @@ for (i = 0; i < T; i++){
         form_Y11(Y11, B, B_T, n, m, L_Phi, L_Phi_T, Qi_tilde, hilf1, hilf1+(m*n));
         /* hilf1 has size (n+m)*(n+m), so there is enough space for all */
     } else {  /* not first block i != 0 */
-        form_Yii(Y11, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T, n+m, n, Qi_tilde);
+        form_Yii(Y11, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T, n+m, n, Qi_tilde, hilf1);
     }
     /* all blocks */
     setBlock(Y, T*n, Y11, n, n, i*n, i*n);
@@ -168,12 +168,11 @@ void form_Yii(real_t sol[],
               const real_t A_B[], const uint32_t rowsA, const uint32_t colsA,
               const real_t last_PhiBlock_I[], const uint32_t rowsB, const uint32_t colsB,
               const real_t A_T_B_T[], const uint32_t rowsC, const uint32_t colsC,
-              const real_t Qi[])
+              const real_t Qi[],
+              real_t *tmp)
 {
-    real_t help1[rowsA*(colsA+colsB)];
-    
-    mpcinc_mtx_multiply_mtx_mtx(help1, last_PhiBlock_I, A_T_B_T, rowsB, colsB, colsC);
-    mpcinc_mtx_multiply_mtx_mtx(sol, A_B, help1, rowsA, colsA, colsC);
+    mpcinc_mtx_multiply_mtx_mtx(tmp, last_PhiBlock_I, A_T_B_T, rowsB, colsB, colsC);
+    mpcinc_mtx_multiply_mtx_mtx(sol, A_B, tmp, rowsA, colsA, colsC);
     mpcinc_mtx_add_direct(sol, Qi, rowsA, rowsA);
 }
 
