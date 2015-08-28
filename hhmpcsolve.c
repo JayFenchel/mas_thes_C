@@ -27,7 +27,18 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     real_t L_Y_blocks[(2*T-1)*n*n];
     real_t L_Y_T_blocks[(2*T-1)*n*n];
     
-    form_Y(L_Y_blocks, L_Y_T_blocks, L_Phi_blocks, L_Phi_T_blocks, Phi, T, A, A_T, n, B, B_T, m, eye_nm, eye_n, PhiBlock);
+    real_t A_T_B_T[n*(n+m)];
+    uint32_t i;
+    for (i = 0; i < n*n; i++)
+        A_T_B_T[i] = A_T[i];
+    for (i = 0; i < n*m; i++)
+        A_T_B_T[n*n+i] = B_T[i];
+
+    real_t A_B[(n+m)*n];
+    mpcinc_mtx_transpose(A_B, A_T_B_T, n+m, n);
+    
+    
+    form_Y(L_Y_blocks, L_Y_T_blocks, L_Phi_blocks, L_Phi_T_blocks, Phi, T, A_B, A_T_B_T, n, B, B_T, m, eye_nm, eye_n, PhiBlock);
 
     /*Ohne Schleife klappt es so nur für T = 3*/
     setBlock(L_Y, T*n, L_Y_blocks, n, n, 0, 0);
@@ -104,7 +115,7 @@ void form_beta(real_t beta[],
 void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
             const real_t Phi[],
             const uint32_t T,
-            const real_t A[], const real_t *A_T, const uint32_t n,
+            const real_t *A_B, const real_t *A_T_B_T, const uint32_t n,
             const real_t B[], const real_t *B_T, const uint32_t m,
             const real_t *eye_nm, const real_t *eye_n,
             real_t *PhiBlock)
@@ -119,14 +130,6 @@ void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
     real_t Qi_tilde[n*n];
     real_t Y_bl[n*n];
     
-    real_t A_T_B_T[n*(n+m)];
-    for (i = 0; i < n*n; i++)
-        A_T_B_T[i] = A_T[i];
-    for (i = 0; i < n*m; i++)
-        A_T_B_T[n*n+i] = B_T[i];
-
-    real_t A_B[(n+m)*n];
-    mpcinc_mtx_transpose(A_B, A_T_B_T, n+m, n);
     
     
     for (i = 0; i < T; i++){
