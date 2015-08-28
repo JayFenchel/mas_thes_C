@@ -67,7 +67,7 @@ uint32_t mtx_cmp(const real_t mtxA[], const real_t mtxB[], real_t dim, real_t ac
 {
     uint32_t i, cmp = -1;
     for (i = 0; i<dim; i++){
-        cmp = smpl_abs((mtxA[i] - mtxB[i])) > acc ? i : cmp;
+        cmp = smpl_abs((mtxA[i] - mtxB[i])) <= acc ? cmp : i;
     }
     return cmp;
 }
