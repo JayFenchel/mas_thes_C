@@ -106,14 +106,12 @@ void form_Y(real_t Y[], real_t *L_Y, real_t L_Phi[], real_t *L_Phi_T,
     
     real_t PhiBlock_I[(n+m)*(n+m)];
     real_t last_PhiBlock_I[(n+m)*(n+m)];
-    
-    real_t hilf1[(n+m)*(n+m)]; /* Auch einmal als temporäre Variable für [n*n] verwendet */
+    /* hilf1 auch mehrmal als temporäre Variable für [n*n] und andere Größen verwendet */
+    real_t hilf1[(n+m)*(n+m)]; 
 
     real_t Qi_tilde[n*n];
-    real_t Y11[n*n];
+    real_t Y_bl[n*n];
     
-        real_t Y11_T[n*n];
-        
     real_t A_T_B_T[n*(n+m)];
     for (i = 0; i < n*n; i++)
         A_T_B_T[i] = A_T[i];
@@ -137,10 +135,10 @@ for (i = 0; i < T; i++){
         bwd_subst(PhiBlock_I, L_Phi_T+bl, n+m, hilf1, n+m);
         getBlock(Qi_tilde, PhiBlock_I, n+m, 0, 0, n, n);
         
-        form_Y_i_ip1(Y11, A_T_B_T, n+m, n, PhiBlock_I);
-        setBlock(Y, T*n, Y11, n, n, i*n, (i+1)*n);
-        mpcinc_mtx_transpose(Y11_T, Y11, n, n);
-        setBlock(Y, T*n, Y11_T, n, n, (i+1)*n, i*n);
+        form_Y_i_ip1(Y_bl, A_T_B_T, n+m, n, PhiBlock_I);
+        setBlock(Y, T*n, Y_bl, n, n, i*n, (i+1)*n);
+        mpcinc_mtx_transpose(hilf1, Y_bl, n, n);
+        setBlock(Y, T*n, hilf1, n, n, (i+1)*n, i*n);
     } else {  /* last block i = T-1 */
         getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n, n);
         bl = m*m + i*(n+m)*(n+m);
@@ -154,13 +152,13 @@ for (i = 0; i < T; i++){
         getBlock(PhiBlock, Phi, T*(n+m), 0, 0, m, m);
         cholesky(L_Phi, PhiBlock, m);
         mpcinc_mtx_transpose(L_Phi_T, L_Phi, m, m);
-        form_Y11(Y11, B, B_T, n, m, L_Phi, L_Phi_T, Qi_tilde, hilf1, hilf1+(m*n));
+        form_Y11(Y_bl, B, B_T, n, m, L_Phi, L_Phi_T, Qi_tilde, hilf1, hilf1+(m*n));
         /* hilf1 has size (n+m)*(n+m), so there is enough space for all */
     } else {  /* not first block i != 0 */
-        form_Yii(Y11, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T, n+m, n, Qi_tilde, hilf1);
+        form_Yii(Y_bl, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T, n+m, n, Qi_tilde, hilf1);
     }
     /* all blocks */
-    setBlock(Y, T*n, Y11, n, n, i*n, i*n);
+    setBlock(Y, T*n, Y_bl, n, n, i*n, i*n);
     }
 }
 
