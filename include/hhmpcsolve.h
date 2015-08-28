@@ -67,9 +67,11 @@ void form_Y_i_ip1(real_t solution[],
                   const real_t Qi_C[]);
 
 void form_Y11(real_t solution[],
-              const real_t B[], const uint32_t rowsB, const uint32_t colsB,
-              const real_t R0_Cholesky[],
-              const real_t Q1[]);
+              const real_t B[], const real_t *B_T,
+              const uint32_t rowsB, const uint32_t colsB,
+              const real_t R0_Cholesky[], const real_t R0_Cholesky_T[],
+              const real_t Q1[],
+              real_t *tmp1_mxn, real_t *tmp2_mxn);
 
 void setBlock(real_t mtx[], const uint32_t dimension, 
               const real_t block[], const uint32_t size_row, const uint32_t size_col,

@@ -820,9 +820,11 @@
     real_t B[] = {-3., 1.};
     real_t R0_I[] = {-.5};
     real_t Q1[] = {1., 0., 0., 1.};
+    real_t *tmp1_mxn = (real_t*)malloc(sizeof(real_t) * M*N);
+    real_t *tmp2_mxn = (real_t*)malloc(sizeof(real_t) * M*N);
     
     real_t sol_ref[] = {37., -12., -12., 5.};
-    form_Y11(sol, B, N, M, R0_I, Q1);
+    form_Y11(sol, B, B, N, M, R0_I, R0_I, Q1, tmp1_mxn, tmp2_mxn);
     fail_unless(mtx_cmp(sol, sol_ref, 4, 0) == -1, "form_Y11 failed");
 
 #test setBlock_test
