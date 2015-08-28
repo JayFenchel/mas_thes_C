@@ -32,7 +32,7 @@ void form_delta_z(real_t delta_z[],
 
 void form_delta_v(real_t delta_v[],
                   real_t *tmp_dual_seqlen,
-                  const real_t Y[], 
+                  const real_t L_Y[], const real_t L_Y_T[],
                   const real_t beta[],
                   const uint32_t T, const uint32_t n);
 
@@ -46,7 +46,7 @@ void form_beta(real_t beta[],
 
 /*returns also mtxL_Phi the cholesky factorization of Phi
  */
-void form_Y(real_t mtxY[], real_t *mtxL_Y,
+void form_Y(real_t mtxL_Y_blocks[], real_t *mtxL_Y_T_blocks,
             real_t mtxL_Phi_blocks[], real_t mtxL_Phi_T_blocks[],
             const real_t mtxPhi[],
             const uint32_t horizon,
