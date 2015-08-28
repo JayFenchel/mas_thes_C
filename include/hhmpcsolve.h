@@ -53,7 +53,8 @@ void form_Y(real_t mtxL_Y_blocks[], real_t *mtxL_Y_T_blocks,
             const real_t mtxA[], const real_t *A_B, const uint32_t dimA,
             const real_t mtxB[], const real_t *A_T_B_T, const uint32_t colsB,
             const real_t *eye_nm, const real_t *eye_n,
-            real_t *tmp_PhiBlock, real_t *PhiBlock_I, real_t *PhiBlock_I_last);
+            real_t *tmp_PhiBlock, real_t *PhiBlock_I, real_t *PhiBlock_I_last,
+            real_t *bl_nxn1, real_t *bl_nxn2, real_t *tmp);
 
 void form_Yii(real_t solution[],
               const real_t A[], const uint32_t rowsA, const uint32_t colsA,
