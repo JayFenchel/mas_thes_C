@@ -49,16 +49,6 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
            Block_nxn1, Block_nxn2, tmp_optvar_veclenxoptvar_veclen);
 
     /*Ohne Schleife klappt es so nur für T = 3*/
-    setBlock(L_Y, T*n, L_Y_blocks, n, n, 0, 0);
-    setBlock(L_Y, T*n, L_Y_blocks+n*n, n, n, n, 0);
-    setBlock(L_Y, T*n, L_Y_blocks+2*n*n, n, n, n, n);
-    setBlock(L_Y, T*n, L_Y_blocks+3*n*n, n, n, 2*n, n);
-    setBlock(L_Y, T*n, L_Y_blocks+4*n*n, n, n, 2*n, 2*n);
-    setBlock(L_Y_T, T*n, L_Y_T_blocks, n, n, 0, 0);
-    setBlock(L_Y_T, T*n, L_Y_T_blocks+n*n, n, n, 0, n);
-    setBlock(L_Y_T, T*n, L_Y_T_blocks+2*n*n, n, n, n, n);
-    setBlock(L_Y_T, T*n, L_Y_T_blocks+3*n*n, n, n, n, 2*n);
-    setBlock(L_Y_T, T*n, L_Y_T_blocks+4*n*n, n, n, 2*n, 2*n);
     
     setBlock(L_Phi, T*(n+m), L_Phi_blocks, m, m, 0, 0);
     setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m, n+m, n+m, m, m);
@@ -70,7 +60,7 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     form_beta(beta, L_Phi, L_Phi_T, rd, rp, T, C, n, m);
     form_delta_v(delta_v, tmp_dual_seqlen, L_Y_blocks, L_Y_T_blocks, beta, T, n);
     form_delta_z(delta_z, tmp_optvar_seqlen, delta_v,
-                 L_Phi, L_Phi_T, rd, C_T, T, n, m);   
+                 L_Phi_blocks, L_Phi_T_blocks, rd, C_T, T, n, m);   
 }
 
 void form_delta_z(real_t delta_z[],
@@ -82,11 +72,27 @@ void form_delta_z(real_t delta_z[],
                   const real_t C_T[],
                   const uint32_t T, const uint32_t n, const uint32_t m)
 {
+    uint32_t i;
     mpcinc_mtx_multiply_mtx_vec(delta_z, C_T, delta_v, T*(n+m), T*n);
     mpcinc_mtx_add_direct(delta_z, rd, T*(n+m), 1);
     mpcinc_mtx_scale_direct(delta_z, -1, T*(n+m), 1);
-    fwd_subst(tmp_optvar_seqlen, L_Phi, T*(n+m), delta_z, 1);
-    bwd_subst(delta_z, L_Phi_T, T*(n+m), tmp_optvar_seqlen, 1);    
+    
+//     fwd_subst(tmp_optvar_seqlen, L_Phi, T*(n+m), delta_z, 1);
+//     print_mtx(tmp_optvar_seqlen, T*(n+m), 1);
+//     bwd_subst(delta_z, L_Phi_T, T*(n+m), tmp_optvar_seqlen, 1);
+    
+    fwd_subst(tmp_optvar_seqlen, L_Phi, m, delta_z, 1);
+    for (i = 0; i < T-1; i++){
+        fwd_subst(tmp_optvar_seqlen+m+i*(n+m), L_Phi+m*m+i*(n+m)*(n+m), n+m, delta_z+m+i*(n+m), 1);
+    }
+    fwd_subst(tmp_optvar_seqlen+m+i*(n+m), L_Phi+m*m+i*(n+m)*(n+m), n, delta_z+m+i*(n+m), 1);
+    
+    bwd_subst(delta_z+m+i*(n+m), L_Phi_T+m*m+i*(n+m)*(n+m), n, tmp_optvar_seqlen+m+i*(n+m), 1);
+    for (i = T-2; i > 0; i--){
+        bwd_subst(delta_z+m+i*(n+m), L_Phi_T+m*m+i*(n+m)*(n+m), n+m, tmp_optvar_seqlen+m+i*(n+m), 1);
+    }
+    bwd_subst(delta_z+m+i*(n+m), L_Phi_T+m*m+i*(n+m)*(n+m), n+m, tmp_optvar_seqlen+m+i*(n+m), 1);
+    bwd_subst(delta_z, L_Phi_T, m, tmp_optvar_seqlen, 1);
 }
 
 void form_delta_v(real_t delta_v[],
@@ -98,6 +104,7 @@ void form_delta_v(real_t delta_v[],
     uint32_t i;
     real_t tmp[n];
     mpcinc_mtx_scale(delta_v, beta, -1., T*n, 1);
+    
     for (i = 0; i < T-1; i++) {
         fwd_subst(tmp_dual_seqlen+i*n, L_Y+2*i*n*n, n, delta_v+i*n, 1);
         mpcinc_mtx_multiply_mtx_vec(tmp, L_Y+2*i*n*n+n*n, tmp_dual_seqlen+i*n, n, n);
@@ -111,7 +118,6 @@ void form_delta_v(real_t delta_v[],
         mpcinc_mtx_substract_direct(tmp_dual_seqlen+i*n-n, tmp, n, 1);
     }
     bwd_subst(delta_v+i*n, L_Y_T+2*i*n*n, n, tmp_dual_seqlen+i*n, 1); /*i=0*/
-
 }
 
 void form_beta(real_t beta[],

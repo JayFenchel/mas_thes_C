@@ -692,7 +692,6 @@
                    tmp_optvar_seqlen,
                    tmp_dual_seqlen,
                    L_Y, L_Y_T);
-    
     fail_unless(mtx_cmp(delta_z, delta_z_ref, 21, 1e-6) == -1, "form_Y2 failed");
     fail_unless(mtx_cmp(delta_v, delta_v_ref, 15, 1e-5) == -1, "form_Y2 failed");
     free(delta_v);
@@ -840,7 +839,7 @@
     
     mpcinc_mtx_transpose(C_T, C, T*N, T*(N+M));
     
-    form_delta_z(delta_z, tmp_optvar_seqlen, delta_v, L_Phi, L_Phi_T, rd, C_T, T, N, M);
+    form_delta_z(delta_z, tmp_optvar_seqlen, delta_v, L_Phi_blocks, L_Phi_T_blocks, rd, C_T, T, N, M);
     
     fail_unless(mtx_cmp(delta_v, delta_v_ref, 6, 1e-8) == -1, "form_delta_v failed");
     fail_unless(mtx_cmp(delta_z, delta_z_ref, 9, 1e-10) == -1, "form_delta_z failed");
