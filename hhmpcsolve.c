@@ -57,7 +57,7 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     
     mpcinc_mtx_transpose(L_Phi_T, L_Phi, T*(n+m), T*(n+m));
     
-    form_beta(beta, L_Phi, L_Phi_T, rd, rp, T, C, n, m);
+    form_beta(beta, L_Phi_blocks, L_Phi_T_blocks, rd, rp, T, C, n, m);
     form_delta_v(delta_v, tmp_dual_seqlen, L_Y_blocks, L_Y_T_blocks, beta, T, n);
     form_delta_z(delta_z, tmp_optvar_seqlen, delta_v,
                  L_Phi_blocks, L_Phi_T_blocks, rd, C_T, T, n, m);   
@@ -129,13 +129,28 @@ void form_beta(real_t beta[],
                /*const real_t A[], const uint32_t n,
                const real_t B[], const uint32_t m*/)
 {
+    uint32_t i;
     /* TODO beta lässt sich sicher auch parallel zu Y formen */
     real_t help1[T*(n+m)];
     real_t help2[T*(n+m)];
     real_t help3[T*n];
     
-    fwd_subst(help1, L_Phi, T*(n+m), rd, 1);
-    bwd_subst(help2, L_Phi_T, T*(n+m), help1, 1);
+//     fwd_subst(help1, L_Phi, T*(n+m), rd, 1);
+//     bwd_subst(help2, L_Phi_T, T*(n+m), help1, 1);
+    
+    fwd_subst(help1, L_Phi, m, rd, 1);
+    for (i = 0; i < T-1; i++){
+        fwd_subst(help1+m+i*(n+m), L_Phi+m*m+i*(n+m)*(n+m), n+m, rd+m+i*(n+m), 1);
+    }
+    fwd_subst(help1+m+i*(n+m), L_Phi+m*m+i*(n+m)*(n+m), n, rd+m+i*(n+m), 1);
+    
+    bwd_subst(help2+m+i*(n+m), L_Phi_T+m*m+i*(n+m)*(n+m), n, help1+m+i*(n+m), 1);
+    for (i = T-2; i > 0; i--){
+        bwd_subst(help2+m+i*(n+m), L_Phi_T+m*m+i*(n+m)*(n+m), n+m, help1+m+i*(n+m), 1);
+    }
+    bwd_subst(help2+m+i*(n+m), L_Phi_T+m*m+i*(n+m)*(n+m), n+m, help1+m+i*(n+m), 1);
+    bwd_subst(help2, L_Phi_T, m, help1, 1);
+    
     mpcinc_mtx_multiply_mtx_vec(help3, C, help2, T*n, T*(n+m));
     mpcinc_mtx_substract(beta, help3, rp, T*n, 1);
 }
