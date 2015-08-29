@@ -22,12 +22,7 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     
     real_t L_Phi_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
     real_t L_Phi_T_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
-    real_t L_Phi[T*(n+m)*T*(n+m)];
-    real_t L_Phi_T[T*(n+m)*T*(n+m)];
     real_t beta[T*n];
-    real_t Y[T*n*T*n];
-    zeroes(Y, T*n*T*n);
-    zeroes(L_Phi, T*(n+m)*T*(n+m));
     
     real_t L_Y_blocks[(2*T-1)*n*n];
     real_t L_Y_T_blocks[(2*T-1)*n*n];
@@ -47,15 +42,6 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
            Phi, T, A_B, A_T_B_T, n, B, B_T, m, eye_nm, eye_n,
            PhiBlock, PhiBlock_I, PhiBlock_I_last,
            Block_nxn1, Block_nxn2, tmp_optvar_veclenxoptvar_veclen);
-
-    /*Ohne Schleife klappt es so nur für T = 3*/
-    
-    setBlock(L_Phi, T*(n+m), L_Phi_blocks, m, m, 0, 0);
-    setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m, n+m, n+m, m, m);
-    setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m+1*(n+m)*(n+m), n+m, n+m, m+1*(n+m), m+1*(n+m));
-    setBlock(L_Phi, T*(n+m), L_Phi_blocks+m*m+2*(n+m)*(n+m), n, n, m+2*(n+m), m+2*(n+m));
-    
-    mpcinc_mtx_transpose(L_Phi_T, L_Phi, T*(n+m), T*(n+m));
     
     form_beta(beta, L_Phi_blocks, L_Phi_T_blocks, rd, rp, T, C, n, m);
     form_delta_v(delta_v, tmp_dual_seqlen, L_Y_blocks, L_Y_T_blocks, beta, T, n);
