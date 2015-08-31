@@ -1,6 +1,9 @@
 {
 "optvar": {"horizon": 3, "veclen": 5, "state_veclen": 3},
 
+"nb_socc": 1,
+"socc": [{"A": {"rows": 3, "data": [1.0, 1.0, 1.0], "cols": 1}, "b": {"rows": 2, "data": [1.0, 1.0], "cols": 1}, "c": {"rows": 2, "data": [1.0, 1.0], "cols": 1}, "d": {"rows": 2, "data": [1.0, 1.0], "cols": 1}}],
+
 "par": {"xk": {"rows": 3, "data": [0.2, 0.2, 0.5], "cols": 1}},
 
 "constant": {"q": {"rows": 3, "data": [1.0, 1.0, 1.0], "cols": 1},

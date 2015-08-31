@@ -72,7 +72,7 @@ struct hhmpc_socp_prb {
     struct hhmpc_term *P;
     struct hhmpc_qc *qc;
     uint32_t nb_qc;
-    struct hhmpc_socc *socc;
+    struct hhmpc_socc **socc;
     uint32_t nb_socc;
     struct hhmpc_term *H;
     struct hhmpc_term *b;
@@ -88,16 +88,16 @@ struct hhmpc_socp_prb {
 /**/
 struct hhmpc_qc {
     struct hhmpc_term *Gamma;
-    real_t *beta;
-    real_t *alpha;
+    struct hhmpc_term *beta;
+    struct hhmpc_term *alpha;
 };
 
 /**/
 struct hhmpc_socc {
     struct hhmpc_term *A;
-    real_t *b;
-    real_t *c;
-    real_t *d;
+    struct hhmpc_term *b;
+    struct hhmpc_term *c;
+    struct hhmpc_term *d;
 };
 
 struct hhmpc_socp {

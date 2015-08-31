@@ -41,6 +41,16 @@ int main(void) {
     ipm->z_ini[12] = 0.2;
     ipm->z_ini[13] = 0.2;
     ipm->z_ini[14] = 0.5;
+    ipm->v_ini[0] = 0.;
+    ipm->v_ini[1] = 0.;
+    ipm->v_ini[2] = 0.;
+    ipm->v_ini[3] = 0.;
+    ipm->v_ini[4] = 0.;
+    ipm->v_ini[5] = 0.;
+    ipm->v_ini[6] = 0.;
+    ipm->v_ini[7] = 0.;
+    ipm->v_ini[8] = 0.;
+    ipm->v_ini[9] = 0.;
     
     ipm->conf->in_iter = 5;
     
