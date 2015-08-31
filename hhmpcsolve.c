@@ -26,19 +26,18 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     real_t tmp_optvar_veclenxoptvar_veclen[(n+m)*(n+m)];
     
     real_t L_Phi_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
-    real_t L_Phi_T_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
-    real_t beta[T*n];
-    
+    real_t L_Phi_T_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/    
     
     form_Y(L_Y, L_Y_T, L_Phi_blocks, L_Phi_T_blocks,
            Phi, T, ipm->A_B, ipm->A_B_T, n, B, B_T, m, eye_nm, eye_n,
            PhiBlock, PhiBlock_I, PhiBlock_I_last,
            Block_nxn1, Block_nxn2, tmp_optvar_veclenxoptvar_veclen);
     
-    form_beta(beta, L_Phi_blocks, L_Phi_T_blocks, rd, rp, T, C, n, m,
+    /* temporären Zeiger für beta sparen */
+    form_beta(delta_v, L_Phi_blocks, L_Phi_T_blocks, rd, rp, T, C, n, m,
               tmp1_optvar_seqlen, tmp2_optvar_seqlen);
     form_delta_v(delta_v, tmp_dual_seqlen, tmp3_state_veclen, 
-                 L_Y, L_Y_T, beta, T, n);
+                 L_Y, L_Y_T, T, n);
     form_delta_z(delta_z, tmp1_optvar_seqlen, delta_v,
                  L_Phi_blocks, L_Phi_T_blocks, rd, C_T, T, n, m);   
 }
@@ -78,11 +77,10 @@ void form_delta_z(real_t delta_z[],
 void form_delta_v(real_t delta_v[],
                   real_t *tmp_dual_seqlen, real_t *tmp_n,
                   const real_t L_Y[], const real_t L_Y_T[],
-                  const real_t beta[],
                   const uint32_t T, const uint32_t n)
 {
     uint32_t i;
-    mpcinc_mtx_scale(delta_v, beta, -1., T*n, 1);
+    /* mpcinc_mtx_scale(delta_v, beta, -1., T*n, 1); */
     
     for (i = 0; i < T-1; i++) {
         fwd_subst(tmp_dual_seqlen+i*n, L_Y+2*i*n*n, n, delta_v+i*n, 1);
@@ -130,6 +128,7 @@ void form_beta(real_t beta[],
     
     mpcinc_mtx_multiply_mtx_vec(tmp1, C, tmp2, T*n, T*(n+m));
     mpcinc_mtx_substract(beta, tmp1, rp, T*n, 1);
+    mpcinc_mtx_scale_direct(beta, -1., T*n, 1);  /* return -beta */
 }
 
 void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,

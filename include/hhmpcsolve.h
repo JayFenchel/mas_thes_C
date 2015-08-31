@@ -36,7 +36,6 @@ void form_delta_v(real_t delta_v[],
                   real_t *tmp_dual_seqlen,
                   real_t *tmp_state_veclen,
                   const real_t L_Y[], const real_t L_Y_T[],
-                  const real_t beta[],
                   const uint32_t T, const uint32_t n);
 
 void form_beta(real_t beta[],

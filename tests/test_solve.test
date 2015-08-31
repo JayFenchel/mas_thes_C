@@ -858,7 +858,9 @@
     mpcinc_mtx_transpose(L_Phi_T, L_Phi, T*(N+M), T*(N+M));
     
     form_beta(beta, L_Phi_blocks, L_Phi_T_blocks, rd, rp, T, C, N, M, tmp1, tmp2);
-    
+    for(i = 0; i < T*N; i++){
+        delta_v[i]=beta[i];
+    }
     setBlock(L_Y, T*N, L_Y_blocks, N, N, 0, 0);
     setBlock(L_Y, T*N, L_Y_blocks+N*N, N, N, N, 0);
     setBlock(L_Y, T*N, L_Y_blocks+2*N*N, N, N, N, N);
@@ -869,7 +871,7 @@
     setBlock(L_Y_T, T*N, L_Y_T_blocks+2*N*N, N, N, N, N);
     setBlock(L_Y_T, T*N, L_Y_T_blocks+3*N*N, N, N, N, 2*N);
     setBlock(L_Y_T, T*N, L_Y_T_blocks+4*N*N, N, N, 2*N, 2*N);
-    form_delta_v(delta_v, tmp_dual_seqlen, tmp3, L_Y_blocks, L_Y_T_blocks, beta, T, N);
+    form_delta_v(delta_v, tmp_dual_seqlen, tmp3, L_Y_blocks, L_Y_T_blocks, T, N);
     
     
     mpcinc_mtx_transpose(C_T, C, T*N, T*(N+M));
