@@ -2,11 +2,13 @@
 #define HHMPCALG_H
 
 #include "arithmetic.h"
+#include "hhmpcipm.h"
 #include "hhmpcmath.h"
 #include "mpcincmtxops.h"
 #include "hhmpcusefull.h"
 
 void solve_sysofleq(real_t delta_z[], real_t delta_v[],
+                    const struct hhmpc_ipm *ipm,
                     const real_t Phi[],
                     const real_t rd[], const real_t rp[],
                     const real_t C[],
@@ -32,6 +34,7 @@ void form_delta_z(real_t delta_z[],
 
 void form_delta_v(real_t delta_v[],
                   real_t *tmp_dual_seqlen,
+                  real_t *tmp_state_veclen,
                   const real_t L_Y[], const real_t L_Y_T[],
                   const real_t beta[],
                   const uint32_t T, const uint32_t n);
@@ -42,7 +45,8 @@ void form_beta(real_t beta[],
                const real_t rd[], const real_t rp[],
                const uint32_t horizon,
                const real_t mtxA[], const uint32_t dimA,
-               /*const real_t mtxB[],*/ const uint32_t colsB);
+               /*const real_t mtxB[],*/ const uint32_t colsB,
+               real_t *tmp1_optvar_seqlen, real_t *tmp2_optvar_seqlen);
 
 /*returns also mtxL_Phi the cholesky factorization of Phi
  */

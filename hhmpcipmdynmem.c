@@ -107,11 +107,17 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->tmp1_optvar_seqlen = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
     if (NULL == ipm->tmp1_optvar_seqlen) {return HHMPC_DYNMEM_FAIL;}
     
+    ipm->tmp2_optvar_seqlen = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
+    if (NULL == ipm->tmp2_optvar_seqlen) {return HHMPC_DYNMEM_FAIL;}
+    
     ipm->tmp2_dual_seqlen = (real_t *)malloc(ipm->sizeof_dual_seqlen);
     if (NULL == ipm->tmp2_dual_seqlen) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->tmp3_mtx_optvar_nb_of_ueq = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->nb_of_ueq_constr);
     if (NULL == ipm->tmp3_mtx_optvar_nb_of_ueq) {return HHMPC_DYNMEM_FAIL;}
+    
+    ipm->tmp3_state_veclen = (real_t *)malloc(sizeof(real_t) * ipm->state_veclen);
+    if (NULL == ipm->tmp3_state_veclen) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->tmp4_nb_of_constr = (real_t *)malloc(sizeof(real_t) * ipm->nb_of_ueq_constr);
     if (NULL == ipm->tmp4_nb_of_constr) {return HHMPC_DYNMEM_FAIL;}

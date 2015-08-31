@@ -46,7 +46,10 @@
                        0., 1., 0.,
                        0., 0., 1};
     real_t eye_n[] = {1., 0.,
-                      0., 1.};                  
+                      0., 1.};           
+    struct hhmpc_ipm *ipm = (struct hhmpc_ipm*)malloc(sizeof(struct hhmpc_ipm));
+    ipm->tmp2_optvar_seqlen = (real_t *)malloc(sizeof(real_t) * T*(n+m));
+    ipm->tmp3_state_veclen = (real_t *)malloc(sizeof(real_t) * n);
     mpcinc_mtx_transpose(A_T, A, n, n);
     mpcinc_mtx_transpose(B_T, B, n, m);
     mpcinc_mtx_transpose(C_T, C, T*n, T*(n+m));
@@ -54,7 +57,7 @@
     /* TODO Fehler abfangen 
      * if(delta_z == NULL)
      */
-    solve_sysofleq(delta_z, delta_v, Phi, rd, rp, C, C_T, A, A_T, B, B_T, n, m, T,
+    solve_sysofleq(delta_z, delta_v, ipm, Phi, rd, rp, C, C_T, A, A_T, B, B_T, n, m, T,
                    eye_nm, eye_n,
                    tmp_optvar_seqlen,
                    tmp_dual_seqlen,
@@ -683,11 +686,14 @@
                       0., 0., 1., 0., 0.,
                       0., 0., 0., 1., 0.,
                       0., 0., 0., 0., 1.};
+    struct hhmpc_ipm *ipm = (struct hhmpc_ipm*)malloc(sizeof(struct hhmpc_ipm));
+    ipm->tmp2_optvar_seqlen = (real_t *)malloc(sizeof(real_t) * T*(n+m));
+    ipm->tmp3_state_veclen = (real_t *)malloc(sizeof(real_t) * n);
     mpcinc_mtx_transpose(A_T, A, n, n);
     mpcinc_mtx_transpose(B_T, B, n, m);
     mpcinc_mtx_transpose(C_T, C, T*n, T*(n+m));
     
-    solve_sysofleq(delta_z, delta_v, Phi, rd, rp, C, C_T, A, A_T, B, B_T, n, m, T,
+    solve_sysofleq(delta_z, delta_v, ipm, Phi, rd, rp, C, C_T, A, A_T, B, B_T, n, m, T,
                    eye_nm, eye_n,
                    tmp_optvar_seqlen,
                    tmp_dual_seqlen,
@@ -788,6 +794,9 @@
     real_t *B_T = (real_t *)malloc(sizeof(real_t) * M*N);
     real_t A_T_B_T[N*(N+M)];
     real_t A_B[(N+M)*N];
+    real_t *tmp1 = (real_t *)malloc(sizeof(real_t) * T*(N+N));
+    real_t *tmp2 = (real_t *)malloc(sizeof(real_t) * T*(M+N));
+    real_t *tmp3 = (real_t *)malloc(sizeof(real_t) * N);
     mpcinc_mtx_transpose(A_T, A, N, N);
     mpcinc_mtx_transpose(B_T, B, N, M);
     
@@ -822,7 +831,7 @@
     
     mpcinc_mtx_transpose(L_Phi_T, L_Phi, T*(N+M), T*(N+M));
     
-    form_beta(beta, L_Phi_blocks, L_Phi_T_blocks, rd, rp, T, C, N, M);
+    form_beta(beta, L_Phi_blocks, L_Phi_T_blocks, rd, rp, T, C, N, M, tmp1, tmp2);
     
     setBlock(L_Y, T*N, L_Y_blocks, N, N, 0, 0);
     setBlock(L_Y, T*N, L_Y_blocks+N*N, N, N, N, 0);
@@ -834,7 +843,7 @@
     setBlock(L_Y_T, T*N, L_Y_T_blocks+2*N*N, N, N, N, N);
     setBlock(L_Y_T, T*N, L_Y_T_blocks+3*N*N, N, N, N, 2*N);
     setBlock(L_Y_T, T*N, L_Y_T_blocks+4*N*N, N, N, 2*N, 2*N);
-    form_delta_v(delta_v, tmp_dual_seqlen, L_Y_blocks, L_Y_T_blocks, beta, T, N);
+    form_delta_v(delta_v, tmp_dual_seqlen, tmp3, L_Y_blocks, L_Y_T_blocks, beta, T, N);
     
     
     mpcinc_mtx_transpose(C_T, C, T*N, T*(N+M));

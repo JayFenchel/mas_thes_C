@@ -54,7 +54,9 @@ struct hhmpc_ipm {
     uint32_t sizeof_optvar_seqlen;  /* Number of bytes in the optimization variable sequence. */
     
     real_t *tmp1_optvar_seqlen;  /* Temporary variable of length optvar_seqlen. */
+    real_t *tmp2_optvar_seqlen;  /* Temporary variable of length optvar_seqlen. */
     real_t *tmp2_dual_seqlen;  /* Temporary variable of length optvar_seqlen. */
+    real_t *tmp3_state_veclen;
     real_t *tmp3_mtx_optvar_nb_of_ueq;
     real_t *tmp4_nb_of_constr;
     real_t *tmp5_nb_of_constr;

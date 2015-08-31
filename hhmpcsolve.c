@@ -2,6 +2,7 @@
 
 
 void solve_sysofleq(real_t delta_z[], real_t delta_v[],
+                    const struct hhmpc_ipm *ipm,
                     const real_t Phi[],
                     const real_t rd[], const real_t rp[],
                     const real_t C[], const real_t *C_T,
@@ -13,6 +14,10 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
                     real_t *tmp_dual_seqlen,
                     real_t *L_Y, real_t *L_Y_T)
 {
+    real_t *tmp1_optvar_seqlen = tmp_optvar_seqlen;
+    real_t *tmp2_optvar_seqlen = ipm->tmp2_optvar_seqlen;
+    real_t *tmp3_state_veclen = ipm->tmp3_state_veclen;
+    
     real_t PhiBlock[(n+m)*(n+m)];
     real_t PhiBlock_I[(n+m)*(n+m)];
     real_t PhiBlock_I_last[(n+m)*(n+m)];
@@ -43,9 +48,11 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
            PhiBlock, PhiBlock_I, PhiBlock_I_last,
            Block_nxn1, Block_nxn2, tmp_optvar_veclenxoptvar_veclen);
     
-    form_beta(beta, L_Phi_blocks, L_Phi_T_blocks, rd, rp, T, C, n, m);
-    form_delta_v(delta_v, tmp_dual_seqlen, L_Y_blocks, L_Y_T_blocks, beta, T, n);
-    form_delta_z(delta_z, tmp_optvar_seqlen, delta_v,
+    form_beta(beta, L_Phi_blocks, L_Phi_T_blocks, rd, rp, T, C, n, m,
+              tmp1_optvar_seqlen, tmp2_optvar_seqlen);
+    form_delta_v(delta_v, tmp_dual_seqlen, tmp3_state_veclen, 
+                 L_Y_blocks, L_Y_T_blocks, beta, T, n);
+    form_delta_z(delta_z, tmp1_optvar_seqlen, delta_v,
                  L_Phi_blocks, L_Phi_T_blocks, rd, C_T, T, n, m);   
 }
 
@@ -82,26 +89,25 @@ void form_delta_z(real_t delta_z[],
 }
 
 void form_delta_v(real_t delta_v[],
-                  real_t *tmp_dual_seqlen,
+                  real_t *tmp_dual_seqlen, real_t *tmp_n,
                   const real_t L_Y[], const real_t L_Y_T[],
                   const real_t beta[],
                   const uint32_t T, const uint32_t n)
 {
     uint32_t i;
-    real_t tmp[n];
     mpcinc_mtx_scale(delta_v, beta, -1., T*n, 1);
     
     for (i = 0; i < T-1; i++) {
         fwd_subst(tmp_dual_seqlen+i*n, L_Y+2*i*n*n, n, delta_v+i*n, 1);
-        mpcinc_mtx_multiply_mtx_vec(tmp, L_Y+2*i*n*n+n*n, tmp_dual_seqlen+i*n, n, n);
-        mpcinc_mtx_substract_direct(delta_v+i*n+n, tmp, n, 1);
+        mpcinc_mtx_multiply_mtx_vec(tmp_n, L_Y+2*i*n*n+n*n, tmp_dual_seqlen+i*n, n, n);
+        mpcinc_mtx_substract_direct(delta_v+i*n+n, tmp_n, n, 1);
     }
     fwd_subst(tmp_dual_seqlen+i*n, L_Y+2*i*n*n, n, delta_v+i*n, 1); /*i=T-1*/
     
     for (i = T-1; i > 0; i--) {
         bwd_subst(delta_v+i*n, L_Y_T+2*i*n*n, n, tmp_dual_seqlen+i*n, 1);
-        mpcinc_mtx_multiply_mtx_vec(tmp, L_Y_T+2*i*n*n-n*n, delta_v+i*n, n, n);
-        mpcinc_mtx_substract_direct(tmp_dual_seqlen+i*n-n, tmp, n, 1);
+        mpcinc_mtx_multiply_mtx_vec(tmp_n, L_Y_T+2*i*n*n-n*n, delta_v+i*n, n, n);
+        mpcinc_mtx_substract_direct(tmp_dual_seqlen+i*n-n, tmp_n, n, 1);
     }
     bwd_subst(delta_v+i*n, L_Y_T+2*i*n*n, n, tmp_dual_seqlen+i*n, 1); /*i=0*/
 }
@@ -111,34 +117,32 @@ void form_beta(real_t beta[],
                const real_t L_Phi_T[],
                const real_t rd[], const real_t rp[],
                const uint32_t T,
-               const real_t C[], const uint32_t n, const uint32_t m
+               const real_t C[], const uint32_t n, const uint32_t m,
+               real_t *tmp1, real_t *tmp2
                /*const real_t A[], const uint32_t n,
                const real_t B[], const uint32_t m*/)
 {
     uint32_t i;
     /* TODO beta lässt sich sicher auch parallel zu Y formen */
-    real_t help1[T*(n+m)];
-    real_t help2[T*(n+m)];
-    real_t help3[T*n];
     
-//     fwd_subst(help1, L_Phi, T*(n+m), rd, 1);
-//     bwd_subst(help2, L_Phi_T, T*(n+m), help1, 1);
+//     fwd_subst(tmp1, L_Phi, T*(n+m), rd, 1);
+//     bwd_subst(tmp2, L_Phi_T, T*(n+m), tmp1, 1);
     
-    fwd_subst(help1, L_Phi, m, rd, 1);
+    fwd_subst(tmp1, L_Phi, m, rd, 1);
     for (i = 0; i < T-1; i++){
-        fwd_subst(help1+m+i*(n+m), L_Phi+m*m+i*(n+m)*(n+m), n+m, rd+m+i*(n+m), 1);
+        fwd_subst(tmp1+m+i*(n+m), L_Phi+m*m+i*(n+m)*(n+m), n+m, rd+m+i*(n+m), 1);
     }
-    fwd_subst(help1+m+i*(n+m), L_Phi+m*m+i*(n+m)*(n+m), n, rd+m+i*(n+m), 1);
+    fwd_subst(tmp1+m+i*(n+m), L_Phi+m*m+i*(n+m)*(n+m), n, rd+m+i*(n+m), 1);
     
-    bwd_subst(help2+m+i*(n+m), L_Phi_T+m*m+i*(n+m)*(n+m), n, help1+m+i*(n+m), 1);
+    bwd_subst(tmp2+m+i*(n+m), L_Phi_T+m*m+i*(n+m)*(n+m), n, tmp1+m+i*(n+m), 1);
     for (i = T-2; i > 0; i--){
-        bwd_subst(help2+m+i*(n+m), L_Phi_T+m*m+i*(n+m)*(n+m), n+m, help1+m+i*(n+m), 1);
+        bwd_subst(tmp2+m+i*(n+m), L_Phi_T+m*m+i*(n+m)*(n+m), n+m, tmp1+m+i*(n+m), 1);
     }
-    bwd_subst(help2+m+i*(n+m), L_Phi_T+m*m+i*(n+m)*(n+m), n+m, help1+m+i*(n+m), 1);
-    bwd_subst(help2, L_Phi_T, m, help1, 1);
+    bwd_subst(tmp2+m+i*(n+m), L_Phi_T+m*m+i*(n+m)*(n+m), n+m, tmp1+m+i*(n+m), 1);
+    bwd_subst(tmp2, L_Phi_T, m, tmp1, 1);
     
-    mpcinc_mtx_multiply_mtx_vec(help3, C, help2, T*n, T*(n+m));
-    mpcinc_mtx_substract(beta, help3, rp, T*n, 1);
+    mpcinc_mtx_multiply_mtx_vec(tmp1, C, tmp2, T*n, T*(n+m));
+    mpcinc_mtx_substract(beta, tmp1, rp, T*n, 1);
 }
 
 void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
