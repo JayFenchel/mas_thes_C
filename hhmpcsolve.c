@@ -29,29 +29,16 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     real_t L_Phi_T_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
     real_t beta[T*n];
     
-    real_t L_Y_blocks[(2*T-1)*n*n];
-    real_t L_Y_T_blocks[(2*T-1)*n*n];
     
-    real_t A_T_B_T[n*(n+m)];
-    uint32_t i;
-    for (i = 0; i < n*n; i++)
-        A_T_B_T[i] = A_T[i];
-    for (i = 0; i < n*m; i++)
-        A_T_B_T[n*n+i] = B_T[i];
-
-    real_t A_B[(n+m)*n];
-    mpcinc_mtx_transpose(A_B, A_T_B_T, n+m, n);
-    
-    
-    form_Y(L_Y_blocks, L_Y_T_blocks, L_Phi_blocks, L_Phi_T_blocks,
-           Phi, T, A_B, A_T_B_T, n, B, B_T, m, eye_nm, eye_n,
+    form_Y(L_Y, L_Y_T, L_Phi_blocks, L_Phi_T_blocks,
+           Phi, T, ipm->A_B, ipm->A_B_T, n, B, B_T, m, eye_nm, eye_n,
            PhiBlock, PhiBlock_I, PhiBlock_I_last,
            Block_nxn1, Block_nxn2, tmp_optvar_veclenxoptvar_veclen);
     
     form_beta(beta, L_Phi_blocks, L_Phi_T_blocks, rd, rp, T, C, n, m,
               tmp1_optvar_seqlen, tmp2_optvar_seqlen);
     form_delta_v(delta_v, tmp_dual_seqlen, tmp3_state_veclen, 
-                 L_Y_blocks, L_Y_T_blocks, beta, T, n);
+                 L_Y, L_Y_T, beta, T, n);
     form_delta_z(delta_z, tmp1_optvar_seqlen, delta_v,
                  L_Phi_blocks, L_Phi_T_blocks, rd, C_T, T, n, m);   
 }

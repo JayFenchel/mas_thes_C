@@ -50,8 +50,20 @@
     struct hhmpc_ipm *ipm = (struct hhmpc_ipm*)malloc(sizeof(struct hhmpc_ipm));
     ipm->tmp2_optvar_seqlen = (real_t *)malloc(sizeof(real_t) * T*(n+m));
     ipm->tmp3_state_veclen = (real_t *)malloc(sizeof(real_t) * n);
+    ipm->A_B_T =
+            (real_t *)malloc(sizeof(real_t) * (n+m)*n);
+    ipm->A_B =
+            (real_t *)malloc(sizeof(real_t) * n*(n+m));
+    uint32_t i;
     mpcinc_mtx_transpose(A_T, A, n, n);
     mpcinc_mtx_transpose(B_T, B, n, m);
+    for (i = 0; i < n*n; i++)
+        ipm->A_B_T[i] = A_T[i];
+    for (i = 0; i < n*m; i++)
+        ipm->A_B_T[n*n+i] = B_T[i];
+    
+    mpcinc_mtx_transpose(ipm->A_B, ipm->A_B_T, n+m, n);
+    
     mpcinc_mtx_transpose(C_T, C, T*n, T*(n+m));
     
     /* TODO Fehler abfangen 
@@ -689,8 +701,22 @@
     struct hhmpc_ipm *ipm = (struct hhmpc_ipm*)malloc(sizeof(struct hhmpc_ipm));
     ipm->tmp2_optvar_seqlen = (real_t *)malloc(sizeof(real_t) * T*(n+m));
     ipm->tmp3_state_veclen = (real_t *)malloc(sizeof(real_t) * n);
+    ipm->A_B_T =
+            (real_t *)malloc(sizeof(real_t) * (n+m)*n);
+    ipm->A_B =
+            (real_t *)malloc(sizeof(real_t) * n*(n+m));
+    uint32_t i;
+    
     mpcinc_mtx_transpose(A_T, A, n, n);
     mpcinc_mtx_transpose(B_T, B, n, m);
+    for (i = 0; i < n*n; i++)
+        ipm->A_B_T[i] = A_T[i];
+    for (i = 0; i < n*m; i++)
+        ipm->A_B_T[n*n+i] = B_T[i];
+    
+    mpcinc_mtx_transpose(ipm->A_B, ipm->A_B_T, n+m, n);
+    
+
     mpcinc_mtx_transpose(C_T, C, T*n, T*(n+m));
     
     solve_sysofleq(delta_z, delta_v, ipm, Phi, rd, rp, C, C_T, A, A_T, B, B_T, n, m, T,
