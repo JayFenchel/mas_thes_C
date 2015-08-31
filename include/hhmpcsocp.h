@@ -70,6 +70,10 @@ struct hhmpc_socp_prb {
     struct hhmpc_term *B;
     struct hhmpc_term *C;
     struct hhmpc_term *P;
+    struct hhmpc_qc *qc;
+    uint32_t nb_qc;
+    struct hhmpc_socc *socc;
+    uint32_t nb_socc;
     struct hhmpc_term *H;
     struct hhmpc_term *b;
     
@@ -79,6 +83,21 @@ struct hhmpc_socp_prb {
     uint32_t optvar_veclen;  /* The length of each vector in the optimation variable sequence. */
     uint32_t optvar_seqlen;  /* The full length of optimization variable sequence. */
     uint32_t sizeof_optvar_seqlen;  /* Number of bytes in the optimization variable sequence. */
+};
+
+/**/
+struct hhmpc_qc {
+    struct hhmpc_term *Gamma;
+    real_t *beta;
+    real_t *alpha;
+};
+
+/**/
+struct hhmpc_socc {
+    struct hhmpc_term *A;
+    real_t *b;
+    real_t *c;
+    real_t *d;
 };
 
 struct hhmpc_socp {

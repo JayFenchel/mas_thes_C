@@ -30,6 +30,7 @@ struct hhmpc_ipm {
     real_t *C;
     real_t *C_T;
     real_t *H;
+    struct hhmpc_ipm_P_hat *P_of_z;
     real_t *P;
     real_t *P_T;
     
@@ -76,6 +77,34 @@ struct hhmpc_ipm {
     real_t *tmpQbl;  /* Temp var for matrix of size state_veclen x state_veclen */
     real_t *eye_optvar_veclen;
     real_t *eye_state_veclen;
+};
+
+/* Matrix P_hat depending on z */
+struct hhmpc_ipm_P_hat {
+    real_t *P;
+    struct hhmpc_ipm_qc *qc;
+    struct hhmpc_ipm_socc *socc;
+    uint32_t nb_lin_constr;
+    uint32_t nb_qc;
+    uint32_t nb_socc;
+};
+
+/**/
+struct hhmpc_ipm_qc {
+    real_t *Gamma;
+    uint32_t dim;
+    real_t *beta;
+    real_t *alpha;
+};
+
+/**/
+struct hhmpc_ipm_socc {
+    real_t *A;
+    uint32_t rowsA;
+    uint32_t colsA;
+    real_t *b;
+    real_t *c;
+    real_t *d;
 };
 
 /* External function declarations */
