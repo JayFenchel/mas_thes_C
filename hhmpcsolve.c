@@ -18,21 +18,20 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     real_t *tmp2_optvar_seqlen = ipm->tmp2_optvar_seqlen;
     real_t *tmp3_state_veclen = ipm->tmp3_state_veclen;
     
-    real_t PhiBlock[(n+m)*(n+m)];
-    real_t PhiBlock_I[(n+m)*(n+m)];
-    real_t PhiBlock_I_last[(n+m)*(n+m)];
-    real_t Block_nxn1[n*n];
-    real_t Block_nxn2[n*n];
-    real_t tmp_optvar_veclenxoptvar_veclen[(n+m)*(n+m)];
-    
-    real_t L_Phi_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
-    real_t L_Phi_T_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/    
+    real_t *PhiBlock = ipm->tmp_phibl1;
+    real_t *PhiBlock_I = ipm->tmp_phibl2;
+    real_t *PhiBlock_I_last = ipm->tmp_phibl3;
+    real_t *Block_nxn1 = ipm->tmpQbl;
+    real_t *Block_nxn2 = ipm->tmpYbl;
+    real_t *tmp_optvar_veclenxoptvar_veclen = ipm->tmp10;
+    real_t *L_Phi_blocks = ipm->tmp8_L_Phi;
+    real_t *L_Phi_T_blocks = ipm->tmp9_L_Phi_T;
     
     form_Y(L_Y, L_Y_T, L_Phi_blocks, L_Phi_T_blocks,
            Phi, T, ipm->A_B, ipm->A_B_T, n, B, B_T, m, eye_nm, eye_n,
            PhiBlock, PhiBlock_I, PhiBlock_I_last,
            Block_nxn1, Block_nxn2, tmp_optvar_veclenxoptvar_veclen);
-    
+
     /* temporären Zeiger für beta sparen */
     form_beta(delta_v, L_Phi_blocks, L_Phi_T_blocks, rd, rp, T, C, n, m,
               tmp1_optvar_seqlen, tmp2_optvar_seqlen);

@@ -50,6 +50,25 @@
     struct hhmpc_ipm *ipm = (struct hhmpc_ipm*)malloc(sizeof(struct hhmpc_ipm));
     ipm->tmp2_optvar_seqlen = (real_t *)malloc(sizeof(real_t) * T*(n+m));
     ipm->tmp3_state_veclen = (real_t *)malloc(sizeof(real_t) * n);
+    
+    real_t PhiBlock[(n+m)*(n+m)];
+    real_t PhiBlock_I[(n+m)*(n+m)];
+    real_t PhiBlock_I_last[(n+m)*(n+m)];
+    real_t Block_nxn1[n*n];
+    real_t Block_nxn2[n*n];
+    real_t tmp_optvar_veclenxoptvar_veclen[(n+m)*(n+m)];
+    
+    real_t L_Phi_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
+    real_t L_Phi_T_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
+    ipm->tmp_phibl1 = PhiBlock;
+    ipm->tmp_phibl2 = PhiBlock_I;
+    ipm->tmp_phibl3 = PhiBlock_I_last;
+    ipm->tmp10 = tmp_optvar_veclenxoptvar_veclen;
+    ipm->tmpYbl = Block_nxn1;
+    ipm->tmpQbl = Block_nxn2;
+    ipm->tmp8_L_Phi = L_Phi_blocks;
+    ipm->tmp9_L_Phi_T = L_Phi_T_blocks;
+    
     ipm->A_B_T =
             (real_t *)malloc(sizeof(real_t) * (n+m)*n);
     ipm->A_B =
@@ -701,6 +720,26 @@
     struct hhmpc_ipm *ipm = (struct hhmpc_ipm*)malloc(sizeof(struct hhmpc_ipm));
     ipm->tmp2_optvar_seqlen = (real_t *)malloc(sizeof(real_t) * T*(n+m));
     ipm->tmp3_state_veclen = (real_t *)malloc(sizeof(real_t) * n);
+    
+    real_t PhiBlock[(n+m)*(n+m)];
+    real_t PhiBlock_I[(n+m)*(n+m)];
+    real_t PhiBlock_I_last[(n+m)*(n+m)];
+    real_t Block_nxn1[n*n];
+    real_t Block_nxn2[n*n];
+    real_t tmp_optvar_veclenxoptvar_veclen[(n+m)*(n+m)];
+    
+    real_t L_Phi_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
+    real_t L_Phi_T_blocks[m*m + (T-1)*(n+m)*(n+m) + n*n]; /*blocks discribed in paper*/
+    ipm->tmp_phibl1 = PhiBlock;
+    ipm->tmp_phibl2 = PhiBlock_I;
+    ipm->tmp_phibl3 = PhiBlock_I_last;
+    ipm->tmp10 = tmp_optvar_veclenxoptvar_veclen;
+    ipm->tmpYbl = Block_nxn1;
+    ipm->tmpQbl = Block_nxn2;
+    ipm->tmp8_L_Phi = L_Phi_blocks;
+    ipm->tmp9_L_Phi_T = L_Phi_T_blocks;
+    
+    
     ipm->A_B_T =
             (real_t *)malloc(sizeof(real_t) * (n+m)*n);
     ipm->A_B =

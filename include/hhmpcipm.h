@@ -66,6 +66,14 @@ struct hhmpc_ipm {
     real_t *tmp7_dual_seqlen;  /* Temporary variable of length optvar_seqlen. */
     real_t *tmp8_L_Y;
     real_t *tmp9_L_Y_T;
+    real_t *tmp8_L_Phi;
+    real_t *tmp9_L_Phi_T;
+    real_t *tmp_phibl1;  /* Temp var for matrix of size optvar_veclen x optvar_veclen */
+    real_t *tmp_phibl2;  /* Temp var for matrix of size optvar_veclen x optvar_veclen */
+    real_t *tmp_phibl3;  /* Temp var for matrix of size optvar_veclen x optvar_veclen */
+    real_t *tmp10;  /* Temp var for up to optvar_veclen x optvar_veclen values */
+    real_t *tmpYbl;
+    real_t *tmpQbl;  /* Temp var for matrix of size state_veclen x state_veclen */
     real_t *eye_optvar_veclen;
     real_t *eye_state_veclen;
 };

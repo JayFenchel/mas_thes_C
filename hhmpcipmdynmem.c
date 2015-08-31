@@ -145,12 +145,40 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->tmp7_dual_seqlen = (real_t *)malloc(ipm->sizeof_dual_seqlen);
     if (NULL == ipm->tmp7_dual_seqlen) {return HHMPC_DYNMEM_FAIL;}
     
-    ipm->tmp8_L_Y = (real_t *)malloc(sizeof(real_t) * ipm->dual_seqlen*ipm->dual_seqlen);
+    ipm->tmp8_L_Y =
+            (real_t *)malloc(sizeof(real_t) * (2*ipm->horizon-1)*ipm->state_veclen*ipm->state_veclen);
     if (NULL == ipm->tmp8_L_Y) {return HHMPC_DYNMEM_FAIL;}  /*T*n*n* big enough*/
     
-    ipm->tmp9_L_Y_T = (real_t *)malloc(sizeof(real_t) * ipm->dual_seqlen*ipm->dual_seqlen);
+    ipm->tmp9_L_Y_T =
+            (real_t *)malloc(sizeof(real_t) * (2*ipm->horizon-1)*ipm->state_veclen*ipm->state_veclen);
     if (NULL == ipm->tmp9_L_Y_T) {return HHMPC_DYNMEM_FAIL;}  /*T*n*n* big enough*/
+        
+    ipm->tmp8_L_Phi =
+            (real_t *)malloc(sizeof(real_t) * ipm->horizon*ipm->optvar_veclen*ipm->optvar_veclen);
+    if (NULL == ipm->tmp8_L_Phi) {return HHMPC_DYNMEM_FAIL;}  /*m*m+(T-1)*(n+m)*(n+m)+n*n big enough*/
     
+    ipm->tmp9_L_Phi_T =
+            (real_t *)malloc(sizeof(real_t) * ipm->horizon*ipm->optvar_veclen*ipm->optvar_veclen);
+    if (NULL == ipm->tmp9_L_Phi_T) {return HHMPC_DYNMEM_FAIL;}  /*m*m+(T-1)*(n+m)*(n+m)+n*n big enough*/
+    
+    ipm->tmp_phibl1 = (real_t *)malloc(sizeof(real_t) * ipm->optvar_veclen*ipm->optvar_veclen);
+    if (NULL == ipm->tmp_phibl1) {return HHMPC_DYNMEM_FAIL;}
+    
+    ipm->tmp_phibl2 = (real_t *)malloc(sizeof(real_t) * ipm->optvar_veclen*ipm->optvar_veclen);
+    if (NULL == ipm->tmp_phibl2) {return HHMPC_DYNMEM_FAIL;}
+    
+    ipm->tmp_phibl3 = (real_t *)malloc(sizeof(real_t) * ipm->optvar_veclen*ipm->optvar_veclen);
+    if (NULL == ipm->tmp_phibl3) {return HHMPC_DYNMEM_FAIL;}
+    
+    ipm->tmp10 = (real_t *)malloc(sizeof(real_t) * ipm->optvar_veclen*ipm->optvar_veclen);
+    if (NULL == ipm->tmp10) {return HHMPC_DYNMEM_FAIL;}
+    
+    ipm->tmpYbl = (real_t *)malloc(sizeof(real_t) * ipm->state_veclen*ipm->state_veclen);
+    if (NULL == ipm->tmpYbl) {return HHMPC_DYNMEM_FAIL;}
+    
+    ipm->tmpQbl = (real_t *)malloc(sizeof(real_t) * ipm->state_veclen*ipm->state_veclen);
+    if (NULL == ipm->tmpQbl) {return HHMPC_DYNMEM_FAIL;}
+        
     ipm->eye_optvar_veclen = (real_t *)malloc(sizeof(real_t) * ipm->optvar_veclen*ipm->optvar_veclen);
     if (NULL == ipm->eye_optvar_veclen) {return HHMPC_DYNMEM_FAIL;}
     eye(ipm->eye_optvar_veclen, ipm->optvar_veclen);
