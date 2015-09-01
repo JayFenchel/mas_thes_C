@@ -22,6 +22,7 @@ static void form_Phi(real_t *Phi, real_t *help,
                      const uint32_t optvar_seqlen, const uint32_t nb_of_ueq_constr);
 static void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm,
                        const real_t *z);
+static void update(const struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen);
 
 /* external functions definition */
 
@@ -48,6 +49,9 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     
     /*Improve z for a fixed number of steps j_in*/
     for (j = 0; j < *(ipm->j_in); j++) {
+        update(ipm->P_of_z, ipm->optvar_seqlen);/*
+        print_mtx(ipm->P_of_z->P, 36, 15);
+        print_mtx(ipm->P_of_z->P_hat, 36, 15);*/
         form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
         form_diag_d_sq(ipm->diag_d_sq, ipm->d, ipm->nb_of_ueq_constr);
         form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->H, ipm->P_T,
@@ -97,12 +101,18 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
     mpcinc_mtx_scale(help1, ipm->h, -1, ipm->nb_of_ueq_constr, 1);
     mpcinc_mtx_mul_add(help1, help2, ipm->P, z_check,
                        ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
-    printf("check:\n");
+//     printf("check:\n");
     for (i = 0; i < ipm->nb_of_ueq_constr; i++){
         /*printf("%f\n", help1[i]);*/
         if (help1[i] >= 0) {return 1;}
     }
     return 0;
+}
+
+void update(const struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen)
+{
+    memcpy(P->P_hat, P->P, sizeof(real_t) * P->nb_lin_constr*optvar_seqlen);
+    mpcinc_mtx_transpose(P->P_hat_T, P->P_hat, P->nb_lin_constr, optvar_seqlen);
 }
 
 void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)

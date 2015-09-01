@@ -10,6 +10,34 @@ struct hhmpc_ipm_conf {
     uint32_t in_iter;
 };
 
+/**/
+struct hhmpc_ipm_qc {
+    real_t *Gamma;
+    real_t *beta;
+    real_t *alpha;
+};
+
+/**/
+struct hhmpc_ipm_socc {
+    real_t *A;
+    uint32_t rowsA;
+    real_t *b;
+    real_t *c;
+    real_t *d;
+};
+
+/* Matrix P_hat depending on z */
+struct hhmpc_ipm_P_hat {
+    real_t *P;
+    real_t *P_hat;
+    real_t *P_hat_T;
+    struct hhmpc_ipm_qc **qc;
+    struct hhmpc_ipm_socc **socc;
+    uint32_t nb_lin_constr;
+    uint32_t nb_qc;
+    uint32_t nb_socc;
+};
+
 struct hhmpc_ipm {
     struct hhmpc_ipm_conf *conf;  /* Algorithm configuration data. */
     real_t *z_opt;  /* Solution to the optimal control problem. */
@@ -77,34 +105,6 @@ struct hhmpc_ipm {
     real_t *tmpQbl;  /* Temp var for matrix of size state_veclen x state_veclen */
     real_t *eye_optvar_veclen;
     real_t *eye_state_veclen;
-};
-
-/* Matrix P_hat depending on z */
-struct hhmpc_ipm_P_hat {
-    real_t *P;
-    real_t *P_hat;
-    real_t *P_hat_T;
-    struct hhmpc_ipm_qc **qc;
-    struct hhmpc_ipm_socc **socc;
-    uint32_t nb_lin_constr;
-    uint32_t nb_qc;
-    uint32_t nb_socc;
-};
-
-/**/
-struct hhmpc_ipm_qc {
-    real_t *Gamma;
-    real_t *beta;
-    real_t *alpha;
-};
-
-/**/
-struct hhmpc_ipm_socc {
-    real_t *A;
-    uint32_t rowsA;
-    real_t *b;
-    real_t *c;
-    real_t *d;
 };
 
 /* External function declarations */
