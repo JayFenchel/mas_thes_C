@@ -1,6 +1,8 @@
 #ifndef HHMPCSOCP_H
 #define HHMPCSOCP_H
 
+#define HIER    printf("HIER\n");
+
 #include "mc04types.h"  /* typedefs */
 #include "arithmetic.h"
 

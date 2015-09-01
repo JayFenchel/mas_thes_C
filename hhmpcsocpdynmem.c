@@ -191,9 +191,17 @@ hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
     
     for (i = 0; i < socp->prb->nb_socc; i++){
         socp->prb->socc[i] = &s[i];
+        socp->prb->socc[i]->A = (struct hhmpc_term*)malloc(sizeof(struct hhmpc_term));
+        if (NULL == socp->prb->socc[i]->A) {return HHMPC_DYNMEM_FAIL;}
         hhmpc_get_json_constr_term(socp->prb->socc[i]->A, data, "socc", "A", i);
+        socp->prb->socc[i]->b = (struct hhmpc_term*)malloc(sizeof(struct hhmpc_term));
+        if (NULL == socp->prb->socc[i]->b) {return HHMPC_DYNMEM_FAIL;}
         hhmpc_get_json_constr_term(socp->prb->socc[i]->b, data, "socc", "b", i);
+        socp->prb->socc[i]->c = (struct hhmpc_term*)malloc(sizeof(struct hhmpc_term));
+        if (NULL == socp->prb->socc[i]->c) {return HHMPC_DYNMEM_FAIL;}
         hhmpc_get_json_constr_term(socp->prb->socc[i]->c, data, "socc", "c", i);
+        socp->prb->socc[i]->d = (struct hhmpc_term*)malloc(sizeof(struct hhmpc_term));
+        if (NULL == socp->prb->socc[i]->d) {return HHMPC_DYNMEM_FAIL;}
         hhmpc_get_json_constr_term(socp->prb->socc[i]->d, data, "socc", "d", i);
     }
     
@@ -328,7 +336,7 @@ hhmpc_dynmem_error_t hhmpc_get_json_constr_term(struct hhmpc_term *term,
     
     ret = hhmpc_get_json_term_items(term, jc_mtx);
     if (HHMPC_DYNMEM_OK != ret) {return ret;}
-
+    
     return HHMPC_DYNMEM_OK;
 }
 
@@ -375,7 +383,10 @@ hhmpc_dynmem_error_t hhmpc_get_json_term_items(struct hhmpc_term *term,
         printf("ERROR: could not get item %s \n", "cols");
         return HHMPC_DYNMEM_FAIL;
     }
+    printf("%d\n", (uint32_t)c->valueint);
+    printf("%d\n", term->cols);
     term->cols = (uint32_t)c->valueint;
+        HIER
     c = cJSON_GetObjectItem(jobj, "rows");
     if (NULL == c) {
         printf("ERROR: could not get item %s \n", "rows");
