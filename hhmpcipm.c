@@ -44,12 +44,17 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     memcpy(ipm->z_opt, ipm->z_ini, ipm->sizeof_optvar_seqlen);
     memcpy(ipm->v_opt, ipm->v_ini, ipm->sizeof_dual_seqlen);
     
-    /* Calculate Kappa once for every time_step */
+    /* Calculate Kappa for every time_step */
     calc_kappa(ipm->kappa, ipm, ipm->z_opt);
     
+    /* Update h for new xk */
+    memcpy(ipm->P_of_z->h_hat, ipm->P_of_z->h, sizeof(real_t) * ipm->P_of_z->nb_lin_constr);
+    
+    print_mtx(ipm->h, 36, 1);
     /*Improve z for a fixed number of steps j_in*/
     for (j = 0; j < *(ipm->j_in); j++) {
-        update(ipm->P_of_z, ipm->optvar_seqlen);/*
+        update(ipm->P_of_z, ipm->optvar_seqlen,
+               t_solve_optvar_seqlen, t_optvar_seqlen);/*
         print_mtx(ipm->P_of_z->P, 36, 15);
         print_mtx(ipm->P_of_z->P_hat, 36, 15);*/
         form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
@@ -109,12 +114,12 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
     return 0;
 }
 
-void update(const struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
+void update(struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
             real_t *tmp1, real_t *tmp2)
 {
     uint32_t i;
-    hhmpc_ipm_qc *qc_i;
-    hhmpc_ipm_socc*socc_i;
+    struct hhmpc_ipm_qc *qc_i;
+    struct hhmpc_ipm_socc *socc_i;
     /*  TODO P vorher 0 setzen */
     memcpy(P->P_hat, P->P, sizeof(real_t) * P->nb_lin_constr*optvar_seqlen);
     P->P_hat += P->nb_lin_constr*optvar_seqlen;  /* Pointer sollte sich nur lokal verändern */
@@ -134,8 +139,8 @@ void update(const struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
         socc_i = P->socc[i];
         mpcinc_mtx_multiply_mtx_vec(tmp1, socc_i->A, socc_i->par,
                                     socc_i->rowsA, socc_i->colsA);
-        mpcinc_mtx_add_direct(tmp1, socc_i->b, socc_i->rowsA);
-        mpcinc_mtx_add_direct(tmp1, socc_i->b, socc_i->rowsA);
+        mpcinc_mtx_add_direct(tmp1, socc_i->b, 1, socc_i->rowsA);
+        mpcinc_mtx_add_direct(tmp1, socc_i->b, 1, socc_i->rowsA);
         mpcinc_mtx_multiply_mtx_mtx(P->P_hat+socc_i->par_0,
                                     tmp1, socc_i->A,
                                     1, socc_i->rowsA, socc_i->colsA);

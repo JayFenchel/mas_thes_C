@@ -36,6 +36,7 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     hhmpc_dynmem_error_t ret;
     cJSON *data;
     uint32_t i;
+    real_t *tmp;
     
     data = hhmpc_dynmem_get_data(fname);
     if (NULL == data) {return HHMPC_DYNMEM_FAIL;}
@@ -43,7 +44,7 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     if (HHMPC_DYNMEM_OK != ret) {return ret;}
     
     ipm->b = prb->b->data;
-    ipm->h = prb->h->data;
+    /*ipm->h = prb->h->data;*/
     ipm->g = prb->g->data;
     ipm->A = prb->A->data;
     ipm->B = prb->B->data;
@@ -55,10 +56,14 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->nb_of_ueq_constr = prb->P->rows;
     ipm->sizeof_optvar_seqlen = sizeof(real_t) * ipm->optvar_seqlen;
     ipm->sizeof_dual_seqlen = sizeof(real_t) * ipm->dual_seqlen;
- 
+    
+    ipm->P_of_z->h = prb->h->data;
+    ipm->P_of_z->h_hat =
+            (real_t*)malloc(sizeof(real_t) * (prb->P->rows+prb->nb_socc+prb->nb_qc));
     ipm->P_of_z->P = prb->P->data;
     ipm->P_of_z->nb_lin_constr = prb->P->rows;
     ipm->P_of_z->nb_socc = prb->nb_socc;
+    ipm->P_of_z->nb_qc = prb->nb_qc;
     ipm->P_of_z->socc = (struct hhmpc_ipm_socc**)calloc(prb->nb_socc, sizeof(struct hhmpc_ipm_socc*));
     if (NULL == ipm->P_of_z->socc) {return HHMPC_DYNMEM_FAIL;}
     for (i = 0; i < prb->nb_socc; i++){
@@ -77,8 +82,11 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
         ipm->P_of_z->socc[i]->par = ipm->z_opt+prb->socc[i]->par_0;
         ipm->P_of_z->socc[i]->par_0 = prb->socc[i]->par_0;
         ipm->P_of_z->socc[i]->par_l = prb->socc[i]->par_l;
+        tmp = ipm->P_of_z->h_hat+prb->P->rows+prb->nb_qc+i;
+        mpcinc_mtx_multiply_mtx_vec(tmp, ipm->P_of_z->socc[i]->b, ipm->P_of_z->socc[i]->b,
+                                    1, ipm->P_of_z->socc[i]->rowsA);
+        tmp[0] = ipm->P_of_z->socc[i]->d[0]*ipm->P_of_z->socc[i]->d[0] - tmp[0];
     }
-    ipm->P_of_z->nb_qc = prb->nb_qc;
     ipm->P_of_z->qc = (struct hhmpc_ipm_qc**)calloc(prb->nb_qc, sizeof(struct hhmpc_ipm_qc*));
     if (NULL == ipm->P_of_z->qc) {return HHMPC_DYNMEM_FAIL;}
     for (i = 0; i < prb->nb_qc; i++){
@@ -91,12 +99,15 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
         ipm->P_of_z->qc[i]->par = ipm->z_opt+prb->qc[i]->par_0;
         ipm->P_of_z->qc[i]->par_0 = prb->qc[i]->par_0;
         ipm->P_of_z->qc[i]->par_l = prb->qc[i]->par_l;
+        tmp = ipm->P_of_z->h_hat+prb->P->rows+i;
+        tmp[0] = ipm->P_of_z->qc[i]->alpha[0];
     }
     ipm->P_of_z->P_hat = (real_t *)malloc(sizeof(real_t) * (prb->P->rows+prb->nb_socc+prb->nb_qc)*ipm->optvar_seqlen);
     if (NULL == ipm->P_of_z->P_hat) {return HHMPC_DYNMEM_FAIL;}
     ipm->P_of_z->P_hat_T = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*(prb->P->rows+prb->nb_socc+prb->nb_qc));
     if (NULL == ipm->P_of_z->P_hat_T) {return HHMPC_DYNMEM_FAIL;}
     
+    ipm->h = ipm->P_of_z->h_hat;
     ipm->P = ipm->P_of_z->P_hat;
     ipm->P_T = ipm->P_of_z->P_hat_T;
     

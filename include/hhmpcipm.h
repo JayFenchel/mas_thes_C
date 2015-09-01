@@ -40,6 +40,9 @@ struct hhmpc_ipm_P_hat {
     real_t *P;
     real_t *P_hat;
     real_t *P_hat_T;
+    real_t *h;
+    real_t *h_hat;
+    
     struct hhmpc_ipm_qc **qc;
     struct hhmpc_ipm_socc **socc;
     uint32_t nb_lin_constr;
@@ -122,7 +125,7 @@ extern void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm);
 
 extern uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_check);
 
-extern void update(const struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
+extern void update(struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
                    real_t *tmp1_optvar_seqlen, real_t *tmp2_optvar_seqlen);
 
 
