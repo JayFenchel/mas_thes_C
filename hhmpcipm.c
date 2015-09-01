@@ -29,6 +29,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 {
     uint32_t j;
     real_t *t_solve_optvar_seqlen = ipm->tmp1_optvar_seqlen;
+    real_t *t_optvar_seqlen = ipm->tmp2_optvar_seqlen;
     real_t *t_solve_dual_seqlen = ipm->tmp2_dual_seqlen;
     real_t *t_L_Y = ipm->tmp8_L_Y;
     real_t *t_L_Y_T = ipm->tmp9_L_Y_T;
@@ -108,10 +109,49 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
     return 0;
 }
 
-void update(const struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen)
+void update(const struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
+            real_t *tmp1, real_t *tmp2)
 {
+    uint32_t i;
+    hhmpc_ipm_qc *qc_i;
+    hhmpc_ipm_socc*socc_i;
+    /*  TODO P vorher 0 setzen */
     memcpy(P->P_hat, P->P, sizeof(real_t) * P->nb_lin_constr*optvar_seqlen);
-    mpcinc_mtx_transpose(P->P_hat_T, P->P_hat, P->nb_lin_constr, optvar_seqlen);
+    P->P_hat += P->nb_lin_constr*optvar_seqlen;  /* Pointer sollte sich nur lokal verändern */
+    
+    /* Determine rows for qc */
+    for (i = 0; i < P->nb_qc; i++){
+        qc_i = P->qc[i];
+        mpcinc_mtx_multiply_mtx_mtx(P->P_hat+qc_i->par_0,
+                                    qc_i->par, qc_i->Gamma,
+                                    1, qc_i->dimGamma, qc_i->dimGamma);
+        mpcinc_mtx_add_direct(P->P_hat+qc_i->par_0,
+                              qc_i->beta, 1, qc_i->dimGamma);
+        P->P_hat += optvar_seqlen;
+    }
+    /* Determine rows for socc */
+    for (i = 0; i < P->nb_socc; i++){
+        socc_i = P->socc[i];
+        mpcinc_mtx_multiply_mtx_vec(tmp1, socc_i->A, socc_i->par,
+                                    socc_i->rowsA, socc_i->colsA);
+        mpcinc_mtx_add_direct(tmp1, socc_i->b, socc_i->rowsA);
+        mpcinc_mtx_add_direct(tmp1, socc_i->b, socc_i->rowsA);
+        mpcinc_mtx_multiply_mtx_mtx(P->P_hat+socc_i->par_0,
+                                    tmp1, socc_i->A,
+                                    1, socc_i->rowsA, socc_i->colsA);
+        mpcinc_mtx_multiply_mtx_vec(tmp1, socc_i->c, socc_i->par,
+                                    1, socc_i->colsA);
+        tmp1[0] += 2*socc_i->d[0];
+        mpcinc_mtx_scale(tmp2, socc_i->c, tmp1[0], socc_i->colsA, 1);
+        mpcinc_mtx_substract_direct(P->P_hat+socc_i->par_0,
+                                    tmp2, 1, socc_i->colsA);
+        P->P_hat += optvar_seqlen;
+    }
+    
+    P->P_hat -= (P->nb_qc + P->nb_socc)*optvar_seqlen;
+    mpcinc_mtx_transpose(P->P_hat_T, P->P_hat,
+                         P->nb_lin_constr + P->nb_qc + P->nb_socc,
+                         optvar_seqlen);
 }
 
 void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)

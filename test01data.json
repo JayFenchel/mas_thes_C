@@ -1,13 +1,13 @@
 {
 "optvar": {"horizon": 3, "veclen": 5, "state_veclen": 3},
 
-"nb_socc": 1,
+"nb_socc": 0,
 "socc": [{"A": {"rows": 3, "data": [1.0, 1.0, 1.0], "cols": 1},
           "b": {"rows": 2, "data": [1.0, 1.0], "cols": 1},
           "c": {"rows": 2, "data": [1.0, 1.0], "cols": 1},
           "d": {"rows": 2, "data": [1.0, 1.0], "cols": 1},
           "par0": 0, "parl": 2}],
-"nb_qc": 1,
+"nb_qc": 0,
 "qc": [{"Gamma": {"rows": 3, "data": [1.0, 1.0, 1.0], "cols": 1},
         "beta": {"rows": 2, "data": [1.0, 1.0], "cols": 1},
         "alpha": {"rows": 2, "data": [1.0, 1.0], "cols": 1},
