@@ -82,8 +82,10 @@ struct hhmpc_ipm {
 /* Matrix P_hat depending on z */
 struct hhmpc_ipm_P_hat {
     real_t *P;
-    struct hhmpc_ipm_qc *qc;
-    struct hhmpc_ipm_socc *socc;
+    real_t *P_hat;
+    real_t *P_hat_T;
+    struct hhmpc_ipm_qc **qc;
+    struct hhmpc_ipm_socc **socc;
     uint32_t nb_lin_constr;
     uint32_t nb_qc;
     uint32_t nb_socc;
@@ -92,7 +94,6 @@ struct hhmpc_ipm_P_hat {
 /**/
 struct hhmpc_ipm_qc {
     real_t *Gamma;
-    uint32_t dim;
     real_t *beta;
     real_t *alpha;
 };
@@ -101,7 +102,6 @@ struct hhmpc_ipm_qc {
 struct hhmpc_ipm_socc {
     real_t *A;
     uint32_t rowsA;
-    uint32_t colsA;
     real_t *b;
     real_t *c;
     real_t *d;

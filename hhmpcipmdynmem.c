@@ -48,6 +48,20 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->P = prb->P->data;
     ipm->H = prb->H->data;
     
+    ipm->P_of_z->nb_socc = prb->nb_socc;
+    for (i = 0; i < prb->nb_socc; i++){
+        ipm->P_of_z->socc[i]->rowsA = prb->socc[i]->A->rows;
+        ipm->P_of_z->socc[i]->A = prb->socc[i]->A->data;
+        ipm->P_of_z->socc[i]->b = prb->socc[i]->b->data;
+        ipm->P_of_z->socc[i]->c = prb->socc[i]->c->data;
+        ipm->P_of_z->socc[i]->d = prb->socc[i]->d->data;
+    }
+    ipm->P_of_z->nb_qc = prb->nb_qc;
+    for (i = 0; i < prb->nb_qc; i++){
+        ipm->P_of_z->qc[i]->Gamma = prb->qc[i]->Gamma->data;
+        ipm->P_of_z->qc[i]->beta = prb->qc[i]->beta->data;
+        ipm->P_of_z->qc[i]->alpha = prb->qc[i]->alpha->data;
+    }
     
     ipm->optvar_seqlen = ipm->optvar_veclen * ipm->horizon;
     ipm->dual_seqlen = ipm->state_veclen * ipm->horizon;
