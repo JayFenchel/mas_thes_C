@@ -22,7 +22,6 @@ static void form_Phi(real_t *Phi, real_t *help,
                      const uint32_t optvar_seqlen, const uint32_t nb_of_ueq_constr);
 static void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm,
                        const real_t *z);
-static void update(const struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen);
 
 /* external functions definition */
 

@@ -1,0 +1,37 @@
+/*DO 
+  checkmk tests/test_former.test >tests/test_former.c
+*/
+#include "../include/hhmpcmath.h"
+#include "../include/hhmpcipm.h"
+#include "../include/hhmpcusefull.h"
+
+
+#test update_socc_test
+    real_t A[] = {1., 7., 3., -4.};
+    uint32_t rowsA = 2;
+    real_t b[] = {11., 5.};
+    real_t c[] = {3., 7.};
+    real_t d[] = {-1.};
+    real_t AE[] = {.5, 7., 3., -4.};
+    uint32_t rowsAE = 2;
+    real_t bE[] = {10.5, 5.};
+    real_t cE[] = {3., 6.5};
+    real_t dE[] = {-.5};
+    struct hhmpc_ipm_socc *socc1;
+    struct hhmpc_ipm_socc *socc2;
+    struct hhmpc_ipm_socc *socc3;
+    socc1->A = A;
+    socc1->rowsA = rowsA;
+    socc1->b =b;
+    socc1->c =c;
+    socc1->d =d;
+    socc2->A = A;
+    socc2->rowsA = rowsA;
+    socc2->b =b;
+    socc2->c =c;
+    socc2->d =d;
+    socc3->A = AE;
+    socc3->rowsA = rowsAE;
+    socc3->b =bE;
+    socc3->c =cE;
+    socc3->d =dE;
