@@ -13,20 +13,25 @@ struct hhmpc_ipm_conf {
 /**/
 struct hhmpc_ipm_qc {
     real_t *Gamma;
+    uint32_t dimGamma;
     real_t *beta;
     real_t *alpha;
     real_t *par;
+    uint32_t par_0;
     uint32_t par_l;
 };
 
 /**/
 struct hhmpc_ipm_socc {
     real_t *A;
+    real_t *A_T;
     uint32_t rowsA;
+    uint32_t colsA;
     real_t *b;
     real_t *c;
     real_t *d;
     real_t *par;
+    uint32_t par_0;
     uint32_t par_l;
 };
 
@@ -117,7 +122,8 @@ extern void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm);
 
 extern uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_check);
 
-extern void update(const struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen);
+extern void update(const struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
+                   real_t *tmp1_optvar_seqlen, real_t *tmp2_optvar_seqlen);
 
 
 #endif /* HHMPCIPM_H */

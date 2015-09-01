@@ -65,11 +65,17 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
         ipm->P_of_z->socc[i] = (struct hhmpc_ipm_socc*)malloc(sizeof(struct hhmpc_ipm_socc));
         if (NULL == ipm->P_of_z->socc[i]) {return HHMPC_DYNMEM_FAIL;}
         ipm->P_of_z->socc[i]->rowsA = prb->socc[i]->A->rows;
+        ipm->P_of_z->socc[i]->colsA = prb->socc[i]->A->cols;
         ipm->P_of_z->socc[i]->A = prb->socc[i]->A->data;
+        ipm->P_of_z->socc[i]->A_T =
+                (real_t *)malloc(sizeof(real_t) * prb->socc[i]->A->cols*prb->socc[i]->A->rows);
+        mpcinc_mtx_transpose(ipm->P_of_z->socc[i]->A_T, ipm->P_of_z->socc[i]->A,
+                             prb->socc[i]->A->rows, prb->socc[i]->A->cols);
         ipm->P_of_z->socc[i]->b = prb->socc[i]->b->data;
         ipm->P_of_z->socc[i]->c = prb->socc[i]->c->data;
         ipm->P_of_z->socc[i]->d = prb->socc[i]->d->data;
         ipm->P_of_z->socc[i]->par = ipm->z_opt+prb->socc[i]->par_0;
+        ipm->P_of_z->socc[i]->par_0 = prb->socc[i]->par_0;
         ipm->P_of_z->socc[i]->par_l = prb->socc[i]->par_l;
     }
     ipm->P_of_z->nb_qc = prb->nb_qc;
@@ -78,10 +84,12 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     for (i = 0; i < prb->nb_qc; i++){
         ipm->P_of_z->qc[i] = (struct hhmpc_ipm_qc*)malloc(sizeof(struct hhmpc_ipm_qc));
         if (NULL == ipm->P_of_z->qc[i]) {return HHMPC_DYNMEM_FAIL;}
+        ipm->P_of_z->qc[i]->dimGamma = prb->qc[i]->Gamma->rows;
         ipm->P_of_z->qc[i]->Gamma = prb->qc[i]->Gamma->data;
         ipm->P_of_z->qc[i]->beta = prb->qc[i]->beta->data;
         ipm->P_of_z->qc[i]->alpha = prb->qc[i]->alpha->data;
         ipm->P_of_z->qc[i]->par = ipm->z_opt+prb->qc[i]->par_0;
+        ipm->P_of_z->qc[i]->par_0 = prb->qc[i]->par_0;
         ipm->P_of_z->qc[i]->par_l = prb->qc[i]->par_l;
     }
     ipm->P_of_z->P_hat = (real_t *)malloc(sizeof(real_t) * (prb->P->rows+prb->nb_socc+prb->nb_qc)*ipm->optvar_seqlen);
