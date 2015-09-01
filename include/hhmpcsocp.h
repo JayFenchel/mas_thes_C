@@ -60,6 +60,8 @@ struct hhmpc_qc {
     struct hhmpc_term *Gamma;
     struct hhmpc_term *beta;
     struct hhmpc_term *alpha;
+    uint32_t par_0;
+    uint32_t par_l;
 };
 
 /**/
@@ -68,6 +70,8 @@ struct hhmpc_socc {
     struct hhmpc_term *b;
     struct hhmpc_term *c;
     struct hhmpc_term *d;
+    uint32_t par_0;
+    uint32_t par_l;
 };
 
 struct hhmpc_socp_prb {

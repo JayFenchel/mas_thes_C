@@ -153,7 +153,7 @@ hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
     struct hhmpc_qc *q;
     uint32_t i, j;
     /* get optvar veclen an horizon to calculate length of g and ... */
-    cJSON *optvar, *veclen, *horizon, *nb_socc, *nb_qc;
+    cJSON *optvar, *veclen, *horizon, *nb_socc, *nb_qc, *jobj, *jconstr, *c;
     
     optvar = cJSON_GetObjectItem(data, "optvar");
     if (NULL == optvar) {
@@ -202,6 +202,28 @@ hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
         socp->prb->socc[i]->d = (struct hhmpc_term*)malloc(sizeof(struct hhmpc_term));
         if (NULL == socp->prb->socc[i]->d) {return HHMPC_DYNMEM_FAIL;}
         hhmpc_get_json_constr_term(socp->prb->socc[i]->d, data, "socc", "d", i);
+        jobj = cJSON_GetObjectItem(data, "socc");
+        if (NULL == jobj) {
+            printf("ERROR: could not get item %s \n", "socc");
+            return HHMPC_DYNMEM_FAIL;
+        }
+        jconstr = cJSON_GetArrayItem(jobj, i);
+        if (NULL == jconstr) {
+            printf("ERROR: could not get array item in position %d \n", i);
+            return HHMPC_DYNMEM_FAIL;
+        }
+        c = cJSON_GetObjectItem(jconstr, "par0");
+        if (NULL == c) {
+            printf("ERROR: could not get item %s \n", "par0");
+            return HHMPC_DYNMEM_FAIL;
+        }
+        socp->prb->socc[i]->par_0 = (uint32_t)c->valueint;
+        c = cJSON_GetObjectItem(jconstr, "parl");
+        if (NULL == c) {
+            printf("ERROR: could not get item %s \n", "parl");
+            return HHMPC_DYNMEM_FAIL;
+        }
+        socp->prb->socc[i]->par_l = (uint32_t)c->valueint;
     }
     
     nb_qc = cJSON_GetObjectItem(data, "nb_qc");
@@ -226,6 +248,28 @@ hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
         socp->prb->qc[i]->alpha = (struct hhmpc_term*)malloc(sizeof(struct hhmpc_term));
         if (NULL == socp->prb->qc[i]->alpha) {return HHMPC_DYNMEM_FAIL;}
         hhmpc_get_json_constr_term(socp->prb->qc[i]->alpha, data, "qc", "alpha", i);
+        jobj = cJSON_GetObjectItem(data, "qc");
+        if (NULL == jobj) {
+            printf("ERROR: could not get item %s \n", "qc");
+            return HHMPC_DYNMEM_FAIL;
+        }
+        jconstr = cJSON_GetArrayItem(jobj, i);
+        if (NULL == jconstr) {
+            printf("ERROR: could not get array item in position %d \n", i);
+            return HHMPC_DYNMEM_FAIL;
+        }
+        c = cJSON_GetObjectItem(jconstr, "par0");
+        if (NULL == c) {
+            printf("ERROR: could not get item %s \n", "par0");
+            return HHMPC_DYNMEM_FAIL;
+        }
+        socp->prb->qc[i]->par_0 = (uint32_t)c->valueint;
+        c = cJSON_GetObjectItem(jconstr, "parl");
+        if (NULL == c) {
+            printf("ERROR: could not get item %s \n", "parl");
+            return HHMPC_DYNMEM_FAIL;
+        }
+        socp->prb->qc[i]->par_l = (uint32_t)c->valueint;
     }
     
     hhmpc_get_json_term(socp->par[HHMPC_XK], data, "par", "xk");
