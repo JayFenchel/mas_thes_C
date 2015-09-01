@@ -15,6 +15,8 @@ struct hhmpc_ipm_qc {
     real_t *Gamma;
     real_t *beta;
     real_t *alpha;
+    real_t *par;
+    uint32_t par_l;
 };
 
 /**/
@@ -24,6 +26,8 @@ struct hhmpc_ipm_socc {
     real_t *b;
     real_t *c;
     real_t *d;
+    real_t *par;
+    uint32_t par_l;
 };
 
 /* Matrix P_hat depending on z */
