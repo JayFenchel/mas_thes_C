@@ -16,8 +16,10 @@ static void bt_line_search(real_t *good_step, const struct hhmpc_ipm *ipm);
 static void form_d(real_t *d, const real_t *P, const real_t *h, const real_t *z,
                    const uint32_t rowsP, const uint32_t colsP);
 static void form_diag_d_sq(real_t *diag_d_sq, const real_t *d, const uint32_t dim);
-static void form_Phi(real_t *Phi, real_t *help,
-                     const real_t *H, const real_t *P_T, const real_t *P, const real_t *diag_d_sq,
+static void form_Phi(real_t *Phi, real_t *help, real_t *tmp_Phi,
+                     const real_t *H, const real_t *P_T, const real_t *P,
+                     const struct hhmpc_ipm_P_hat *P_hat,
+                     const real_t *d, const real_t *diag_d_sq,
                      const real_t kappa,
                      const uint32_t optvar_seqlen, const uint32_t nb_of_ueq_constr);
 static void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm,
@@ -33,6 +35,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     real_t *t_solve_dual_seqlen = ipm->tmp2_dual_seqlen;
     real_t *t_L_Y = ipm->tmp8_L_Y;
     real_t *t_L_Y_T = ipm->tmp9_L_Y_T;
+    real_t *tmp_Phi = ipm->tmp4_mtx_optvar_optvar;
     real_t *eye_nm = ipm->eye_optvar_veclen;
     real_t *eye_n = ipm->eye_state_veclen;
     real_t f;
@@ -57,8 +60,8 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
                t_solve_optvar_seqlen, t_optvar_seqlen);
         form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
         form_diag_d_sq(ipm->diag_d_sq, ipm->d, ipm->nb_of_ueq_constr);
-        form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->H, ipm->P_T,
-                 ipm->P, ipm->diag_d_sq, ipm->kappa[0],
+        form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, tmp_Phi, ipm->H, ipm->P_T,
+                 ipm->P, ipm->P_of_z , ipm->d, ipm->diag_d_sq, ipm->kappa[0],
                  ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
         /* Calculate the residual */
         residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
@@ -246,16 +249,49 @@ void residual(const struct hhmpc_ipm *ipm,
                        ipm->dual_seqlen, ipm->optvar_seqlen);
 }
 
-void form_Phi(real_t *Phi, real_t *help,
-              const real_t *H, const real_t *P_T, const real_t *P, const real_t *diag_d_sq,
+void form_Phi(real_t *Phi, real_t *help, real_t *t_Phi,
+              const real_t *H, const real_t *P_T, const real_t *P,
+              const struct hhmpc_ipm_P_hat *P_hat,
+              const real_t *d, const real_t *diag_d_sq,
               const real_t kappa,
               const uint32_t optvar, const uint32_t nb_of_ueq)
-{
+{    
+    uint32_t i, j, pos_d, pos_Phi;
+    struct hhmpc_ipm_qc *qc_i;
+    struct hhmpc_ipm_socc *socc_i;
     mpcinc_mtx_multiply_mtx_mtx(help, P_T, diag_d_sq, optvar, nb_of_ueq, nb_of_ueq);
     mpcinc_mtx_multiply_mtx_mtx(Phi, help, P, optvar, nb_of_ueq, optvar);
     mpcinc_mtx_scale_direct(Phi, kappa, optvar, optvar);
     mpcinc_mtx_add_direct(Phi, H, optvar, optvar);  /* statt 2*H */
     mpcinc_mtx_add_direct(Phi, H, optvar, optvar);
+    
+    /* Additional terms for Phi resulting of the second derivative of qc */
+    for (i = 0; i < P_hat->nb_qc; i++){
+        qc_i = P_hat->qc[i];
+        pos_d = P_hat->nb_lin_constr+i;
+        mpcinc_mtx_scale(t_Phi, qc_i->Gamma, 2*d[pos_d],
+                         qc_i->dimGamma, qc_i->dimGamma);
+        
+        for (j = 0; j < qc_i->dimGamma; j++){
+            pos_Phi = (qc_i->par_0 + j)*optvar + qc_i->par_0;
+            mpcinc_mtx_add_direct(Phi+pos_Phi, t_Phi+j*qc_i->dimGamma, 1, qc_i->dimGamma);
+        }
+        
+    }
+    /* Additional terms for Phi resulting of the second derivative of socc */
+    for (i = 0; i < P_hat->nb_socc; i++){
+        socc_i = P_hat->socc[i];
+        pos_d = P_hat->nb_lin_constr + P_hat->nb_qc + i;
+        mpcinc_mtx_scale(t_Phi, socc_i->AAmcc, 2*d[pos_d],
+                         socc_i->colsA, socc_i->colsA);
+        
+        for (j = 0; j < socc_i->colsA; j++){
+            pos_Phi = (socc_i->par_0 + j)*optvar + socc_i->par_0;
+            mpcinc_mtx_add_direct(Phi+pos_Phi, t_Phi+j*socc_i->colsA, 1, socc_i->colsA);
+        }
+        
+    }
+    
 }
 
 
