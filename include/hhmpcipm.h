@@ -39,9 +39,12 @@ struct hhmpc_ipm_socc {
 
 /* Matrix P_hat depending on z */
 struct hhmpc_ipm_P_hat {
+    real_t factor;  /* for factor 2 in gradient P */
     real_t *P;
     real_t *P_hat;
+    real_t *P2_hat;
     real_t *P_hat_T;
+    real_t *P2_hat_T;
     real_t *h;
     real_t *h_hat;
     
@@ -74,7 +77,9 @@ struct hhmpc_ipm {
     real_t *H;
     struct hhmpc_ipm_P_hat *P_of_z;
     real_t *P;
+    real_t *P2;
     real_t *P_T;
+    real_t *P2_T;
     
     real_t *b;
     real_t *h;

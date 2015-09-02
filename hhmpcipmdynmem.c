@@ -127,10 +127,16 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     if (NULL == ipm->P_of_z->P_hat) {return HHMPC_DYNMEM_FAIL;}
     ipm->P_of_z->P_hat_T = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*(prb->P->rows+prb->nb_socc+prb->nb_qc));
     if (NULL == ipm->P_of_z->P_hat_T) {return HHMPC_DYNMEM_FAIL;}
+    ipm->P_of_z->P2_hat = (real_t *)malloc(sizeof(real_t) * (prb->P->rows+prb->nb_socc+prb->nb_qc)*ipm->optvar_seqlen);
+    if (NULL == ipm->P_of_z->P2_hat) {return HHMPC_DYNMEM_FAIL;}
+    ipm->P_of_z->P2_hat_T = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*(prb->P->rows+prb->nb_socc+prb->nb_qc));
+    if (NULL == ipm->P_of_z->P2_hat_T) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->h = ipm->P_of_z->h_hat;
     ipm->P = ipm->P_of_z->P_hat;
     ipm->P_T = ipm->P_of_z->P_hat_T;
+    ipm->P2 = ipm->P_of_z->P2_hat;
+    ipm->P2_T = ipm->P_of_z->P2_hat_T;
     
     ipm->j_in = &(ipm->conf->in_iter);
     ipm->reg = &(ipm->conf->reg);
