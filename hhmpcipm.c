@@ -54,9 +54,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     /*Improve z for a fixed number of steps j_in*/
     for (j = 0; j < *(ipm->j_in); j++) {
         update(ipm->P_of_z, ipm->optvar_seqlen,
-               t_solve_optvar_seqlen, t_optvar_seqlen);/*
-        print_mtx(ipm->P_of_z->P, 36, 15);
-        print_mtx(ipm->P_of_z->P_hat, 36, 15);*/
+               t_solve_optvar_seqlen, t_optvar_seqlen);
         form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
         form_diag_d_sq(ipm->diag_d_sq, ipm->d, ipm->nb_of_ueq_constr);
         form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->H, ipm->P_T,
@@ -122,7 +120,7 @@ void update(struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
     struct hhmpc_ipm_socc *socc_i;
     /*  TODO P vorher 0 setzen */
     memcpy(P->P_hat, P->P, sizeof(real_t) * P->nb_lin_constr*optvar_seqlen);
-    P->P_hat += P->nb_lin_constr*optvar_seqlen;  /* Pointer sollte sich nur lokal verändern */
+    P->P_hat += P->nb_lin_constr*optvar_seqlen;  /* Pointer wird nicht nur lokal verändern */
     
     /* Determine rows for qc */
     for (i = 0; i < P->nb_qc; i++){
@@ -153,7 +151,7 @@ void update(struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
         P->P_hat += optvar_seqlen;
     }
     
-    P->P_hat -= (P->nb_qc + P->nb_socc)*optvar_seqlen;
+    P->P_hat -= (P->nb_lin_constr+P->nb_qc + P->nb_socc)*optvar_seqlen;
     mpcinc_mtx_transpose(P->P_hat_T, P->P_hat,
                          P->nb_lin_constr + P->nb_qc + P->nb_socc,
                          optvar_seqlen);
