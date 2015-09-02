@@ -51,7 +51,7 @@ void form_beta(real_t beta[],
  */
 void form_Y(real_t mtxL_Y_blocks[], real_t *mtxL_Y_T_blocks,
             real_t mtxL_Phi_blocks[], real_t mtxL_Phi_T_blocks[],
-            const real_t mtxPhi[],
+            real_t mtxPhi[], const real_t *reg,
             const uint32_t horizon,
             const real_t mtxA[], const real_t *A_B, const uint32_t dimA,
             const real_t mtxB[], const real_t *A_T_B_T, const uint32_t colsB,

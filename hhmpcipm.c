@@ -95,7 +95,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     
     residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
     residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
-    printf("res_norm = %f\n", f);
+    printf("res_norm = %.11f\n", f);
     /* Update x_k (und andere Parameter) */
 }
 

@@ -8,6 +8,7 @@
 /* Configuration parameters of the HHMPC algorithm. */
 struct hhmpc_ipm_conf {
     uint32_t in_iter;
+    real_t reg;  /* For Regularization. */
 };
 
 /**/
@@ -85,6 +86,7 @@ struct hhmpc_ipm {
     real_t *r_d;
     
     real_t *st_size;
+    real_t *reg;
     uint32_t *j_in;
     
     real_t *kappa;  /* Barrier parameter. */

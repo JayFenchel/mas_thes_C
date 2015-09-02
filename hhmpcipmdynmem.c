@@ -133,6 +133,7 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->P_T = ipm->P_of_z->P_hat_T;
     
     ipm->j_in = &(ipm->conf->in_iter);
+    ipm->reg = &(ipm->conf->reg);
     
     ipm->z_ini = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
     if (NULL == ipm->z_ini) {return HHMPC_DYNMEM_FAIL;}

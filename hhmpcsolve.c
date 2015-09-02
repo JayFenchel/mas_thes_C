@@ -28,7 +28,7 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     real_t *L_Phi_T_blocks = ipm->tmp9_L_Phi_T;
     
     form_Y(L_Y, L_Y_T, L_Phi_blocks, L_Phi_T_blocks,
-           Phi, T, ipm->A_B, ipm->A_B_T, n, B, B_T, m, eye_nm, eye_n,
+           ipm->Phi, ipm->reg, T, ipm->A_B, ipm->A_B_T, n, B, B_T, m, eye_nm, eye_n,
            PhiBlock, PhiBlock_I, PhiBlock_I_last,
            Block_nxn1, Block_nxn2, tmp_optvar_veclenxoptvar_veclen);
 
@@ -131,7 +131,7 @@ void form_beta(real_t beta[],
 }
 
 void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
-            const real_t Phi[],
+            real_t Phi[], const real_t *reg,
             const uint32_t T,
             const real_t *A_B, const real_t *A_T_B_T, const uint32_t n,
             const real_t B[], const real_t *B_T, const uint32_t m,
@@ -139,9 +139,14 @@ void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
             real_t *PhiBlock, real_t *PhiBlock_I, real_t *last_PhiBlock_I,
             real_t *Qi_tilde, real_t *Y_bl, real_t *hilf1)
 {
-    uint32_t i, j, bl;
+    uint32_t i, j, ri, bl;
     /* hilf1 auch mehrmal als temporäre Variable für [n*n] und andere Größen verwendet */
-
+    
+    /* regularization (+epsilon*I) */
+    for (ri = 0; ri < T*(n+m); ri++){
+        (Phi+ri*T*(n+m)+ri)[0] += reg[0];
+    }
+    
     for (i = 0; i < T; i++){
         for (j = 0; j < (n+m)*(n+m); j++){  /* all blocks */
             last_PhiBlock_I[j] = PhiBlock_I[j];
@@ -153,7 +158,12 @@ void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
             mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, n, n);
             fwd_subst(hilf1, L_Phi+bl, n, eye_n, n);
             bwd_subst(Qi_tilde, L_Phi_T+bl, n, hilf1, n);
-            form_Yii(Y_bl, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T, n+m, n, Qi_tilde, hilf1);
+            form_Yii(Y_bl, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T,
+                     n+m, n, Qi_tilde, hilf1);
+            /* regularization (-epsilon*I) */
+            for (ri = 0; ri < n; ri++){
+                (Y_bl+ri*n+ri)[0] += reg[0];
+            }
 //             setBlock(Y, T*n, Y_bl, n, n, i*n, i*n);
             
             mpcinc_mtx_multiply_mtx_mtx(hilf1, L_Y+2*i*(n*n)-(n*n), L_Y_T+2*i*(n*n)-(n*n), n, n, n);
@@ -176,7 +186,12 @@ void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
                 getBlock(PhiBlock, Phi, T*(n+m), 0, 0, m, m);
                 cholesky(L_Phi, PhiBlock, m);
                 mpcinc_mtx_transpose(L_Phi_T, L_Phi, m, m);
-                form_Y11(Y_bl, B, B_T, n, m, L_Phi, L_Phi_T, Qi_tilde, hilf1, hilf1+(m*n));
+                form_Y11(Y_bl, B, B_T, n, m, L_Phi, L_Phi_T, Qi_tilde,
+                    hilf1, hilf1+(m*n));
+                /* regularization (-epsilon*I) */
+                for (ri = 0; ri < n; ri++){
+                    (Y_bl+ri*n+ri)[0] += reg[0];
+                }
 //                 setBlock(Y, T*n, Y_bl, n, n, i*n, i*n);
                 /* hilf1 has size (n+m)*(n+m), so there is enough space for all */
                 
@@ -185,7 +200,12 @@ void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
             }
             
             if (i > 0) {  /* not first block i != 0 */
-                form_Yii(Y_bl, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T, n+m, n, Qi_tilde, hilf1);
+                form_Yii(Y_bl, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T,
+                         n+m, n, Qi_tilde, hilf1);
+                /* regularization (-epsilon*I) */
+                for (ri = 0; ri < n; ri++){
+                    (Y_bl+ri*n+ri)[0] += reg[0];
+                }
 //                 setBlock(Y, T*n, Y_bl, n, n, i*n, i*n);
                 
                 mpcinc_mtx_multiply_mtx_mtx(hilf1, L_Y+2*i*(n*n)-(n*n), L_Y_T+2*i*(n*n)-(n*n), n, n, n);

@@ -53,6 +53,7 @@ int main(void) {
     ipm->v_ini[9] = 0.;
     
     ipm->conf->in_iter = 5;
+    ipm->conf->reg = .00000001;
     
     hhmpc_socp_form_problem(socp);
     hhmpc_ipm_solve_problem(ipm);
