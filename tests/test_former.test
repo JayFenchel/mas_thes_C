@@ -8,6 +8,210 @@
 #include "../include/hhmpcipmdynmem.h"
 
 
+#test update_qc_test
+    uint32_t i;
+    uint32_t T = 3, n = 2, m = 1;
+    uint32_t nb_lin_constr = 0;
+    uint32_t nb_qc = 5;
+    uint32_t nb_socc = 0;
+    
+    real_t *tmp;
+    real_t *tmp1_optvar_seqlen = (real_t*)malloc(sizeof(real_t) * T*(n + m));
+    real_t *tmp2_optvar_seqlen = (real_t*)malloc(sizeof(real_t) * T*(n + m));
+    
+    real_t z[] = {1., 0., 0., -3., -1., 1., 7., 1., 6.};
+    real_t z2[] = {2., 0., 0., -6., -2., 2., 14., 2., 12.};
+
+    real_t kappa[] = {90.};
+    
+    real_t Gamma[] = {.5, 7., 3., -.5};
+    uint32_t dimGamma = 2;
+    real_t beta[] = {13., -1.};
+    real_t beta0[] = {0., 0.};
+    real_t alpha[] = {12.};
+
+    real_t GammaE[] = {1., 7., 3., -.5};
+    uint32_t dimGammaE = 2;
+    real_t betaE[] = {12.5, -1.};
+    real_t alphaE[] = {-11.};
+    
+    real_t h_ref[] = {12., 12., 12., 12., -11.};
+    real_t P_ref[] = {0., 13., -1., 0., 0., 0., 0., 0., 0.,
+                      0., 0., 0., 0., 18., -16., 0., 0., 0.,
+                      0., 0., 0., 0., 0., 0., 0., 0., 0.,
+                      0., 0., 0., 0., 5., -15., 0., 0., 0.,
+                      0., 0., 0., 0., 0., 0., 0., 101./2., 7.};
+    real_t d_ref[] = {1./12., 1./36., 1./12., 1./22., -2./121.};
+    real_t term_for_qc_ref[] =
+            {0., 0., 0., 0., 0., 0., 0., 0., 0.,
+             0., 2./12.,14./6., 0., 0., 0., 0., 0., 0.,
+             0., 2./2., -2./12., 0., 0., 0., 0., 0., 0.,
+             0., 0., 0., 0., 0., 0., 0., 0., 0.,
+             0., 0., 0., 0., 29./396., 203./198., 0., 0., 0.,
+             0., 0., 0., 0., 29./66., -29./396., 0., 0., 0.,
+             0., 0., 0., 0., 0., 0., 0., 0., 0.,
+             0., 0., 0., 0., 0., 0., 0., -4./121., -28./121.,
+             0., 0., 0., 0., 0., 0., 0., -12./121., 2./121.};
+    
+    struct hhmpc_ipm_qc *qc1 = (struct hhmpc_ipm_qc*)malloc(sizeof(struct hhmpc_ipm_qc));
+    struct hhmpc_ipm_qc *qc2 = (struct hhmpc_ipm_qc*)malloc(sizeof(struct hhmpc_ipm_qc));
+    struct hhmpc_ipm_qc *qc3 = (struct hhmpc_ipm_qc*)malloc(sizeof(struct hhmpc_ipm_qc));
+    struct hhmpc_ipm_qc *qc4 = (struct hhmpc_ipm_qc*)malloc(sizeof(struct hhmpc_ipm_qc));
+    struct hhmpc_ipm_qc *qc5 = (struct hhmpc_ipm_qc*)malloc(sizeof(struct hhmpc_ipm_qc));
+    struct hhmpc_ipm_qc **qc = 
+            (struct hhmpc_ipm_qc**)calloc(nb_qc, sizeof(struct hhmpc_ipm_qc*));
+    qc[0] = qc1;
+    qc[1] = qc2;
+    qc[2] = qc3;
+    qc[3] = qc4;
+    qc[4] = qc5;
+    
+    qc1->Gamma = Gamma;
+    qc1->dimGamma = dimGamma;
+    qc1->beta =beta;
+    qc1->alpha =alpha;
+    qc1->par_0 = m;
+    qc1->par_l = n;
+    qc2->Gamma = Gamma;
+    qc2->dimGamma = dimGamma;
+    qc2->beta =beta;
+    qc2->alpha =alpha;
+    qc2->par_0 = m+n+m;
+    qc2->par_l = n;
+    qc3->Gamma = Gamma;
+    qc3->dimGamma = dimGamma;
+    qc3->beta =beta0;
+    qc3->alpha =alpha;
+    qc3->par_0 = m;
+    qc3->par_l = n;
+    qc4->Gamma = Gamma;
+    qc4->dimGamma = dimGamma;
+    qc4->beta =beta0;
+    qc4->alpha =alpha;
+    qc4->par_0 = m+n+m;
+    qc4->par_l = n;
+    qc5->Gamma = GammaE;
+    qc5->dimGamma = dimGammaE;
+    qc5->beta =betaE;
+    qc5->alpha =alphaE;
+    qc5->par_0 = m+2*(n+m);
+    qc5->par_l = n;
+
+    struct hhmpc_ipm *ipm = hhmpc_ipm_allocate_solver();
+    ipm->optvar_seqlen = T*(n+m);
+    ipm->nb_of_ueq_constr = nb_lin_constr + nb_qc + nb_socc;
+    ipm->kappa = kappa;
+    ipm->d = (real_t *)malloc(sizeof(real_t) * ipm->nb_of_ueq_constr);
+    ipm->diag_d_sq =
+            (real_t *)malloc(sizeof(real_t) * ipm->nb_of_ueq_constr*ipm->nb_of_ueq_constr);
+    ipm->Phi = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
+    real_t *Phi_ref = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
+    ipm->tmp3_mtx_optvar_nb_of_ueq =
+            (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->nb_of_ueq_constr);
+    ipm->tmp4_mtx_optvar_optvar =
+            (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
+    ipm->H = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
+    ipm->z_opt = z;
+    
+
+    struct hhmpc_ipm_P_hat *P =
+            (struct hhmpc_ipm_P_hat*)malloc(sizeof(struct hhmpc_ipm_P_hat));
+    if (NULL == P) {return NULL;}
+    ipm->P_of_z = P;
+    
+    real_t P_mtx[0];
+    real_t h_vec[0];
+    
+    ipm->P_of_z->P = P_mtx;
+    ipm->P_of_z->h = h_vec;
+
+    ipm->P_of_z->h_hat =
+            (real_t*)malloc(sizeof(real_t) * (nb_lin_constr + nb_socc + nb_qc));
+    if (NULL == ipm->P_of_z->h_hat) {return NULL;}
+    
+    
+    ipm->P_of_z->nb_lin_constr = nb_lin_constr;
+    ipm->P_of_z->nb_socc = nb_socc;
+    ipm->P_of_z->nb_qc = nb_qc;
+    
+    ipm->P_of_z->qc = (struct hhmpc_ipm_qc**)calloc(nb_qc, sizeof(struct hhmpc_ipm_qc*));
+    for (i = 0; i < nb_qc; i++){
+        ipm->P_of_z->qc[i] = qc[i];
+        
+        ipm->P_of_z->qc[i]->par = ipm->z_opt+qc[i]->par_0;
+        ipm->P_of_z->qc[i]->par_0 = qc[i]->par_0;
+        ipm->P_of_z->qc[i]->par_l = qc[i]->par_l;
+        
+        tmp = ipm->P_of_z->h_hat+nb_lin_constr+i;
+        tmp[0] = ipm->P_of_z->qc[i]->alpha[0];
+    }
+/*    
+    ipm->P_of_z->qc = (struct hhmpc_ipm_qc**)calloc(prb->nb_qc, sizeof(struct hhmpc_ipm_qc*));
+    if (NULL == ipm->P_of_z->qc) {return HHMPC_DYNMEM_FAIL;}
+    for (i = 0; i < prb->nb_qc; i++){
+        ipm->P_of_z->qc[i] = (struct hhmpc_ipm_qc*)malloc(sizeof(struct hhmpc_ipm_qc));
+        if (NULL == ipm->P_of_z->qc[i]) {return HHMPC_DYNMEM_FAIL;}
+        ipm->P_of_z->qc[i]->dimGamma = prb->qc[i]->Gamma->rows;
+        ipm->P_of_z->qc[i]->Gamma = prb->qc[i]->Gamma->data;
+        ipm->P_of_z->qc[i]->beta = prb->qc[i]->beta->data;
+        ipm->P_of_z->qc[i]->alpha = prb->qc[i]->alpha->data;
+        ipm->P_of_z->qc[i]->par = ipm->z_opt+prb->qc[i]->par_0;
+        ipm->P_of_z->qc[i]->par_0 = prb->qc[i]->par_0;
+        ipm->P_of_z->qc[i]->par_l = prb->qc[i]->par_l;
+        tmp = ipm->P_of_z->h_hat+prb->P->rows+i;
+        tmp[0] = ipm->P_of_z->qc[i]->alpha[0];
+    }
+*/
+    ipm->P_of_z->P_hat =
+            (real_t *)malloc(sizeof(real_t) * (nb_lin_constr + nb_socc + nb_qc)*ipm->optvar_seqlen);
+    if (NULL == ipm->P_of_z->P_hat) {return NULL;}
+    ipm->P_of_z->P_hat_T =
+            (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*(nb_lin_constr + nb_socc + nb_qc));
+    if (NULL == ipm->P_of_z->P_hat_T) {return NULL;}
+    ipm->P_of_z->P2_hat =
+            (real_t *)malloc(sizeof(real_t) * (nb_lin_constr + nb_socc + nb_qc)*ipm->optvar_seqlen);
+    if (NULL == ipm->P_of_z->P2_hat) {return NULL;}
+    ipm->P_of_z->P2_hat_T =
+            (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*(nb_lin_constr + nb_socc + nb_qc));
+    if (NULL == ipm->P_of_z->P2_hat_T) {return NULL;}
+    
+    ipm->h = ipm->P_of_z->h_hat;
+    ipm->P = ipm->P_of_z->P_hat;
+    ipm->P_T = ipm->P_of_z->P_hat_T;
+    ipm->P2 = ipm->P_of_z->P2_hat;
+    ipm->P2_T = ipm->P_of_z->P2_hat_T;
+    
+    update(P, ipm->optvar_seqlen, tmp1_optvar_seqlen, tmp2_optvar_seqlen);
+    form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
+           ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
+    form_diag_d_sq(ipm->diag_d_sq, ipm->d, ipm->nb_of_ueq_constr);
+    form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->tmp4_mtx_optvar_optvar, ipm->H,
+             ipm->P2_T, ipm->P2, ipm->P_of_z , ipm->d, ipm->diag_d_sq,
+             ipm->kappa[0], ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
+    
+    fail_unless(mtx_cmp(h_ref, P->h_hat, nb_lin_constr+nb_qc+nb_socc, 0)
+                == -1, "false h_hat (qc)");
+    fail_unless(mtx_cmp(d_ref, ipm->d, ipm->nb_of_ueq_constr, 0)
+                == -1, "false d (qc)");
+    fail_unless(mtx_cmp(P_ref, P->P2_hat, (nb_lin_constr+nb_qc+nb_socc)*ipm->optvar_seqlen, 0)
+                == -1, "false P2_hat (qc)");
+
+    mpcinc_mtx_multiply_mtx_mtx(ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->P2_T, ipm->diag_d_sq, ipm->optvar_seqlen, ipm->nb_of_ueq_constr, ipm->nb_of_ueq_constr);
+    mpcinc_mtx_multiply_mtx_mtx(Phi_ref, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->P2, ipm->optvar_seqlen, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
+    mpcinc_mtx_scale_direct(Phi_ref, ipm->kappa[0], ipm->optvar_seqlen, ipm->optvar_seqlen);
+    mpcinc_mtx_add_direct(Phi_ref, term_for_qc_ref, ipm->optvar_seqlen, ipm->optvar_seqlen);
+    
+    fail_unless(mtx_cmp(Phi_ref, ipm->Phi, ipm->optvar_seqlen*ipm->optvar_seqlen, 1e-13)
+                == -1, "false Phi (qc)");
+    
+    for (i = 0; i < ipm->optvar_seqlen; i++)
+        ipm->z_opt[i] = z2[i];
+    update(P, ipm->optvar_seqlen, tmp1_optvar_seqlen, tmp2_optvar_seqlen);
+    
+    fail_unless(mtx_cmp(P_ref, P->P_hat, (nb_lin_constr+nb_qc+nb_socc)*ipm->optvar_seqlen, 0)
+                == -1, "false P_hat (qc)");
+
+
 #test update_socc_test
     uint32_t i;
     uint32_t T = 3, n = 2, m = 1;
@@ -189,23 +393,7 @@
                                     1, ipm->P_of_z->socc[i]->rowsA);
         tmp[0] = ipm->P_of_z->socc[i]->d[0]*ipm->P_of_z->socc[i]->d[0] - tmp[0];
     }
-/*    
-    ipm->P_of_z->qc = (struct hhmpc_ipm_qc**)calloc(prb->nb_qc, sizeof(struct hhmpc_ipm_qc*));
-    if (NULL == ipm->P_of_z->qc) {return HHMPC_DYNMEM_FAIL;}
-    for (i = 0; i < prb->nb_qc; i++){
-        ipm->P_of_z->qc[i] = (struct hhmpc_ipm_qc*)malloc(sizeof(struct hhmpc_ipm_qc));
-        if (NULL == ipm->P_of_z->qc[i]) {return HHMPC_DYNMEM_FAIL;}
-        ipm->P_of_z->qc[i]->dimGamma = prb->qc[i]->Gamma->rows;
-        ipm->P_of_z->qc[i]->Gamma = prb->qc[i]->Gamma->data;
-        ipm->P_of_z->qc[i]->beta = prb->qc[i]->beta->data;
-        ipm->P_of_z->qc[i]->alpha = prb->qc[i]->alpha->data;
-        ipm->P_of_z->qc[i]->par = ipm->z_opt+prb->qc[i]->par_0;
-        ipm->P_of_z->qc[i]->par_0 = prb->qc[i]->par_0;
-        ipm->P_of_z->qc[i]->par_l = prb->qc[i]->par_l;
-        tmp = ipm->P_of_z->h_hat+prb->P->rows+i;
-        tmp[0] = ipm->P_of_z->qc[i]->alpha[0];
-    }
-*/
+    
     ipm->P_of_z->P_hat =
             (real_t *)malloc(sizeof(real_t) * (nb_lin_constr + nb_socc + nb_qc)*ipm->optvar_seqlen);
     if (NULL == ipm->P_of_z->P_hat) {return NULL;}
@@ -237,20 +425,20 @@
                 == -1, "false h_hat (socc)");
     fail_unless(mtx_cmp(d_ref, ipm->d, ipm->nb_of_ueq_constr, 0)
                 == -1, "false d (socc)");
-    fail_unless(mtx_cmp(P_ref, P->P2_hat, (nb_lin_constr+nb_qc+nb_socc)*ipm->optvar_seqlen, 0)
+    fail_unless(mtx_cmp(P_ref, P->P2_hat, (nb_lin_constr+nb_qc+nb_socc)*ipm->optvar_seqlen, 1e-100)
                 == -1, "false P2_hat (socc)");
-
+   
     mpcinc_mtx_multiply_mtx_mtx(ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->P2_T, ipm->diag_d_sq, ipm->optvar_seqlen, ipm->nb_of_ueq_constr, ipm->nb_of_ueq_constr);
     mpcinc_mtx_multiply_mtx_mtx(Phi_ref, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->P2, ipm->optvar_seqlen, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
     mpcinc_mtx_scale_direct(Phi_ref, ipm->kappa[0], ipm->optvar_seqlen, ipm->optvar_seqlen);
     mpcinc_mtx_add_direct(Phi_ref, term_for_socc_ref, ipm->optvar_seqlen, ipm->optvar_seqlen);
 
-    fail_unless(mtx_cmp(Phi_ref, ipm->Phi, ipm->optvar_seqlen*ipm->optvar_seqlen, 0)
+    fail_unless(mtx_cmp(Phi_ref, ipm->Phi, ipm->optvar_seqlen*ipm->optvar_seqlen, 1e-100)
                 == -1, "false Phi (socc)");
     
     for (i = 0; i < ipm->optvar_seqlen; i++)
         ipm->z_opt[i] = z2[i];
     update(P, ipm->optvar_seqlen, tmp1_optvar_seqlen, tmp2_optvar_seqlen);
     
-    fail_unless(mtx_cmp(P_ref, P->P_hat, (nb_lin_constr+nb_qc+nb_socc)*ipm->optvar_seqlen, 0)
+    fail_unless(mtx_cmp(P_ref, P->P_hat, (nb_lin_constr+nb_qc+nb_socc)*ipm->optvar_seqlen, 1e-100)
                 == -1, "false P_hat (socc)");
