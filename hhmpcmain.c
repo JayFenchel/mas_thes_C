@@ -13,16 +13,15 @@
 
 int main(void) {
     
-    struct mpcinc_cvp *cvp = mpcinc_cvp_allocate_former();
+    /*struct mpcinc_cvp *cvp = mpcinc_cvp_allocate_former();*/
     struct hhmpc_socp *socp = hhmpc_socp_allocate_former();
-    
-    struct mpcinc_fgm *fgm = mpcinc_fgm_allocate_solver();
+    /*struct mpcinc_fgm *fgm = mpcinc_fgm_allocate_solver();*/
     struct hhmpc_ipm *ipm = hhmpc_ipm_allocate_solver();
     
-    if (hhmpc_socp_setup_former(socp, "test01data.json")) {
+    if (hhmpc_socp_setup_former(socp, "test02data.json")) {
         return 0;
     }
-    if (hhmpc_ipm_setup_solver(ipm, socp->prb, "test01data.json")) {
+    if (hhmpc_ipm_setup_solver(ipm, socp->prb, "test02data.json")) {
         return 0;
     }
     
