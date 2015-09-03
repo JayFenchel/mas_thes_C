@@ -345,7 +345,7 @@ void form_Phi(real_t *Phi, real_t *help, real_t *t_Phi,
         pos_d = P_hat->nb_lin_constr + P_hat->nb_qc + i;
         mpcinc_mtx_scale(t_Phi, socc_i->AAmcc, 2*d[pos_d],
                          socc_i->colsA, socc_i->colsA);
-        print_mtx(t_Phi, 2, 2);
+        
         for (j = 0; j < socc_i->colsA; j++){
             pos_Phi = (socc_i->par_0 + j)*optvar + socc_i->par_0;
             mpcinc_mtx_add_direct(Phi+pos_Phi, t_Phi+j*socc_i->colsA, 1, socc_i->colsA);

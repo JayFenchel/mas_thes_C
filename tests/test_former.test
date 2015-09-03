@@ -229,39 +229,28 @@
     form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
            ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
     form_diag_d_sq(ipm->diag_d_sq, ipm->d, ipm->nb_of_ueq_constr);
-    print_mtx(ipm->Phi, ipm->optvar_seqlen, ipm->optvar_seqlen);
     form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->tmp4_mtx_optvar_optvar, ipm->H,
              ipm->P2_T, ipm->P2, ipm->P_of_z , ipm->d, ipm->diag_d_sq,
              ipm->kappa[0], ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
-    print_mtx(ipm->P_of_z->socc[0]->AAmcc, 2, 2);
-    print_mtx(ipm->Phi, ipm->optvar_seqlen, ipm->optvar_seqlen);
+    
     fail_unless(mtx_cmp(h_ref, P->h_hat, nb_lin_constr+nb_qc+nb_socc, 0)
                 == -1, "false h_hat (socc)");
     fail_unless(mtx_cmp(d_ref, ipm->d, ipm->nb_of_ueq_constr, 0)
                 == -1, "false d (socc)");
     fail_unless(mtx_cmp(P_ref, P->P2_hat, (nb_lin_constr+nb_qc+nb_socc)*ipm->optvar_seqlen, 0)
                 == -1, "false P2_hat (socc)");
+
     mpcinc_mtx_multiply_mtx_mtx(ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->P2_T, ipm->diag_d_sq, ipm->optvar_seqlen, ipm->nb_of_ueq_constr, ipm->nb_of_ueq_constr);
     mpcinc_mtx_multiply_mtx_mtx(Phi_ref, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->P2, ipm->optvar_seqlen, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
     mpcinc_mtx_scale_direct(Phi_ref, ipm->kappa[0], ipm->optvar_seqlen, ipm->optvar_seqlen);
     mpcinc_mtx_add_direct(Phi_ref, term_for_socc_ref, ipm->optvar_seqlen, ipm->optvar_seqlen);
-    print_mtx(Phi_ref, ipm->optvar_seqlen, ipm->optvar_seqlen);
+
     fail_unless(mtx_cmp(Phi_ref, ipm->Phi, ipm->optvar_seqlen*ipm->optvar_seqlen, 0)
                 == -1, "false Phi (socc)");
+    
     for (i = 0; i < ipm->optvar_seqlen; i++)
         ipm->z_opt[i] = z2[i];
     update(P, ipm->optvar_seqlen, tmp1_optvar_seqlen, tmp2_optvar_seqlen);
+    
     fail_unless(mtx_cmp(P_ref, P->P_hat, (nb_lin_constr+nb_qc+nb_socc)*ipm->optvar_seqlen, 0)
                 == -1, "false P_hat (socc)");
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
