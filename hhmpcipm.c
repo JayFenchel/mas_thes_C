@@ -13,15 +13,9 @@ static void residual(const struct hhmpc_ipm *ipm,
 static void residual_norm(real_t *f, const real_t *r_d, const real_t* r_p,
                           const uint32_t optvar_seqlen, const uint32_t dual_seqlen);
 static void bt_line_search(real_t *good_step, const struct hhmpc_ipm *ipm);
-static void form_d(real_t *d, const real_t *P, const real_t *h, const real_t *z,
-                   const uint32_t rowsP, const uint32_t colsP);
-static void form_diag_d_sq(real_t *diag_d_sq, const real_t *d, const uint32_t dim);
-static void form_Phi(real_t *Phi, real_t *help, real_t *tmp_Phi,
-                     const real_t *H, const real_t *P_T, const real_t *P,
-                     const struct hhmpc_ipm_P_hat *P_hat,
-                     const real_t *d, const real_t *diag_d_sq,
-                     const real_t kappa,
-                     const uint32_t optvar_seqlen, const uint32_t nb_of_ueq_constr);
+
+
+
 static void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm,
                        const real_t *z);
 
@@ -351,7 +345,7 @@ void form_Phi(real_t *Phi, real_t *help, real_t *t_Phi,
         pos_d = P_hat->nb_lin_constr + P_hat->nb_qc + i;
         mpcinc_mtx_scale(t_Phi, socc_i->AAmcc, 2*d[pos_d],
                          socc_i->colsA, socc_i->colsA);
-        
+        print_mtx(t_Phi, 2, 2);
         for (j = 0; j < socc_i->colsA; j++){
             pos_Phi = (socc_i->par_0 + j)*optvar + socc_i->par_0;
             mpcinc_mtx_add_direct(Phi+pos_Phi, t_Phi+j*socc_i->colsA, 1, socc_i->colsA);
