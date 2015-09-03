@@ -22,6 +22,7 @@
     real_t z[] = {1., 0., 0., -3., -1., 1., 7., 1., 6.};
     real_t z2[] = {2., 0., 0., -6., -2., 2., 14., 2., 12.};
 
+    real_t kappa[] = {90.};
     
     real_t A[] = {1., 7., 3., -4.};
     uint32_t rowsA = 2;
@@ -43,6 +44,17 @@
                       0., 58., 128., 0., 0., 0., 0., 0., 0.,
                       0., 0., 0., 0., 4., 212., 0., 0., 0.,
                       0., 0., 0., 0., 0., 0., 0., -292., 661./2.};
+    real_t d_ref[] = {-1./145., -1./284., -1./145., -1./284., -4./5371.};
+    real_t term_for_socc_ref[] =
+            {0., 0., 0., 0., 0., 0., 0., 0., 0.,
+             0., -4./145., 104./145., 0., 0., 0., 0., 0., 0.,
+             0., 104./145., -64./145., 0., 0., 0., 0., 0., 0.,
+             0., 0., 0., 0., 0., 0., 0., 0., 0.,
+             0., 0., 0., 0., -2./142., 26./71., 0., 0., 0.,
+             0., 0., 0., 0., 26./71., -16./71., 0., 0., 0.,
+             0., 0., 0., 0., 0., 0., 0., 0., 0.,
+             0., 0., 0., 0., 0., 0., 0., -2./5371., 224./5371.,
+             0., 0., 0., 0., 0., 0., 0., 224./5371., -182./5371.};
     
     struct hhmpc_ipm_socc *socc1 = (struct hhmpc_ipm_socc*)malloc(sizeof(struct hhmpc_ipm_socc));
     if (NULL == socc1) {return NULL;}
@@ -104,8 +116,21 @@
     socc5->par_l = n;
 
     struct hhmpc_ipm *ipm = hhmpc_ipm_allocate_solver();
-    ipm->z_opt = z;
     ipm->optvar_seqlen = T*(n+m);
+    ipm->nb_of_ueq_constr = nb_lin_constr + nb_qc + nb_socc;
+    ipm->kappa = kappa;
+    ipm->d = (real_t *)malloc(sizeof(real_t) * ipm->nb_of_ueq_constr);
+    ipm->diag_d_sq =
+            (real_t *)malloc(sizeof(real_t) * ipm->nb_of_ueq_constr*ipm->nb_of_ueq_constr);
+    ipm->Phi = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
+    real_t *Phi_ref = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
+    ipm->tmp3_mtx_optvar_nb_of_ueq =
+            (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->nb_of_ueq_constr);
+    ipm->tmp4_mtx_optvar_optvar =
+            (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
+    ipm->H = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
+    ipm->z_opt = z;
+    
 
     struct hhmpc_ipm_P_hat *P =
             (struct hhmpc_ipm_P_hat*)malloc(sizeof(struct hhmpc_ipm_P_hat));
@@ -201,15 +226,35 @@
     ipm->P2_T = ipm->P_of_z->P2_hat_T;
     
     update(P, ipm->optvar_seqlen, tmp1_optvar_seqlen, tmp2_optvar_seqlen);
+    form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
+           ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
+    form_diag_d_sq(ipm->diag_d_sq, ipm->d, ipm->nb_of_ueq_constr);
+    print_mtx(ipm->Phi, ipm->optvar_seqlen, ipm->optvar_seqlen);
+    form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->tmp4_mtx_optvar_optvar, ipm->H,
+             ipm->P2_T, ipm->P2, ipm->P_of_z , ipm->d, ipm->diag_d_sq,
+             ipm->kappa[0], ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
+    print_mtx(ipm->P_of_z->socc[0]->AAmcc, 2, 2);
+    print_mtx(ipm->Phi, ipm->optvar_seqlen, ipm->optvar_seqlen);
     fail_unless(mtx_cmp(h_ref, P->h_hat, nb_lin_constr+nb_qc+nb_socc, 0)
                 == -1, "false h_hat (socc)");
+    fail_unless(mtx_cmp(d_ref, ipm->d, ipm->nb_of_ueq_constr, 0)
+                == -1, "false d (socc)");
     fail_unless(mtx_cmp(P_ref, P->P2_hat, (nb_lin_constr+nb_qc+nb_socc)*ipm->optvar_seqlen, 0)
                 == -1, "false P2_hat (socc)");
+    mpcinc_mtx_multiply_mtx_mtx(ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->P2_T, ipm->diag_d_sq, ipm->optvar_seqlen, ipm->nb_of_ueq_constr, ipm->nb_of_ueq_constr);
+    mpcinc_mtx_multiply_mtx_mtx(Phi_ref, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->P2, ipm->optvar_seqlen, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
+    mpcinc_mtx_scale_direct(Phi_ref, ipm->kappa[0], ipm->optvar_seqlen, ipm->optvar_seqlen);
+    mpcinc_mtx_add_direct(Phi_ref, term_for_socc_ref, ipm->optvar_seqlen, ipm->optvar_seqlen);
+    print_mtx(Phi_ref, ipm->optvar_seqlen, ipm->optvar_seqlen);
+    fail_unless(mtx_cmp(Phi_ref, ipm->Phi, ipm->optvar_seqlen*ipm->optvar_seqlen, 0)
+                == -1, "false Phi (socc)");
     for (i = 0; i < ipm->optvar_seqlen; i++)
         ipm->z_opt[i] = z2[i];
     update(P, ipm->optvar_seqlen, tmp1_optvar_seqlen, tmp2_optvar_seqlen);
     fail_unless(mtx_cmp(P_ref, P->P_hat, (nb_lin_constr+nb_qc+nb_socc)*ipm->optvar_seqlen, 0)
                 == -1, "false P_hat (socc)");
+    
+    
     
     
     
