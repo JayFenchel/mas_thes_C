@@ -3,7 +3,24 @@
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df name="mas_thes_C" root=".">
       <df name="include">
+        <in>arithmetic.h</in>
+        <in>cjson.h</in>
+        <in>hhmpcdynmem.h</in>
+        <in>hhmpcipm.h</in>
+        <in>hhmpcipmdynmem.h</in>
+        <in>hhmpcmath.h</in>
+        <in>hhmpcsocp.h</in>
+        <in>hhmpcsocpdynmem.h</in>
+        <in>hhmpcsolve.h</in>
         <in>hhmpctestfunc.h</in>
+        <in>hhmpcusefull.h</in>
+        <in>mc04types.h</in>
+        <in>mpcinccvp.h</in>
+        <in>mpcinccvpdynmem.h</in>
+        <in>mpcincdynmem.h</in>
+        <in>mpcincfgm.h</in>
+        <in>mpcincfgmdynmem.h</in>
+        <in>mpcincmtxops.h</in>
       </df>
       <df name="mpcinc">
         <df name="cython">
@@ -66,11 +83,24 @@
         <in>mpcincmtxops.c</in>
       </df>
       <df name="tests">
-        <in>impl_test.c</in>
-        <in>main.c</in>
+        <in>ref_for_unit_test.m</in>
+        <in>test_math.c</in>
       </df>
+      <in>cjson.c</in>
+      <in>hhmpcdynmem.c</in>
+      <in>hhmpcipm.c</in>
+      <in>hhmpcipmdynmem.c</in>
       <in>hhmpcmain.c</in>
+      <in>hhmpcmath.c</in>
+      <in>hhmpcsocp.c</in>
+      <in>hhmpcsocpdynmem.c</in>
+      <in>hhmpcsolve.c</in>
       <in>hhmpctestfunc.c</in>
+      <in>hhmpcusefull.c</in>
+      <in>mpcinccvpdynmem.c</in>
+      <in>mpcincdynmem.c</in>
+      <in>mpcincfgmdynmem.c</in>
+      <in>mpcincmtxops.c</in>
     </df>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -207,10 +237,6 @@
       <item path="mpcinc_orig/mpcincmain.c" ex="true" tool="0" flavor2="0">
       </item>
       <item path="mpcinc_orig/mpcincmtxops.c" ex="true" tool="0" flavor2="0">
-      </item>
-      <item path="tests/impl_test.c" ex="true" tool="0" flavor2="0">
-      </item>
-      <item path="tests/main.c" ex="true" tool="0" flavor2="0">
       </item>
     </conf>
   </confs>
