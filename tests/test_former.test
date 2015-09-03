@@ -1,84 +1,144 @@
 /*DO 
   checkmk tests/test_former.test >tests/test_former.c
 */
+#include <stdlib.h>
 #include "../include/hhmpcmath.h"
 #include "../include/hhmpcipm.h"
 #include "../include/hhmpcusefull.h"
+#include "../include/hhmpcipmdynmem.h"
 
 
 #test update_socc_test
+    uint32_t i;
+    uint32_t T = 3, n = 2, m = 1;
+    uint32_t nb_lin_constr = 0;
+    uint32_t nb_qc = 0;
+    uint32_t nb_socc = 5;
+    
+    real_t *tmp;
+    real_t *tmp1_optvar_seqlen = (real_t*)malloc(sizeof(real_t) * T*(n + m));
+    real_t *tmp2_optvar_seqlen = (real_t*)malloc(sizeof(real_t) * T*(n + m));
+    
+    real_t z[] = {1., 0., 0., -3., -1., 1., 7., 1., 6.};
+    real_t z2[] = {2., 0., 0., -6., -2., 2., 14., 2., 12.};
+
+    
     real_t A[] = {1., 7., 3., -4.};
     uint32_t rowsA = 2;
+    uint32_t colsA = 2;
     real_t b[] = {11., 5.};
     real_t c[] = {3., 7.};
     real_t d[] = {-1.};
 
     real_t AE[] = {.5, 7., 3., -4.};
     uint32_t rowsAE = 2;
+    uint32_t colsAE = 2;
     real_t bE[] = {10.5, 5.};
     real_t cE[] = {3., 6.5};
     real_t dE[] = {-.5};
-
-    struct hhmpc_ipm_socc *socc1;
-    struct hhmpc_ipm_socc *socc2;
-    struct hhmpc_ipm_socc *socc3;
+    
+    real_t h_ref[] = {-145.,-145.,-145.,-145.,-135.};
+    real_t P_ref[] = {0., 58., 128., 0., 0., 0., 0., 0., 0.,
+                      0., 0., 0., 0., 4., 212., 0., 0., 0.,
+                      0., 58., 128., 0., 0., 0., 0., 0., 0.,
+                      0., 0., 0., 0., 4., 212., 0., 0., 0.,
+                      0., 0., 0., 0., 0., 0., 0., -292., 661./2.};
+    
+    struct hhmpc_ipm_socc *socc1 = (struct hhmpc_ipm_socc*)malloc(sizeof(struct hhmpc_ipm_socc));
+    if (NULL == socc1) {return NULL;}
+    struct hhmpc_ipm_socc *socc2 = (struct hhmpc_ipm_socc*)malloc(sizeof(struct hhmpc_ipm_socc));
+    if (NULL == socc2) {return NULL;}
+    struct hhmpc_ipm_socc *socc3 = (struct hhmpc_ipm_socc*)malloc(sizeof(struct hhmpc_ipm_socc));
+    if (NULL == socc3) {return NULL;}
+    struct hhmpc_ipm_socc *socc4 = (struct hhmpc_ipm_socc*)malloc(sizeof(struct hhmpc_ipm_socc));
+    if (NULL == socc4) {return NULL;}
+    struct hhmpc_ipm_socc *socc5 = (struct hhmpc_ipm_socc*)malloc(sizeof(struct hhmpc_ipm_socc));
+    if (NULL == socc5) {return NULL;}
+    struct hhmpc_ipm_socc **socc = (struct hhmpc_ipm_socc**)calloc(nb_socc, sizeof(struct hhmpc_ipm_socc*));
+    if (NULL == socc) {return NULL;}
+    socc[0] = socc1;
+    socc[1] = socc2;
+    socc[2] = socc3;
+    socc[3] = socc4;
+    socc[4] = socc5;
+    
     socc1->A = A;
     socc1->rowsA = rowsA;
+    socc1->colsA = colsA;
     socc1->b =b;
     socc1->c =c;
     socc1->d =d;
+    socc1->par_0 = m;
+    socc1->par_l = n;
     socc2->A = A;
     socc2->rowsA = rowsA;
+    socc2->colsA = colsA;
     socc2->b =b;
     socc2->c =c;
     socc2->d =d;
-    socc3->A = AE;
-    socc3->rowsA = rowsAE;
-    socc3->b =bE;
-    socc3->c =cE;
-    socc3->d =dE;
-
-    real_t z[] = {1., 0., 0., -3., -1., 1., 7., 1., 6.};
+    socc2->par_0 = m+n+m;
+    socc2->par_l = n;
+    socc3->A = A;
+    socc3->rowsA = rowsA;
+    socc3->colsA = colsA;
+    socc3->b =b;
+    socc3->c =c;
+    socc3->d =d;
+    socc3->par_0 = m;
+    socc3->par_l = n;
+    socc4->A = A;
+    socc4->rowsA = rowsA;
+    socc4->colsA = colsA;
+    socc4->b =b;
+    socc4->c =c;
+    socc4->d =d;
+    socc4->par_0 = m+n+m;
+    socc4->par_l = n;
+    socc5->A = AE;
+    socc5->rowsA = rowsAE;
+    socc5->colsA = colsAE;
+    socc5->b =bE;
+    socc5->c =cE;
+    socc5->d =dE;
+    socc5->par_0 = m+2*(n+m);
+    socc5->par_l = n;
 
     struct hhmpc_ipm *ipm = hhmpc_ipm_allocate_solver();
     ipm->z_opt = z;
+    ipm->optvar_seqlen = T*(n+m);
 
-    struct hhmpc_ipm_P_hat *P = (struct hhmpc_ipm_P_hat*)malloc(sizeof(struct hhmpc_ipm_P_hat));
+    struct hhmpc_ipm_P_hat *P =
+            (struct hhmpc_ipm_P_hat*)malloc(sizeof(struct hhmpc_ipm_P_hat));
     if (NULL == P) {return NULL;}
     ipm->P_of_z = P;
     
-    real_t h[] = {};
-    ipm->P_of_z->h = h;
-    uint32_t nb_lin_constr = 0;
-    uint32_t nb_qc = 0;
-    uint32_t nb_socc = 5;
+    real_t P_mtx[0];
+    real_t h_vec[0];
+    
+    ipm->P_of_z->P = P_mtx;
+    ipm->P_of_z->h = h_vec;
 
     ipm->P_of_z->h_hat =
             (real_t*)malloc(sizeof(real_t) * (nb_lin_constr + nb_socc + nb_qc));
     if (NULL == ipm->P_of_z->h_hat) {return NULL;}
-    ipm->P_of_z->P = prb->P->data;
-    ipm->P_of_z->nb_lin_constr = prb->P->rows;
-    ipm->P_of_z->nb_socc = prb->nb_socc;
-    ipm->P_of_z->nb_qc = prb->nb_qc;
-    ipm->P_of_z->socc = (struct hhmpc_ipm_socc**)calloc(prb->nb_socc, sizeof(struct hhmpc_ipm_socc*));
-    if (NULL == ipm->P_of_z->socc) {return HHMPC_DYNMEM_FAIL;}
-    for (i = 0; i < prb->nb_socc; i++){
-        ipm->P_of_z->socc[i] = (struct hhmpc_ipm_socc*)malloc(sizeof(struct hhmpc_ipm_socc));
-        if (NULL == ipm->P_of_z->socc[i]) {return HHMPC_DYNMEM_FAIL;}
-        ipm->P_of_z->socc[i]->rowsA = prb->socc[i]->A->rows;
-        ipm->P_of_z->socc[i]->colsA = prb->socc[i]->A->cols;
-        ipm->P_of_z->socc[i]->A = prb->socc[i]->A->data;
+    
+    
+    ipm->P_of_z->nb_lin_constr = nb_lin_constr;
+    ipm->P_of_z->nb_socc = nb_socc;
+    ipm->P_of_z->nb_qc = nb_qc;
+    
+    ipm->P_of_z->socc = (struct hhmpc_ipm_socc**)calloc(nb_socc, sizeof(struct hhmpc_ipm_socc*));
+    if (NULL == ipm->P_of_z->socc) {return NULL;}
+    for (i = 0; i < nb_socc; i++){
+        ipm->P_of_z->socc[i] = socc[i];
         ipm->P_of_z->socc[i]->A_T =
-                (real_t *)malloc(sizeof(real_t) * prb->socc[i]->A->cols*prb->socc[i]->A->rows);
-        if (NULL == ipm->P_of_z->socc[i]->A_T) {return HHMPC_DYNMEM_FAIL;}
+                (real_t *)malloc(sizeof(real_t) * socc[i]->colsA*socc[i]->rowsA);
+        if (NULL == ipm->P_of_z->socc[i]->A_T) {return NULL;}
         mpcinc_mtx_transpose(ipm->P_of_z->socc[i]->A_T, ipm->P_of_z->socc[i]->A,
-                             prb->socc[i]->A->rows, prb->socc[i]->A->cols);
-        ipm->P_of_z->socc[i]->b = prb->socc[i]->b->data;
-        ipm->P_of_z->socc[i]->c = prb->socc[i]->c->data;
-        ipm->P_of_z->socc[i]->d = prb->socc[i]->d->data;
+                             socc[i]->rowsA, socc[i]->colsA);
         ipm->P_of_z->socc[i]->AAmcc=
-                (real_t *)malloc(sizeof(real_t) * prb->socc[i]->A->cols*prb->socc[i]->A->cols);
-        if (NULL == ipm->P_of_z->socc[i]->AAmcc) {return HHMPC_DYNMEM_FAIL;}
+                (real_t *)malloc(sizeof(real_t) * socc[i]->colsA*socc[i]->colsA);
+        if (NULL == ipm->P_of_z->socc[i]->AAmcc) {return NULL;}
         mpcinc_mtx_multiply_mtx_mtx(ipm->P_of_z->socc[i]->AAmcc,
                                     ipm->P_of_z->socc[i]->A_T,
                                     ipm->P_of_z->socc[i]->A,
@@ -95,14 +155,16 @@
                                     ipm->P_of_z->socc[i]->colsA,
                                     ipm->P_of_z->socc[i]->colsA);
         
-        ipm->P_of_z->socc[i]->par = ipm->z_opt+prb->socc[i]->par_0;
-        ipm->P_of_z->socc[i]->par_0 = prb->socc[i]->par_0;
-        ipm->P_of_z->socc[i]->par_l = prb->socc[i]->par_l;
-        tmp = ipm->P_of_z->h_hat+prb->P->rows+prb->nb_qc+i;
+        ipm->P_of_z->socc[i]->par = ipm->z_opt+socc[i]->par_0;
+        ipm->P_of_z->socc[i]->par_0 = socc[i]->par_0;
+        ipm->P_of_z->socc[i]->par_l = socc[i]->par_l;
+        
+        tmp = ipm->P_of_z->h_hat+nb_lin_constr+nb_qc+i;
         mpcinc_mtx_multiply_mtx_vec(tmp, ipm->P_of_z->socc[i]->b, ipm->P_of_z->socc[i]->b,
                                     1, ipm->P_of_z->socc[i]->rowsA);
         tmp[0] = ipm->P_of_z->socc[i]->d[0]*ipm->P_of_z->socc[i]->d[0] - tmp[0];
     }
+/*    
     ipm->P_of_z->qc = (struct hhmpc_ipm_qc**)calloc(prb->nb_qc, sizeof(struct hhmpc_ipm_qc*));
     if (NULL == ipm->P_of_z->qc) {return HHMPC_DYNMEM_FAIL;}
     for (i = 0; i < prb->nb_qc; i++){
@@ -118,17 +180,43 @@
         tmp = ipm->P_of_z->h_hat+prb->P->rows+i;
         tmp[0] = ipm->P_of_z->qc[i]->alpha[0];
     }
-    ipm->P_of_z->P_hat = (real_t *)malloc(sizeof(real_t) * (prb->P->rows+prb->nb_socc+prb->nb_qc)*ipm->optvar_seqlen);
-    if (NULL == ipm->P_of_z->P_hat) {return HHMPC_DYNMEM_FAIL;}
-    ipm->P_of_z->P_hat_T = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*(prb->P->rows+prb->nb_socc+prb->nb_qc));
-    if (NULL == ipm->P_of_z->P_hat_T) {return HHMPC_DYNMEM_FAIL;}
-    ipm->P_of_z->P2_hat = (real_t *)malloc(sizeof(real_t) * (prb->P->rows+prb->nb_socc+prb->nb_qc)*ipm->optvar_seqlen);
-    if (NULL == ipm->P_of_z->P2_hat) {return HHMPC_DYNMEM_FAIL;}
-    ipm->P_of_z->P2_hat_T = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*(prb->P->rows+prb->nb_socc+prb->nb_qc));
-    if (NULL == ipm->P_of_z->P2_hat_T) {return HHMPC_DYNMEM_FAIL;}
+*/
+    ipm->P_of_z->P_hat =
+            (real_t *)malloc(sizeof(real_t) * (nb_lin_constr + nb_socc + nb_qc)*ipm->optvar_seqlen);
+    if (NULL == ipm->P_of_z->P_hat) {return NULL;}
+    ipm->P_of_z->P_hat_T =
+            (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*(nb_lin_constr + nb_socc + nb_qc));
+    if (NULL == ipm->P_of_z->P_hat_T) {return NULL;}
+    ipm->P_of_z->P2_hat =
+            (real_t *)malloc(sizeof(real_t) * (nb_lin_constr + nb_socc + nb_qc)*ipm->optvar_seqlen);
+    if (NULL == ipm->P_of_z->P2_hat) {return NULL;}
+    ipm->P_of_z->P2_hat_T =
+            (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*(nb_lin_constr + nb_socc + nb_qc));
+    if (NULL == ipm->P_of_z->P2_hat_T) {return NULL;}
     
     ipm->h = ipm->P_of_z->h_hat;
     ipm->P = ipm->P_of_z->P_hat;
     ipm->P_T = ipm->P_of_z->P_hat_T;
     ipm->P2 = ipm->P_of_z->P2_hat;
     ipm->P2_T = ipm->P_of_z->P2_hat_T;
+    
+    update(P, ipm->optvar_seqlen, tmp1_optvar_seqlen, tmp2_optvar_seqlen);
+    fail_unless(mtx_cmp(h_ref, P->h_hat, nb_lin_constr+nb_qc+nb_socc, 0)
+                == -1, "false h_hat (socc)");
+    fail_unless(mtx_cmp(P_ref, P->P2_hat, (nb_lin_constr+nb_qc+nb_socc)*ipm->optvar_seqlen, 0)
+                == -1, "false P2_hat (socc)");
+    for (i = 0; i < ipm->optvar_seqlen; i++)
+        ipm->z_opt[i] = z2[i];
+    update(P, ipm->optvar_seqlen, tmp1_optvar_seqlen, tmp2_optvar_seqlen);
+    fail_unless(mtx_cmp(P_ref, P->P_hat, (nb_lin_constr+nb_qc+nb_socc)*ipm->optvar_seqlen, 0)
+                == -1, "false P_hat (socc)");
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

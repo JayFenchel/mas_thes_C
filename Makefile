@@ -37,8 +37,8 @@ test: math-test solve-test former-test
 	./tests/solve-test # Test für Teile des Algorithmus
 	./tests/former-test # Test für Teile des Algorithmus
 
-former-test: test_former.o hhmpcipm.o hhmpcsolve.o hhmpcmath.o hhmpcusefull.o mpcincmtxops.o
-	gcc -o ./tests/former-test hhmpcipm.o hhmpcsolve.o hhmpcmath.o hhmpcusefull.o mpcincmtxops.o ./tests/test_former.o -lcheck -lpthread -lrt -lm
+former-test: test_former.o hhmpcipm.o hhmpcipmdynmem.o hhmpcsolve.o hhmpcmath.o hhmpcusefull.o mpcincmtxops.o
+	gcc -o ./tests/former-test hhmpcipm.o hhmpcipmdynmem.o hhmpcsolve.o hhmpcmath.o hhmpcusefull.o mpcincmtxops.o ./tests/test_former.o -lcheck -lpthread -lrt -lm
 
 test_former.o: test_former.c $(INC)/hhmpcsolve.h
 	gcc $(FLAGS) -c -o ./tests/test_former.o ./tests/test_former.c
