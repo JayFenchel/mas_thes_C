@@ -8,7 +8,7 @@ INC := ./include
 LIB := ./lib
 
 main: $(OBJ) libmpcformqpx
-	$(CC) $(FLAGS) $(OPT) $(STD) -I$(INC) -L./ -o main $(OBJ) -lm #-lmpcformqpx 
+	$(CC) $(FLAGS) $(OPT) $(STD) -I$(INC) -L./ -o main $(OBJ) -lmpcformqpx -lm 
 
 libmpcformqpx: $(OBJ)
 	$(CC) $(FLAGS) $(OPT) $(STD) -shared -Wl,-soname,libmpcformqpx.so.1 -o libmpcformqpx.so $(OBJ) -lm
@@ -19,4 +19,4 @@ $(OBJ): %.o: %.c
 .PHONY: clean
 
 clean:
-	rm $(OBJ) #$(LIB)/*
+	rm $(OBJ) $(LIB)/*
