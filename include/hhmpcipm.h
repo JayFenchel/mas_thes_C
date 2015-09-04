@@ -1,6 +1,7 @@
 #ifndef HHMPCIPM_H
 #define HHMPCIPM_H
 
+#define HIER    printf("HIER\n");
 
 #include "mc04types.h"
 #include "arithmetic.h"
