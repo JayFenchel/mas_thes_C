@@ -116,6 +116,9 @@ struct hhmpc_socp *hhmpc_socp_allocate_former(void)
     /* the evaluated problem itself */
     socp->prb = (struct hhmpc_socp_prb*)malloc(sizeof(struct hhmpc_socp_prb));
     if (NULL == socp->prb) {return NULL;}
+        socp->prb->z_ini = socp->par[HHMPC_ZINI];
+        socp->prb->v_ini = socp->par[HHMPC_VINI];
+    
         socp->prb->b = socp->pmetric[HHMPC_B_KL]->val;
         socp->prb->h = socp->pmetric[HHMPC_H_KL]->val;
         socp->prb->g = socp->pmetric[HHMPC_G_KL]->val;
@@ -273,6 +276,8 @@ hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
     }
     
     hhmpc_get_json_term(socp->par[HHMPC_XK], data, "par", "xk");
+    hhmpc_get_json_term(socp->par[HHMPC_ZINI], data, "par", "zini");
+    hhmpc_get_json_term(socp->par[HHMPC_VINI], data, "par", "vini");
     
     hhmpc_get_json_sub_term(socp->pmetric[HHMPC_B_KL]->val, data, "pmetric", "b", "val");
     hhmpc_get_json_sub_term(socp->pmetric[HHMPC_B_KL]->fac0, data, "pmetric", "b", "fac0");

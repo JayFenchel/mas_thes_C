@@ -43,11 +43,12 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     
     /* Calculate Kappa for every time_step */
     calc_kappa(ipm->kappa, ipm, ipm->z_opt);
+    printf("calculated kappa = %.20f\n", ipm->kappa[0]);
     
     /* Update h for new xk */
     memcpy(ipm->P_of_z->h_hat, ipm->P_of_z->h, sizeof(real_t) * ipm->P_of_z->nb_lin_constr);
-    
-    print_mtx(ipm->h, 36, 1);
+    /*
+    print_mtx(ipm->h, ipm->nb_of_ueq_constr, 1);*/
     /*Improve z for a fixed number of steps j_in*/
     for (j = 0; j < *(ipm->j_in); j++) {
         update(ipm->P_of_z, ipm->optvar_seqlen,
@@ -66,14 +67,14 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         /* Solve system of linear equations to obtain the step direction */
         solve_sysofleq(ipm->delta_z, ipm->delta_v, ipm, ipm->Phi, ipm->r_d, ipm->r_p,
                        ipm->C, ipm->C_T, ipm->A, ipm->A_T, ipm->B, ipm->B_T,
-                       ipm->state_veclen, 2, ipm->horizon,
+                       ipm->state_veclen, 1, ipm->horizon, /* TODO m einführen */
                        eye_nm, eye_n,
                        t_solve_optvar_seqlen,
                        t_solve_dual_seqlen,
                        t_L_Y, t_L_Y_T);
         /* Find best step size (0...1] */
         bt_line_search(ipm->st_size, ipm);
-        print_mtx(ipm->st_size, 1,1);
+        printf("st_size = %f\n", ipm->st_size[0]);
         
         /* Update z */
         mpcinc_mtx_scale_direct(ipm->delta_z, ipm->st_size[0],
@@ -84,8 +85,9 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
                                 ipm->optvar_seqlen, 1);
         mpcinc_mtx_add_direct(ipm->v_opt, ipm->delta_v,
                               ipm->optvar_seqlen, 1);
+        /*
         print_mtx(ipm->z_opt, ipm->optvar_seqlen, 1);
-        print_mtx(ipm->v_opt, ipm->dual_seqlen, 1);
+        print_mtx(ipm->v_opt, ipm->dual_seqlen, 1);*/
     }
     update(ipm->P_of_z, ipm->optvar_seqlen,
            t_solve_optvar_seqlen, t_optvar_seqlen);
@@ -238,7 +240,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
                   ipm->optvar_seqlen, ipm->dual_seqlen);
     g_in_dir = (f_p_g - f_p)/g_step;
-    printf("%.8f\n", g_in_dir);
+    printf("Grad in dir = %.8f\n", g_in_dir);
     
     mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st_size[0], ipm->optvar_seqlen, 1);
     mpcinc_mtx_add_direct(ipm->z_opt, help_z, ipm->optvar_seqlen, 1);
@@ -381,7 +383,14 @@ void form_diag_d_sq(real_t *diag_d_sq, const real_t *d, const uint32_t dim)
 
 void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
 {
+    real_t *tmp1 = ipm->tmp1_optvar_seqlen;
+    real_t *tmp2 = ipm->tmp3_state_veclen; 
+    
+    mpcinc_mtx_multiply_mtx_mtx(tmp1, ipm->z_opt, ipm->H,
+                                1, ipm->optvar_seqlen, ipm->optvar_seqlen);
+    mpcinc_mtx_multiply_mtx_vec(tmp2, tmp1, ipm->z_opt, 1, ipm->optvar_seqlen);
     mpcinc_mtx_multiply_mtx_vec(kappa, ipm->g, z, 1, ipm->optvar_seqlen);
-    kappa[0] *= 0.01/ipm->optvar_veclen;
+    kappa[0] += tmp2[0];
+    kappa[0] *= 0.01/ipm->optvar_veclen;  /* TODO auf optvar_seqlen umstellen*/
 }
 
