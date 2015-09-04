@@ -24,7 +24,7 @@ int main(void) {
     if (hhmpc_ipm_setup_solver(ipm, socp->prb, "test02data.json")) {
         return 0;
     }
-    
+/*    
     ipm->z_ini[0] = 0.9;
     ipm->z_ini[1] = 0.7;
     ipm->z_ini[2] = 0.2;
@@ -40,6 +40,26 @@ int main(void) {
     ipm->z_ini[12] = 0.2;
     ipm->z_ini[13] = 0.2;
     ipm->z_ini[14] = 0.5;
+    ipm->z_ini[15] = 0.9;
+    ipm->z_ini[16] = 0.7;
+    ipm->z_ini[17] = 0.2;
+    ipm->z_ini[18] = 0.2;
+    ipm->z_ini[19] = 0.5;
+    ipm->z_ini[20] = 0.9;
+    ipm->z_ini[21] = 0.7;
+    ipm->z_ini[22] = 0.2;
+    ipm->z_ini[23] = 0.2;
+    ipm->z_ini[24] = 0.5;
+    ipm->z_ini[25] = 0.9;
+    ipm->z_ini[26] = 0.7;
+    ipm->z_ini[27] = 0.2;
+    ipm->z_ini[28] = 0.2;
+    ipm->z_ini[29] = 0.5;
+    ipm->z_ini[30] = 0.9;
+    ipm->z_ini[31] = 0.7;
+    ipm->z_ini[32] = 0.2;
+    ipm->z_ini[33] = 0.2;
+    ipm->z_ini[34] = 0.5;
     ipm->v_ini[0] = 0.;
     ipm->v_ini[1] = 0.;
     ipm->v_ini[2] = 0.;
@@ -50,12 +70,38 @@ int main(void) {
     ipm->v_ini[7] = 0.;
     ipm->v_ini[8] = 0.;
     ipm->v_ini[9] = 0.;
-    
+    ipm->v_ini[10] = 0.;
+    ipm->v_ini[11] = 0.;
+    ipm->v_ini[12] = 0.;
+    ipm->v_ini[13] = 0.;
+    ipm->v_ini[14] = 0.;
+    ipm->v_ini[15] = 0.;
+    ipm->v_ini[16] = 0.;
+    ipm->v_ini[17] = 0.;
+    ipm->v_ini[18] = 0.;
+    ipm->v_ini[19] = 0.;
+    ipm->v_ini[20] = 0.;
+    ipm->v_ini[21] = 0.;
+    ipm->v_ini[22] = 0.;
+    ipm->v_ini[23] = 0.;
+    ipm->v_ini[24] = 0.;
+    ipm->v_ini[25] = 0.;
+    ipm->v_ini[26] = 0.;
+    ipm->v_ini[27] = 0.;
+    ipm->v_ini[28] = 0.;
+    ipm->v_ini[29] = 0.;
+    */
+
     ipm->conf->in_iter = 5;
     ipm->conf->reg = .00000001;
     
     hhmpc_socp_form_problem(socp);
     hhmpc_ipm_solve_problem(ipm);
+    printf("u_opt1 = %f\n", ipm->z_opt[0]);
+    printf("u_opt2 = %f\n", ipm->z_opt[31]);
+    printf("u_opt3 = %f\n", ipm->z_opt[62]);
+    printf("u_opt4 = %f\n", ipm->z_opt[93]);
+    printf("u_opt5 = %f\n", ipm->z_opt[124]);
     
     printf("%f \n", socp->constant[HHMPC_R_KL]->data[0]);
     printf("ENDE\n");
