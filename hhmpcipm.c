@@ -669,6 +669,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         /* Calculate the residual */
         residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
         residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
+//         print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
         printf("res_norm = %f\n", f);
         
         /* Solve system of linear equations to obtain the step direction */
@@ -680,6 +681,10 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
                        t_solve_optvar_seqlen,
                        t_solve_dual_seqlen,
                        t_L_Y, t_L_Y_T);
+//         real_t tom1[ipm->optvar_seqlen*ipm->optvar_seqlen];
+//         real_t tom2[ipm->optvar_seqlen];
+//         cholesky(tom1, ipm->Phi, ipm->optvar_seqlen);
+        
 //         print_mtx(ipm->delta_v, ipm->dual_seqlen, 1);
         /* Find best step size (0...1] */
         bt_line_search(ipm->st_size, ipm);

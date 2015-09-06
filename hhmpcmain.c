@@ -92,7 +92,7 @@ int main(void) {
     ipm->v_ini[29] = 0.;
     */
 
-    ipm->conf->in_iter = 5;
+    ipm->conf->in_iter = 32;
     ipm->conf->reg = .00000001;
     
     hhmpc_socp_form_problem(socp);
