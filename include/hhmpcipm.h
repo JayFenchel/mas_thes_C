@@ -149,7 +149,12 @@ extern void form_Phi(real_t *Phi, real_t *help, real_t *tmp_Phi,
                      const real_t *d, const real_t *diag_d_sq,
                      const real_t kappa,
                      const uint32_t optvar_seqlen, const uint32_t nb_of_ueq_constr);
+
 extern void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm,
                        const real_t *z);
+
+extern void residual(const struct hhmpc_ipm *ipm,
+                     const real_t *z, const real_t *v, const real_t *d,
+                     const real_t kappa);
 
 #endif /* HHMPCIPM_H */
