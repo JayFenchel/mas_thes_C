@@ -72,7 +72,6 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
                        t_solve_optvar_seqlen,
                        t_solve_dual_seqlen,
                        t_L_Y, t_L_Y_T);
-//         print_mtx(ipm->delta_z, ipm->optvar_seqlen, 1);
         /* Find best step size (0...1] */
         bt_line_search(ipm->st_size, ipm);
         printf("st_size = %f\n", ipm->st_size[0]);
