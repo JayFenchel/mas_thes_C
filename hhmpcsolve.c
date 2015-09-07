@@ -317,10 +317,10 @@ void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
             bwd_subst(Qi_tilde, L_Phi_T+bl, n, hilf1, n);
             form_Yii(Y_bl, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T,
                      n+m, n, Qi_tilde, hilf1);
-            /* regularization (-epsilon*I) */
-            for (ri = 0; ri < n; ri++){
-                (Y_bl+ri*n+ri)[0] += reg[0];
-            }
+//             /* regularization (-epsilon*I) */
+//             for (ri = 0; ri < n; ri++){
+//                 (Y_bl+ri*n+ri)[0] += reg[0];
+//             }
 //             setBlock(Y, T*n, Y_bl, n, n, i*n, i*n);
             
             mpcinc_mtx_multiply_mtx_mtx(hilf1, L_Y+2*i*(n*n)-(n*n), L_Y_T+2*i*(n*n)-(n*n), n, n, n);
@@ -345,10 +345,10 @@ void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
                 mpcinc_mtx_transpose(L_Phi_T, L_Phi, m, m);
                 form_Y11(Y_bl, B, B_T, n, m, L_Phi, L_Phi_T, Qi_tilde,
                     hilf1, hilf1+(m*n));
-                /* regularization (-epsilon*I) */
-                for (ri = 0; ri < n; ri++){
-                    (Y_bl+ri*n+ri)[0] += reg[0];
-                }
+//                 /* regularization (-epsilon*I) */
+//                 for (ri = 0; ri < n; ri++){
+//                     (Y_bl+ri*n+ri)[0] += reg[0];
+//                 }
 //                 setBlock(Y, T*n, Y_bl, n, n, i*n, i*n);
                 /* hilf1 has size (n+m)*(n+m), so there is enough space for all */
                 
@@ -359,10 +359,10 @@ void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
             if (i > 0) {  /* not first block i != 0 */
                 form_Yii(Y_bl, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T,
                          n+m, n, Qi_tilde, hilf1);
-                /* regularization (-epsilon*I) */
-                for (ri = 0; ri < n; ri++){
-                    (Y_bl+ri*n+ri)[0] += reg[0];
-                }
+//                 /* regularization (-epsilon*I) */
+//                 for (ri = 0; ri < n; ri++){
+//                     (Y_bl+ri*n+ri)[0] += reg[0];
+//                 }
 //                 setBlock(Y, T*n, Y_bl, n, n, i*n, i*n);
                 
                 mpcinc_mtx_multiply_mtx_mtx(hilf1, L_Y+2*i*(n*n)-(n*n), L_Y_T+2*i*(n*n)-(n*n), n, n, n);
