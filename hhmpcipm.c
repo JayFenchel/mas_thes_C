@@ -703,6 +703,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         print_mtx(ipm->z_opt, ipm->optvar_seqlen, 1);
         print_mtx(ipm->v_opt, ipm->dual_seqlen, 1);*/
     }
+    ipm->kappa[0] = 95.;
     update(ipm->P_of_z, ipm->optvar_seqlen,
            t_solve_optvar_seqlen, t_optvar_seqlen);
     form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
@@ -711,6 +712,8 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
     printf("res_norm = %.11f\n", f);
     /* Update x_k (und andere Parameter) */
+    memcpy(ipm->z_ini, ipm->z_opt, ipm->sizeof_optvar_seqlen);
+    memcpy(ipm->v_ini, ipm->v_opt, ipm->sizeof_dual_seqlen);
 }
 
 uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_check)
