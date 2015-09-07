@@ -1328,19 +1328,21 @@
                    t1_optvar_seqlen,
                    t3_dual_seqlen,
                    t_L_Y, t_L_Y_T);
+    /* iterative refinement */
+    /* Hier mal testen? */
 
     fail_unless(mtx_cmp(diagref, ipm->diag_d_sq, 39*39, 1e-6) == -1, "false diag_d_sq (test02data)");
     fail_unless(mtx_cmp(Pref, ipm->P, 155*39, 1e-20) == -1, "false P2 (test02data)");
 //     printf("Phicmp = %d\n", mtx_cmp(Phiref, ipm->Phi, 155*155, 4e-4));
 //     printf("%f\t%f\n", Phiref[0], ipm->Phi[0]);
     fail_unless(mtx_cmp(Phiref, ipm->Phi, 155*155, 4e-4) == -1, "false Phi (test02data)");
-//     printf("%d\n", mtx_cmp(delta_ref1, ipm->delta_z, ipm-> optvar_seqlen, 2e-1));
-//     printf("%f\t%f\n", delta_ref2[144], ipm->delta_z[144]);
-    fail_unless(mtx_cmp(delta_ref1, ipm->delta_z, ipm-> optvar_seqlen, 2e-1) == -1, "false delta_z (test02data)");
+    printf("%d\n", mtx_cmp(delta_ref2, ipm->delta_z, ipm-> optvar_seqlen, 2e-1));
+    printf("%f\t%f\n", delta_ref2[143], ipm->delta_z[143]);
+    fail_unless(mtx_cmp(delta_ref2, ipm->delta_z, ipm-> optvar_seqlen, 1e-1) == -1, "false delta_z (test02data)");
     /*printf("%d\n", mtx_cmp(delta_ref2+ipm-> optvar_seqlen, ipm->delta_v, ipm-> dual_seqlen, 110));
-    p*/rintf("%f\t%f\n", (delta_ref2+ipm-> optvar_seqlen)[6], ipm->delta_v[6]);
-    fail_unless(mtx_cmp(delta_ref1+ipm-> optvar_seqlen, ipm->delta_v, ipm->dual_seqlen, 5) == -1, "false delta_v (test02data)");
-    fail_unless(mtx_cmp(delta_ref2+ipm-> optvar_seqlen, ipm->delta_v, ipm->dual_seqlen, 110) == -1, "false delta_z (test02data)");
+    printf("%f\t%f\n", (delta_ref2+ipm-> optvar_seqlen)[6], ipm->delta_v[6]);*/
+//     fail_unless(mtx_cmp(delta_ref1+ipm-> optvar_seqlen, ipm->delta_v, ipm->dual_seqlen, 5) == -1, "false delta_v (test02data)");
+    fail_unless(mtx_cmp(delta_ref2+ipm-> optvar_seqlen, ipm->delta_v, ipm->dual_seqlen, 10) == -1, "false delta_v (test02data)");
     
     
     
