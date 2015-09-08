@@ -389,16 +389,54 @@ void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
             mpcinc_mtx_transpose(L_Y+2*i*(n*n)+(n*n), L_Y_T+2*i*(n*n)+(n*n), n, n);
         }
     }
+    for (ri = 0; ri < T*(n+m); ri++){
+        (Phi+ri*T*(n+m)+ri)[0] -= reg[0];
+    }
 }
 
 void solveBlock(real_t *mtxA_I, real_t *L, real_t *L_T,
-                const real_t *mtxA, const uint32_t dim, const real_t *mtxB, const uint32_t colsB,
+                real_t *mtxA, const uint32_t dim, const real_t *mtxB, const uint32_t colsB,
                 real_t *tmp)
 {
+//     uint32_t ri;
+//     real_t reg[] = {.001};
+//     real_t dB[dim*colsB];
+//     real_t dlsg[dim*colsB];
+//     for (ri = 0; ri < dim; ri++){
+//         (mtxA+ri*dim+ri)[0] += reg[0];
+//     }
     cholesky(L, mtxA, dim);
     mpcinc_mtx_transpose(L_T, L, dim, dim);
     fwd_subst(tmp, L, dim, mtxB, colsB);
     bwd_subst(mtxA_I, L_T, dim, tmp, colsB);
+    
+//     for (ri = 0; ri < dim; ri++){
+//         (mtxA+ri*dim+ri)[0] -= reg[0];
+//     }
+//     /* iterative refinement */
+//     mpcinc_mtx_multiply_mtx_mtx(dB, mtxA, mtxA_I, dim, dim, colsB);
+//     mpcinc_mtx_scale_direct(dB, -1., dim, colsB);
+//     
+//     mpcinc_mtx_add_direct(dB, mtxB, dim, colsB);
+// //     print_mtx(dB, dim, colsB );
+//     fwd_subst(tmp, L, dim, dB, colsB);
+//     bwd_subst(dlsg, L_T, dim, tmp, colsB);
+// //     print_mtx(dlsg, dim, colsB );
+//     mpcinc_mtx_add_direct(mtxA_I, dlsg, dim, colsB);
+//     
+//     mpcinc_mtx_multiply_mtx_mtx(dB, mtxA, mtxA_I, dim, dim, colsB);
+//     mpcinc_mtx_scale_direct(dB, -1., dim, colsB);
+//     mpcinc_mtx_add_direct(dB, mtxB, dim, colsB);
+//     
+//     fwd_subst(tmp, L, dim, dB, colsB);
+//     bwd_subst(dlsg, L_T, dim, tmp, colsB);
+// //     print_mtx(dlsg, dim, colsB );
+//     mpcinc_mtx_add_direct(mtxA_I, dlsg, dim, colsB);
+//     
+//     mpcinc_mtx_multiply_mtx_mtx(dB, mtxA, mtxA_I, dim, dim, colsB);
+//     mpcinc_mtx_scale_direct(dB, -1., dim, colsB);
+//     mpcinc_mtx_add_direct(dB, mtxB, dim, colsB);
+//     print_mtx(dB, dim, colsB );
 }
 
 void form_Yii(real_t sol[],

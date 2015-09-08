@@ -681,6 +681,8 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
                        t_solve_optvar_seqlen,
                        t_solve_dual_seqlen,
                        t_L_Y, t_L_Y_T);
+//         print_mtx(ipm->delta_z, ipm->optvar_seqlen, 1);
+        iterative_refinement(ipm);
 //         real_t tom1[ipm->optvar_seqlen*ipm->optvar_seqlen];
 //         real_t tom2[ipm->optvar_seqlen];
 //         cholesky(tom1, ipm->Phi, ipm->optvar_seqlen);
@@ -703,7 +705,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         print_mtx(ipm->z_opt, ipm->optvar_seqlen, 1);
         print_mtx(ipm->v_opt, ipm->dual_seqlen, 1);*/
     }
-    ipm->kappa[0] = 95.;
+//     ipm->kappa[0] = 95.;
     update(ipm->P_of_z, ipm->optvar_seqlen,
            t_solve_optvar_seqlen, t_optvar_seqlen);
     form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
@@ -730,6 +732,54 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
         if (help1[i] >= 0) {return 1;}
     }
     return 0;
+}
+
+void iterative_refinement(const struct hhmpc_ipm *ipm)
+{
+    real_t *delta_rd = ipm->tmp1_optvar_seqlen;
+    real_t *delta_rp = ipm->tmp2_dual_seqlen;
+    real_t *delta_delta_v = ipm->tmp7_dual_seqlen;
+    real_t *delta_delta_z = ipm->tmp4_mtx_optvar_optvar+ipm->dual_seqlen;
+    real_t *tmp1 = ipm->tmp2_optvar_seqlen;
+    real_t *tmp2 = ipm->tmp6_optvar_seqlen;
+    real_t *tmp3 = ipm->tmp3_state_veclen;
+    real_t *tmp4 = ipm->tmp4_mtx_optvar_optvar;
+    
+    real_t *L_Phi_blocks = ipm->tmp8_L_Phi;
+    real_t *L_Phi_T_blocks = ipm->tmp9_L_Phi_T;
+    real_t *L_Y = ipm->tmp8_L_Y;
+    real_t *L_Y_T = ipm->tmp9_L_Y_T;
+    
+    mpcinc_mtx_multiply_mtx_vec(tmp1, ipm->C_T, ipm->delta_v,
+                                ipm->optvar_seqlen, ipm->dual_seqlen);
+    mpcinc_mtx_multiply_mtx_vec(delta_rd, ipm->Phi, ipm->delta_z,
+                                ipm->optvar_seqlen, ipm->optvar_seqlen);
+    mpcinc_mtx_add_direct(delta_rd, tmp1, ipm->optvar_seqlen, 1);
+    mpcinc_mtx_add_direct(delta_rd, ipm->r_d, ipm->optvar_seqlen, 1);
+    mpcinc_mtx_scale_direct(delta_rd, -1., ipm->optvar_seqlen, 1);
+    
+    mpcinc_mtx_multiply_mtx_vec(delta_rp, ipm->C, ipm->delta_z,
+                                ipm->dual_seqlen, ipm->optvar_seqlen);
+    mpcinc_mtx_add_direct(delta_rp, ipm->r_p, ipm->optvar_seqlen, 1);
+    mpcinc_mtx_scale_direct(delta_rp, -1., ipm->dual_seqlen, 1);
+   
+//     print_mtx(delta_rp, ipm->dual_seqlen, 1);
+        
+    form_beta(delta_delta_v, L_Phi_blocks, L_Phi_T_blocks, delta_rd, delta_rp,
+              ipm->horizon, ipm->C,
+              ipm->state_veclen, ipm->optvar_veclen-ipm->state_veclen,
+              tmp1, tmp2);
+    form_delta_v(delta_delta_v, tmp4, tmp3, 
+                 L_Y, L_Y_T, ipm->horizon, ipm->state_veclen);
+    form_delta_z(delta_delta_z, tmp1, delta_delta_v,
+                 L_Phi_blocks, L_Phi_T_blocks, delta_rd, ipm->C_T, ipm->horizon,
+                 ipm->state_veclen, ipm->optvar_veclen-ipm->state_veclen);
+    
+    
+//     print_mtx(delta_delta_z, ipm->optvar_seqlen, 1);
+    mpcinc_mtx_substract_direct(ipm->delta_z, delta_delta_z, ipm->optvar_seqlen, 1);
+    mpcinc_mtx_substract_direct(ipm->delta_v, delta_delta_v, ipm->dual_seqlen, 1);
+//     print_mtx(ipm->delta_z, ipm->optvar_seqlen, 1);
 }
 
 void update(struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,

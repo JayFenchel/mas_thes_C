@@ -1342,7 +1342,11 @@
     /*printf("%d\n", mtx_cmp(delta_ref2+ipm-> optvar_seqlen, ipm->delta_v, ipm-> dual_seqlen, 110));
     printf("%f\t%f\n", (delta_ref2+ipm-> optvar_seqlen)[6], ipm->delta_v[6]);*/
 //     fail_unless(mtx_cmp(delta_ref1+ipm-> optvar_seqlen, ipm->delta_v, ipm->dual_seqlen, 5) == -1, "false delta_v (test02data)");
-    fail_unless(mtx_cmp(delta_ref2+ipm-> optvar_seqlen, ipm->delta_v, ipm->dual_seqlen, 10) == -1, "false delta_v (test02data)");
+    fail_unless(mtx_cmp(delta_ref2+ipm-> optvar_seqlen, ipm->delta_v, ipm->dual_seqlen, 5) == -1, "false delta_v (test02data)");
+    iterative_refinement(ipm);
+    fail_unless(mtx_cmp(delta_ref2, ipm->delta_z, ipm-> optvar_seqlen, 1e-5) == -1, "false delta_z (test02data)");
+    fail_unless(mtx_cmp(delta_ref2+ipm-> optvar_seqlen, ipm->delta_v, ipm->dual_seqlen, 1e-3) == -1, "false delta_v (test02data)");
+
     
     
     
