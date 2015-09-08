@@ -311,10 +311,12 @@ void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
         if ( i == T-1){  /* last block i = T-1 */
             getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n, n);
             bl = m*m + i*(n+m)*(n+m);
-            cholesky(L_Phi+bl, PhiBlock, n);
-            mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, n, n);
-            fwd_subst(hilf1, L_Phi+bl, n, eye_n, n);
-            bwd_subst(Qi_tilde, L_Phi_T+bl, n, hilf1, n);
+//            cholesky(L_Phi+bl, PhiBlock, n);
+//            mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, n, n);
+//            fwd_subst(hilf1, L_Phi+bl, n, eye_n, n);
+//            bwd_subst(Qi_tilde, L_Phi_T+bl, n, hilf1, n);
+            solveBlock(Qi_tilde, L_Phi+bl, L_Phi_T+bl,
+                       PhiBlock, n, eye_n, n, hilf1);
             form_Yii(Y_bl, A_B, n, n+m, last_PhiBlock_I, n+m, n+m, A_T_B_T,
                      n+m, n, Qi_tilde, hilf1);
 //             /* regularization (-epsilon*I) */
@@ -333,16 +335,22 @@ void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
         if (i < T-1){
             getBlock(PhiBlock, Phi, T*(n+m), m+i*(n+m), m+i*(n+m), n+m, n+m);
             bl = m*m + i*(n+m)*(n+m);
-            cholesky(L_Phi+bl, PhiBlock, n+m);
-            mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, n+m, n+m);
-            fwd_subst(hilf1, L_Phi+bl, n+m, eye_nm, n+m);
-            bwd_subst(PhiBlock_I, L_Phi_T+bl, n+m, hilf1, n+m);
+//            cholesky(L_Phi+bl, PhiBlock, n+m);
+//            mpcinc_mtx_transpose(L_Phi_T+bl, L_Phi+bl, n+m, n+m);
+//            fwd_subst(hilf1, L_Phi+bl, n+m, eye_nm, n+m);
+//            bwd_subst(PhiBlock_I, L_Phi_T+bl, n+m, hilf1, n+m);
+            solveBlock(PhiBlock_I, L_Phi+bl, L_Phi_T+bl,
+                       PhiBlock, n+m, eye_nm, n+m, hilf1);
             getBlock(Qi_tilde, PhiBlock_I, n+m, 0, 0, n, n);
             
             if (i == 0){  /* first Block: i = 0 */
                 getBlock(PhiBlock, Phi, T*(n+m), 0, 0, m, m);
-                cholesky(L_Phi, PhiBlock, m);
-                mpcinc_mtx_transpose(L_Phi_T, L_Phi, m, m);
+//                cholesky(L_Phi, PhiBlock, m);
+//                mpcinc_mtx_transpose(L_Phi_T, L_Phi, m, m);
+//                fwd_subst(hilf1, L_Phi, m, B_T, n); 
+//                bwd_subst(hilf1+(m*n), L_Phi_T, m, hilf1, n);
+                solveBlock(hilf1+(m*n), L_Phi, L_Phi_T,
+                       PhiBlock, m, B_T, hilf1);
                 form_Y11(Y_bl, B, B_T, n, m, L_Phi, L_Phi_T, Qi_tilde,
                     hilf1, hilf1+(m*n));
 //                 /* regularization (-epsilon*I) */
@@ -383,6 +391,16 @@ void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
     }
 }
 
+void solveBlock(real_t *mtxA_I, real_t *L, real_t *L_T,
+                const real_t *mtxA, const uint32_t dim, const real_t *mtxB, const uint32_t colsB,
+                real_t *tmp)
+{
+    cholesky(L, mtxA, dim);
+    mpcinc_mtx_transpose(L_T, L, dim, dim);
+    fwd_subst(tmp, L, dim, mtxB, colsB);
+    bwd_subst(mtxA_I, L_T, dim, tmp, colsB);
+}
+
 void form_Yii(real_t sol[],
               const real_t A_B[], const uint32_t rowsA, const uint32_t colsA,
               const real_t last_PhiBlock_I[], const uint32_t rowsB, const uint32_t colsB,
@@ -411,8 +429,6 @@ void form_Y11(real_t sol[],
               const real_t Q_tilde[],
               real_t *tmp1_mxn, real_t *tmp2_mxn)
 {
-    fwd_subst(tmp1_mxn, L_R0, m, B_T, n);
-    bwd_subst(tmp2_mxn, L_R0_T, m, tmp1_mxn, n);
     mpcinc_mtx_multiply_mtx_mtx(sol, B, tmp2_mxn, n, m, n);
     mpcinc_mtx_add_direct(sol, Q_tilde, n, n);
 }

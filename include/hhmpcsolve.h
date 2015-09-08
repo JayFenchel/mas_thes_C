@@ -59,6 +59,13 @@ void form_Y(real_t mtxL_Y_blocks[], real_t *mtxL_Y_T_blocks,
             real_t *tmp_PhiBlock, real_t *PhiBlock_I, real_t *PhiBlock_I_last,
             real_t *bl_nxn1, real_t *bl_nxn2, real_t *tmp);
 
+/* Solves system of linear equation of type mtxA * solution = mtxB
+ * mtxA has size dimA x dimA, mtxB and solution have size dimA x colsB
+ * additionally returns cholesky factorization of mtxA  */
+void solveBlock(real_t *mtxA_Invers, real_t *L_mtxA, real_t *L_mtxA_T,
+                const real_t *mtxA, const real_t dimA, const real_t *mtxB, const uint32_t colsB,
+                real_t *tmp_size_dimAxcolsB);
+
 void form_Yii(real_t solution[],
               const real_t A[], const uint32_t rowsA, const uint32_t colsA,
               const real_t B[], const uint32_t rowsB, const uint32_t colsB,
