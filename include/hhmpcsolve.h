@@ -63,7 +63,7 @@ void form_Y(real_t mtxL_Y_blocks[], real_t *mtxL_Y_T_blocks,
  * mtxA has size dimA x dimA, mtxB and solution have size dimA x colsB
  * additionally returns cholesky factorization of mtxA  */
 void solveBlock(real_t *mtxA_Invers, real_t *L_mtxA, real_t *L_mtxA_T,
-                const real_t *mtxA, const real_t dimA, const real_t *mtxB, const uint32_t colsB,
+                const real_t *mtxA, const uint32_t dimA, const real_t *mtxB, const uint32_t colsB,
                 real_t *tmp_size_dimAxcolsB);
 
 void form_Yii(real_t solution[],

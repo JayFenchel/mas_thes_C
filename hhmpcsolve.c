@@ -350,7 +350,7 @@ void form_Y(real_t L_Y[], real_t *L_Y_T, real_t L_Phi[], real_t *L_Phi_T,
 //                fwd_subst(hilf1, L_Phi, m, B_T, n); 
 //                bwd_subst(hilf1+(m*n), L_Phi_T, m, hilf1, n);
                 solveBlock(hilf1+(m*n), L_Phi, L_Phi_T,
-                       PhiBlock, m, B_T, hilf1);
+                       PhiBlock, m, B_T, n, hilf1);
                 form_Y11(Y_bl, B, B_T, n, m, L_Phi, L_Phi_T, Qi_tilde,
                     hilf1, hilf1+(m*n));
 //                 /* regularization (-epsilon*I) */
