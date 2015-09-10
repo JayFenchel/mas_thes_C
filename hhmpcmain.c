@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "include/mpcincmtxops.h"
 #include "include/hhmpcsocp.h"
 #include "include/mpcinccvpdynmem.h"
 #include "include/hhmpcsocpdynmem.h"
@@ -92,28 +93,37 @@ int main(void) {
     ipm->v_ini[29] = 0.;
     */
 
-    ipm->conf->in_iter = 1;
+    ipm->conf->in_iter = 32;
     ipm->conf->reg = .00000001;
+    ipm->conf->warm_start = 1;
     
     hhmpc_socp_form_problem(socp);
     hhmpc_ipm_solve_problem(ipm);
+//     print_mtx(ipm->z_ini, ipm->optvar_seqlen,1);
     printf("u_opt1 = %f\n", ipm->z_opt[0]);
     printf("u_opt2 = %f\n", ipm->z_opt[31]);
     printf("u_opt3 = %f\n", ipm->z_opt[62]);
     printf("u_opt4 = %f\n", ipm->z_opt[93]);
     printf("u_opt5 = %f\n", ipm->z_opt[124]);
-//     hhmpc_ipm_solve_problem(ipm);
-//     printf("u_opt1 = %f\n", ipm->z_opt[0]);
-//     printf("u_opt2 = %f\n", ipm->z_opt[31]);
-//     printf("u_opt3 = %f\n", ipm->z_opt[62]);
-//     printf("u_opt4 = %f\n", ipm->z_opt[93]);
-//     printf("u_opt5 = %f\n", ipm->z_opt[124]);
+    hhmpc_ipm_solve_problem(ipm);
+    
+    
+    
+    printf("u_opt1 = %f\n", ipm->z_opt[0]);
+    printf("u_opt2 = %f\n", ipm->z_opt[31]);
+    printf("u_opt3 = %f\n", ipm->z_opt[62]);
+    printf("u_opt4 = %f\n", ipm->z_opt[93]);
+    printf("u_opt5 = %f\n", ipm->z_opt[124]);
     
     printf("%f \n", socp->constant[HHMPC_R_KL]->data[0]);
     printf("ENDE\n");
     return 0;
 }
 
+void sim_next_xk()
+{
+    mpcinc_mtx
+}
 
 
 

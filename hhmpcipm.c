@@ -12,7 +12,7 @@ static void residual_norm(real_t *f, const real_t *r_d, const real_t* r_p,
                           const uint32_t optvar_seqlen, const uint32_t dual_seqlen);
 static void bt_line_search(real_t *good_step, const struct hhmpc_ipm *ipm);
 
-
+static void hhmpc_ipm_warm_start(const struct hhmpc_ipm *ipm);
 
 
 
@@ -714,8 +714,21 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
     printf("res_norm = %.11f\n", f);
     /* Update x_k (und andere Parameter) */
+    
+    if (ipm->conf->warm_start) {
+        hhmpc_ipm_warm_start(ipm);
+    }
+    /*
     memcpy(ipm->z_ini, ipm->z_opt, ipm->sizeof_optvar_seqlen);
-    memcpy(ipm->v_ini, ipm->v_opt, ipm->sizeof_dual_seqlen);
+    memcpy(ipm->v_ini, ipm->v_opt, ipm->sizeof_dual_seqlen);*/
+}
+
+void hhmpc_ipm_warm_start(const struct hhmpc_ipm *ipm) {
+    mpcinc_mtx_shift_sequence(ipm->z_ini, ipm->z_opt, ipm->optvar_veclen,
+            ipm->optvar_seqlen);
+    mpcinc_mtx_shift_sequence(ipm->v_ini, ipm->v_opt, ipm->state_veclen,
+            ipm->dual_seqlen);
+    return;
 }
 
 uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_check)

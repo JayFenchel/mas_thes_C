@@ -9,6 +9,7 @@
 /* Configuration parameters of the HHMPC algorithm. */
 struct hhmpc_ipm_conf {
     uint32_t in_iter;
+    uint32_t warm_start;  /**< If not 0, automatically warm start next algorithm iteration. */
     real_t reg;  /* For Regularization. */
 };
 
