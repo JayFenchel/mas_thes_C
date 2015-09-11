@@ -698,9 +698,9 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         mpcinc_mtx_add_direct(ipm->z_opt, ipm->delta_z,
                               ipm->optvar_seqlen, 1);
         mpcinc_mtx_scale_direct(ipm->delta_v, ipm->st_size[0],
-                                ipm->optvar_seqlen, 1);
+                                ipm->dual_seqlen, 1);
         mpcinc_mtx_add_direct(ipm->v_opt, ipm->delta_v,
-                              ipm->optvar_seqlen, 1);
+                              ipm->dual_seqlen, 1);
         /*
         print_mtx(ipm->z_opt, ipm->optvar_seqlen, 1);
         print_mtx(ipm->v_opt, ipm->dual_seqlen, 1);*/
@@ -723,11 +723,20 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     memcpy(ipm->v_ini, ipm->v_opt, ipm->sizeof_dual_seqlen);*/
 }
 
-void hhmpc_ipm_warm_start(const struct hhmpc_ipm *ipm) {
+void hhmpc_ipm_warm_start(const struct hhmpc_ipm *ipm)
+{
+    real_t *tmp = ipm->tmp3_state_veclen;
     mpcinc_mtx_shift_sequence(ipm->z_ini, ipm->z_opt, ipm->optvar_veclen,
             ipm->optvar_seqlen);
+    mpcinc_mtx_multiply_mtx_vec((ipm->z_ini)+ipm->optvar_seqlen-ipm->state_veclen,
+                                ipm->A, (ipm->z_opt)+ipm->optvar_seqlen-ipm->state_veclen,
+                                ipm->state_veclen, ipm->state_veclen);
+    mpcinc_mtx_mul_add((ipm->z_ini)+ipm->optvar_seqlen-ipm->state_veclen, tmp,
+                                ipm->B, (ipm->z_opt)+ipm->optvar_seqlen-ipm->optvar_veclen,
+                                ipm->state_veclen, ipm->control_veclen);    
     mpcinc_mtx_shift_sequence(ipm->v_ini, ipm->v_opt, ipm->state_veclen,
             ipm->dual_seqlen);
+    
     return;
 }
 
@@ -922,11 +931,15 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     g_in_dir = (f_p_g - f_p)/g_step;
     printf("Grad in dir = %.8f\n", g_in_dir);
     
-    mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st_size[0], ipm->optvar_seqlen, 1);
-    mpcinc_mtx_add_direct(ipm->z_opt, help_z, ipm->optvar_seqlen, 1);
+    mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st_size[0],
+                     ipm->optvar_seqlen, 1);
+    mpcinc_mtx_add_direct(ipm->z_opt, help_z,
+                          ipm->optvar_seqlen, 1);
+    mpcinc_mtx_scale(ipm->v_opt, ipm->delta_v, st_size[0],
+                     ipm->dual_seqlen, 1);
+    mpcinc_mtx_add_direct(ipm->v_opt, help_v,
+                          ipm->dual_seqlen, 1);
     hhmpc_ipm_check_valid(ipm, ipm->z_opt);
-    mpcinc_mtx_scale(ipm->v_opt, ipm->delta_v, st_size[0], ipm->dual_seqlen, 1);
-    mpcinc_mtx_add_direct(ipm->v_opt, help_v, ipm->dual_seqlen, 1);
     /* update P matrices */
     update(ipm->P_of_z, ipm->optvar_seqlen,
                t_solve_optvar_seqlen, t_optvar_seqlen);
@@ -938,14 +951,19 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     {
         *st_size *= beta;
         
-        mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st_size[0], ipm->optvar_seqlen, 1);
-        mpcinc_mtx_add_direct(ipm->z_opt, help_z, ipm->optvar_seqlen, 1);
-        mpcinc_mtx_scale(ipm->v_opt, ipm->delta_v, st_size[0], ipm->dual_seqlen, 1);
-        mpcinc_mtx_add_direct(ipm->v_opt, help_v, ipm->dual_seqlen, 1);
+        mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st_size[0],
+                         ipm->optvar_seqlen, 1);
+        mpcinc_mtx_add_direct(ipm->z_opt, help_z,
+                              ipm->optvar_seqlen, 1);
+        mpcinc_mtx_scale(ipm->v_opt, ipm->delta_v, st_size[0],
+                         ipm->dual_seqlen, 1);
+        mpcinc_mtx_add_direct(ipm->v_opt, help_v,
+                              ipm->dual_seqlen, 1);
         /* update P matrices */
         update(ipm->P_of_z, ipm->optvar_seqlen,
                t_solve_optvar_seqlen, t_optvar_seqlen);
-        form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
+        form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
+               ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
         residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
         residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
                       ipm->optvar_seqlen, ipm->dual_seqlen);

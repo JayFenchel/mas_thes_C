@@ -92,8 +92,7 @@ int main(void) {
     ipm->v_ini[28] = 0.;
     ipm->v_ini[29] = 0.;
     */
-
-    ipm->conf->in_iter = 32;
+    ipm->conf->in_iter = 34;
     ipm->conf->reg = .00000001;
     ipm->conf->warm_start = 1;
     
@@ -105,9 +104,20 @@ int main(void) {
     printf("u_opt3 = %f\n", ipm->z_opt[62]);
     printf("u_opt4 = %f\n", ipm->z_opt[93]);
     printf("u_opt5 = %f\n", ipm->z_opt[124]);
-    /*
+    
+    print_mtx(ipm->z_opt, ipm->optvar_seqlen, 1);
+    
+    ipm->conf->in_iter = 8;
+    hhmpc_ipm_solve_problem(ipm);
+    printf("u_opt1 = %f\n", ipm->z_opt[0]);
+    printf("u_opt2 = %f\n", ipm->z_opt[31]);
+    printf("u_opt3 = %f\n", ipm->z_opt[62]);
+    printf("u_opt4 = %f\n", ipm->z_opt[93]);
+    printf("u_opt5 = %f\n", ipm->z_opt[124]);
+    
     sim_next_xk(socp);
-    HIER*/
+  
+    ipm->conf->in_iter = 8;
     hhmpc_socp_form_problem(socp);
     hhmpc_ipm_solve_problem(ipm);
     printf("u_opt1 = %f\n", ipm->z_opt[0]);
