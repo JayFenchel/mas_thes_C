@@ -102,6 +102,7 @@ struct hhmpc_ipm {
     uint32_t optvar_seqlen;  /* The full length of optimization variable sequence. */
     uint32_t state_veclen;  /* Dimension of state variable x_k. */
     uint32_t dual_seqlen;  /* Full length of dual variable v associated with the eq constr. */
+    uint32_t control_veclen;  /* Dimension of control variable u_k */
     uint32_t nb_of_ueq_constr;
     uint32_t sizeof_dual_seqlen;
     uint32_t sizeof_optvar_seqlen;  /* Number of bytes in the optimization variable sequence. */

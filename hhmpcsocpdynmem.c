@@ -118,6 +118,13 @@ struct hhmpc_socp *hhmpc_socp_allocate_former(void)
     if (NULL == socp->prb) {return NULL;}
         socp->prb->z_ini = socp->par[HHMPC_ZINI];
         socp->prb->v_ini = socp->par[HHMPC_VINI];
+        socp->prb->x_k = socp->par[HHMPC_XK];
+        socp->prb->tmp_state_veclen = 
+                (struct hhmpc_term *)malloc(sizeof(struct hhmpc_term));
+        socp->prb->tmp_state_veclen->data =
+                (real_t *)malloc(sizeof(real_t));
+        socp->prb->u_k = 
+                (struct hhmpc_term *)malloc(sizeof(struct hhmpc_term));
     
         socp->prb->b = socp->pmetric[HHMPC_B_KL]->val;
         socp->prb->h = socp->pmetric[HHMPC_H_KL]->val;

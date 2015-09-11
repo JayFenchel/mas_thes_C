@@ -55,6 +55,7 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
 
     ipm->optvar_seqlen = ipm->optvar_veclen * ipm->horizon;
     ipm->dual_seqlen = ipm->state_veclen * ipm->horizon;
+    ipm->control_veclen = ipm->optvar_veclen - ipm->state_veclen;
     ipm->sizeof_optvar_seqlen = sizeof(real_t) * ipm->optvar_seqlen;
     ipm->sizeof_dual_seqlen = sizeof(real_t) * ipm->dual_seqlen;
 /*    
@@ -71,6 +72,11 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     if (NULL == ipm->v_opt) {return HHMPC_DYNMEM_FAIL;}
     ipm->delta_v = (real_t *)malloc(ipm->sizeof_dual_seqlen);
     if (NULL == ipm->delta_v) {return HHMPC_DYNMEM_FAIL;}
+    
+    /* u_k points on first */
+    prb->u_k->data = ipm->z_opt;
+    prb->u_k->rows = ipm->control_veclen;
+    prb->u_k->cols = 1;
     
     ipm->P_of_z->h = prb->h->data;
     ipm->P_of_z->P = prb->P->data;
@@ -190,7 +196,7 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     
     for (i = 0; i < ipm->state_veclen*ipm->state_veclen; i++)
         ipm->A_B_T[i] = ipm->A_T[i];
-    for (i = 0; i < ipm->state_veclen*(ipm->optvar_veclen-ipm->state_veclen); i++)
+    for (i = 0; i < ipm->state_veclen*ipm->control_veclen; i++)
         ipm->A_B_T[ipm->state_veclen*ipm->state_veclen+i] = ipm->B_T[i];
     ipm->A_B =
             (real_t *)malloc(sizeof(real_t) * prb->A->rows*(prb->A->cols+prb->B->cols));

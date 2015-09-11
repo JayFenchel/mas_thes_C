@@ -79,6 +79,8 @@ struct hhmpc_socc {
 struct hhmpc_socp_prb {
     struct hhmpc_term *xr;
     struct hhmpc_term *x_k;
+    struct hhmpc_term *tmp_state_veclen;
+    struct hhmpc_term *u_k;
     struct hhmpc_term *ur;
     struct hhmpc_term *u_lb;
     struct hhmpc_term *u_ub;
@@ -119,6 +121,8 @@ struct hhmpc_socp {
 };
 
 extern void hhmpc_socp_form_problem(struct hhmpc_socp *socp);
+
+extern void sim_next_xk(const struct hhmpc_socp *socp);
 
 
 #endif /* HHMPCSOCP_H */
