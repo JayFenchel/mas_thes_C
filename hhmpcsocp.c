@@ -19,7 +19,6 @@ void hhmpc_socp_form_problem(struct hhmpc_socp *socp)
             pm->fac[j]->rows, pm->fac[j]->cols);
         }
     }
-    
 }
 
 void sim_next_xk(const struct hhmpc_socp *socp)

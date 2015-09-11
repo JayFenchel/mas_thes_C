@@ -121,8 +121,6 @@ struct hhmpc_socp *hhmpc_socp_allocate_former(void)
         socp->prb->x_k = socp->par[HHMPC_XK];
         socp->prb->tmp_state_veclen = 
                 (struct hhmpc_term *)malloc(sizeof(struct hhmpc_term));
-        socp->prb->tmp_state_veclen->data =
-                (real_t *)malloc(sizeof(real_t));
         socp->prb->u_k = 
                 (struct hhmpc_term *)malloc(sizeof(struct hhmpc_term));
     
@@ -282,9 +280,13 @@ hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
         socp->prb->qc[i]->par_l = (uint32_t)c->valueint;
     }
     
-    hhmpc_get_json_term(socp->par[HHMPC_XK], data, "par", "xk");
     hhmpc_get_json_term(socp->par[HHMPC_ZINI], data, "par", "zini");
     hhmpc_get_json_term(socp->par[HHMPC_VINI], data, "par", "vini");
+    hhmpc_get_json_term(socp->par[HHMPC_XK], data, "par", "xk");
+    socp->prb->tmp_state_veclen->data =
+                (real_t *)malloc(sizeof(real_t) * socp->prb->x_k->rows);
+    socp->prb->tmp_state_veclen->rows = socp->prb->x_k->rows;
+    socp->prb->tmp_state_veclen->cols = socp->prb->x_k->cols;
     
     hhmpc_get_json_sub_term(socp->pmetric[HHMPC_B_KL]->val, data, "pmetric", "b", "val");
     hhmpc_get_json_sub_term(socp->pmetric[HHMPC_B_KL]->fac0, data, "pmetric", "b", "fac0");
