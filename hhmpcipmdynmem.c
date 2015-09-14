@@ -52,6 +52,7 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->H = prb->H->data;
     ipm->z_ini = prb->z_ini->data;
     ipm->v_ini = prb->v_ini->data;
+    ipm->zref = prb->zref->data;
 
     ipm->optvar_seqlen = ipm->optvar_veclen * ipm->horizon;
     ipm->dual_seqlen = ipm->state_veclen * ipm->horizon;
@@ -279,6 +280,13 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     
     ipm->tmpQbl = (real_t *)malloc(sizeof(real_t) * ipm->state_veclen*ipm->state_veclen);
     if (NULL == ipm->tmpQbl) {return HHMPC_DYNMEM_FAIL;}
+    
+    ipm->tmp1_res_os = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
+    if (NULL == ipm->tmp1_res_os) {return HHMPC_DYNMEM_FAIL;}
+    ipm->tmp2_res_os = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
+    if (NULL == ipm->tmp2_res_os) {return HHMPC_DYNMEM_FAIL;}
+    ipm->tmp3_res_ds = (real_t *)malloc(ipm->sizeof_dual_seqlen);
+    if (NULL == ipm->tmp3_res_ds) {return HHMPC_DYNMEM_FAIL;}
         
     ipm->eye_optvar_veclen = (real_t *)malloc(sizeof(real_t) * ipm->optvar_veclen*ipm->optvar_veclen);
     if (NULL == ipm->eye_optvar_veclen) {return HHMPC_DYNMEM_FAIL;}

@@ -1300,7 +1300,9 @@
     ipm->conf->reg = .00000001;
     
     hhmpc_socp_form_problem(socp);
-    /* hhmpc_ipm_solve_problem(ipm); */
+    /* Do not use reference trajectory in test. */
+    zeroes(ipm->zref, ipm->optvar_seqlen);
+    
     /*Take initial value*/
     memcpy(ipm->z_opt, ipm->z_ini, ipm->sizeof_optvar_seqlen);
     memcpy(ipm->v_opt, ipm->v_ini, ipm->sizeof_dual_seqlen);

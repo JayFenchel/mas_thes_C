@@ -9,6 +9,8 @@
 /*Festlegen, was Parameter, Konstante oder parametrisch ist*/
 enum {
         HHMPC_XK, /* State of the system. */
+        HHMPC_XR, /* Reference for states */
+        HHMPC_UR, /* Reference for controls */
         HHMPC_ZINI,  /* Initial guess for opt var z */
         HHMPC_VINI,  /* Initial guess for dual var v */
     
@@ -33,7 +35,7 @@ enum {
 };
 
 enum {
-    
+    HHMPC_ZR,
     HHMPC_B_KL,
     HHMPC_H_KL,
     HHMPC_G_KL,
@@ -85,6 +87,7 @@ struct hhmpc_socp_prb {
     struct hhmpc_term *u_lb;
     struct hhmpc_term *u_ub;
     /*eigene*/
+    struct hhmpc_term *zref;
     struct hhmpc_term *z_ini;
     struct hhmpc_term *v_ini;
     

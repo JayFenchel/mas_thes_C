@@ -991,22 +991,24 @@ void residual_norm(real_t *f, const real_t *r_d, const real_t *r_p,
 void residual(const struct hhmpc_ipm *ipm,
               const real_t *z, const real_t *v, const real_t *d, const real_t kappa)
 {
-    real_t *help = ipm->tmp1_optvar_seqlen;
-    real_t *help2 = ipm->tmp2_dual_seqlen;
+    real_t *tmp1_os = ipm->tmp1_res_os;
+    real_t *tmp2_os = ipm->tmp2_res_os;
+    real_t *tmp3_ds = ipm->tmp3_res_ds;
     
-    mpcinc_mtx_multiply_mtx_vec(help, ipm->P2_T, d, ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
-    mpcinc_mtx_scale(ipm->r_d, help, kappa, ipm->optvar_seqlen, 1);
-    mpcinc_mtx_mul_add(ipm->r_d, help, ipm->C_T, v,
+    mpcinc_mtx_multiply_mtx_vec(tmp1_os, ipm->P2_T, d, ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
+    mpcinc_mtx_scale(ipm->r_d, tmp1_os, kappa, ipm->optvar_seqlen, 1);
+    mpcinc_mtx_mul_add(ipm->r_d, tmp1_os, ipm->C_T, v,
                        ipm->optvar_seqlen, ipm->dual_seqlen);
     mpcinc_mtx_add_direct(ipm->r_d, ipm->g,
                           ipm->optvar_seqlen, 1);
-    mpcinc_mtx_multiply_mtx_vec(help, ipm->H, z,
+    mpcinc_mtx_substract(tmp2_os, z, ipm->zref, ipm->optvar_seqlen, 1);
+    mpcinc_mtx_multiply_mtx_vec(tmp1_os, ipm->H, tmp2_os,
                                 ipm->optvar_seqlen, ipm->optvar_seqlen);
-    mpcinc_mtx_scale_direct(help, 2, ipm->optvar_seqlen, 1);
-    mpcinc_mtx_add_direct(ipm->r_d, help, ipm->optvar_seqlen, 1);
+    mpcinc_mtx_scale_direct(tmp1_os, 2, ipm->optvar_seqlen, 1);
+    mpcinc_mtx_add_direct(ipm->r_d, tmp1_os, ipm->optvar_seqlen, 1);
     
     mpcinc_mtx_scale(ipm->r_p, ipm->b, -1, ipm->dual_seqlen, 1);
-    mpcinc_mtx_mul_add(ipm->r_p, help2, ipm->C, z,
+    mpcinc_mtx_mul_add(ipm->r_p, tmp3_ds, ipm->C, z,
                        ipm->dual_seqlen, ipm->optvar_seqlen);
 }
 

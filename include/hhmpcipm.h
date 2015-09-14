@@ -61,6 +61,7 @@ struct hhmpc_ipm {
     struct hhmpc_ipm_conf *conf;  /* Algorithm configuration data. */
     real_t *z_opt;  /* Solution to the optimal control problem. */
     real_t *z_ini;  /* Initial guess for the optimal control sequence. */
+    real_t *zref;
     real_t *delta_z;
     real_t *v_ini;
     real_t *v_opt;
@@ -127,6 +128,9 @@ struct hhmpc_ipm {
     real_t *tmp10;  /* Temp var for up to optvar_veclen x optvar_veclen values */
     real_t *tmpYbl;
     real_t *tmpQbl;  /* Temp var for matrix of size state_veclen x state_veclen */
+    real_t *tmp1_res_os;  /* Tmp-var for residual calculations, optvar_seqlen x 1 */
+    real_t *tmp2_res_os;  /* Tmp-var for residual calculations, optvar_seqlen x 1 */
+    real_t *tmp3_res_ds;  /* Tmp-var for residual calculations, dual_seqlen x 1 */
     real_t *eye_optvar_veclen;
     real_t *eye_state_veclen;
 };
