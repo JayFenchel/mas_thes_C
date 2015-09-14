@@ -1082,7 +1082,10 @@ void form_diag_d_sq(real_t *diag_d_sq, const real_t *d, const uint32_t dim)
 void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
 {
     real_t *tmp1 = ipm->tmp1_optvar_seqlen;
+    real_t *tmp3 = ipm->tmp2_optvar_seqlen;
     real_t *tmp2 = ipm->tmp3_state_veclen; 
+    
+    mpcinc_mtx_substract(tmp3, ipm->z_opt, ipm->zref, ipm->optvar_seqlen, 1);
     
     mpcinc_mtx_multiply_mtx_mtx(tmp1, ipm->z_opt, ipm->H,
                                 1, ipm->optvar_seqlen, ipm->optvar_seqlen);
