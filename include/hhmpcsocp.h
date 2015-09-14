@@ -28,6 +28,12 @@ enum {
         HHMPC_B,
         
         HHMPC_P,
+        /* Soft Constraints: */
+        HHMPC_FXSOFT,  /* mtx[Fx, Fu]*[x, u] <= f */
+        HHMPC_FUSOFT,
+        HHMPC_FSOFT,
+        HHMPC_FFSOFT,  /* Ff*x(t+T) <= ff */
+        HHMPC_FFSOFT_KL,
         HHMPC_H,
         HHMPC_C,
         
@@ -101,6 +107,7 @@ struct hhmpc_socp_prb {
     struct hhmpc_term *B;
     struct hhmpc_term *C;
     struct hhmpc_term *P;
+    struct hhmpc_term *Psoft_T;
     uint32_t nb_qc;
     struct hhmpc_qc **qc;
     uint32_t nb_socc;

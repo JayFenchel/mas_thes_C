@@ -137,8 +137,13 @@ struct hhmpc_socp *hhmpc_socp_allocate_former(void)
         socp->prb->x_k = socp->par[HHMPC_XK];
         socp->prb->tmp_state_veclen = 
                 (struct hhmpc_term *)malloc(sizeof(struct hhmpc_term));
+        if (NULL == socp->prb->tmp_state_veclen) {return NULL;}
         socp->prb->u_k = 
                 (struct hhmpc_term *)malloc(sizeof(struct hhmpc_term));
+        if (NULL == socp->prb->u_k) {return NULL;}
+        socp->prb->Psoft_T =
+                (struct hhmpc_term *)malloc(sizeof(struct hhmpc_term));
+        if (NULL == socp->prb->Psoft_T) {return NULL;}
     
         socp->prb->zref = socp->pmetric[HHMPC_ZR]->val;
         socp->prb->b = socp->pmetric[HHMPC_B_KL]->val;
@@ -333,6 +338,16 @@ hhmpc_dynmem_error_t hhmpc_parse_elements(struct hhmpc_socp *socp, cJSON *data)
     hhmpc_get_json_term(socp->constant[HHMPC_C], data, "constant", "C");
     hhmpc_get_json_term(socp->constant[HHMPC_P], data, "constant", "P");
     hhmpc_get_json_term(socp->constant[HHMPC_H], data, "constant", "H");
+    
+    /* Form Psoft_T and hsoft*/
+    hhmpc_get_json_term(socp->constant[HHMPC_FUSOFT], data, "constant", "Fusoft");
+    hhmpc_get_json_term(socp->constant[HHMPC_FXSOFT], data, "constant", "Fxsoft");
+    hhmpc_get_json_term(socp->constant[HHMPC_FFSOFT], data, "constant", "Ffsoft");
+    struct hhmpc_term *Ps_T = socp->prb->Psoft_T;
+    Ps_T->rows = socp->prb->optvar_seqlen;
+    Ps_T->cols = socp->prb->horizon*socp->constant[HHMPC_FUSOFT]->rows +
+            socp->constant[HHMPC_FFSOFT]->rows;
+    mpcinc_mtx_transpose(Ps_T->data);
     
  /* Values of pmetric HHMPC_G_KL are set here */
     socp->prb->S_T->rows = socp->constant[HHMPC_S]->cols;
