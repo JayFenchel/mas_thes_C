@@ -471,6 +471,7 @@ void form_dsoft(real_t *ds, real_t *diags,
                 const uint32_t rowsFfs, const uint32_t s_veclen,
                 const uint32_t T)
 {
+    real_t rd_soft[T*(c_veclen+s_veclen)];
     uint32_t k, i, j;
     for (i = 0; i < rowsFus; i++){
         ds[i] = hs[i];
@@ -478,8 +479,9 @@ void form_dsoft(real_t *ds, real_t *diags,
             ds[i] -= (Fus+i*c_veclen)[j]*z[j];
         }
         ds[i] = smpl_pow(E, roh[0]*ds[i]);
-        
+        diags[i] = ds[i];
         ds[i] = 1 / (1 + ds[i]);
+        diags[i] = diags[i] * ds[i] * ds[i];
     }
     for (k = 1; k < T; k++){
         for (i = k*rowsFus; i < (k+1)*rowsFus; i++){
@@ -491,7 +493,9 @@ void form_dsoft(real_t *ds, real_t *diags,
                 ds[i] -= (Fus+(i-k*rowsFus)*c_veclen)[j]*(z+k*c_veclen+(k)*s_veclen)[j];
             }
             ds[i] = smpl_pow(E, roh[0]*ds[i]);
+            diags[i] = ds[i];
             ds[i] = 1 / (1 + ds[i]);
+            diags[i] = diags[i] * ds[i] * ds[i];
         }
     }
     for (i = T*rowsFus; i < T*rowsFus + rowsFfs; i++){
@@ -500,13 +504,33 @@ void form_dsoft(real_t *ds, real_t *diags,
             ds[i] -= (Ffs+(i-T*rowsFus)*s_veclen)[j]*(z+T*c_veclen+(T-1)*s_veclen)[j];
         }
         ds[i] = smpl_pow(E, roh[0]*ds[i]);
+        diags[i] = ds[i];
         ds[i] = 1 / (1 + ds[i]);
+        diags[i] = diags[i] * ds[i] * ds[i];
     }
-    print_mtx(ds, T*rowsFus+rowsFfs, 1);
+//     print_mtx(ds, T*rowsFus+rowsFfs, 1);
+//     print_mtx(diags, T*rowsFus+rowsFfs, 1);
     
+    for (i = 0; i < c_veclen; i++){
+        rd_soft[i] = 0;
+        for (j = 0; j < rowsFus; j++){
+            rd_soft[i] += Fus[i+j*c_veclen]*ds[j];
+        }
+    }
     
-    
-    
+    for (i = 0; i < c_veclen; i++){
+        rd_soft[i] = 0;
+        for (j = 0; j < rowsFus; j++){
+            rd_soft[i] += Fus[i+j*c_veclen]*ds[j];
+        }
+    }
+    for (i = T*c_veclen+(T-1)*s_veclen; i < T*(c_veclen+s_veclen); i++){
+        rd_soft[i] = 0.;
+        for (j = 0; j < rowsFfs; j++){
+            rd_soft[i] += Ffs[i-(T*c_veclen+(T-1)*s_veclen)+j*s_veclen] * (ds+T*rowsFus)[j];
+        }
+    }
+    print_mtx(rd_soft, T*(c_veclen + s_veclen), 1);
     
     
     
