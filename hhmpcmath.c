@@ -80,6 +80,34 @@ real_t smpl_sqrt(real_t r, real_t e)
         return smpl_sqrt(r, (e + r/e) / 2);
 }
 
+real_t nth_root(real_t A, int n){
+    const uint32_t K = 8;
+    printf("n=%d\n",n);
+    real_t x[] = {1., 0., 0., 0., 0., 0., 0., 0.};
+    for (uint32_t k = 0; k < K - 1; k++){
+        x[k + 1] = (1./n) * ((n - 1)*x[k] + A/smpl_pow(x[k], n - 1));
+    }
+    printf("n=%f\n",x[K-1]);
+    return x[K-1];
+}
+
+real_t smpl_pow(real_t b, real_t e)
+{
+    if (e == 0.){
+        return 1.;
+    }else if (e < 0){
+        return 1 / smpl_pow(b, -e);
+    }else if (e > 0. && e < 1){
+        printf("%f\n", (1./((int)(1/(1./((int)(1/e)) - e))) - (1./((int)(1/e)) - e)));
+        return nth_root(b, 1./e) / ( nth_root(b, 1./(1./((int)(1/e)) - e)) / nth_root(b, 1./(1./((int)(1/(1./((int)(1/e)) - e))) - (1./((int)(1/e)) - e))) );
+    }else if ((uint32_t)e % 2 == 0){
+        real_t half_pow = smpl_pow(b, e/2);
+        return half_pow * half_pow;
+    }else{
+        return b * smpl_pow(b, e - 1);
+    }
+}
+
 real_t smpl_abs(real_t x)
 {
     return (x < 0) ? -x : x;

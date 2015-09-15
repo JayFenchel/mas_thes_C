@@ -1,6 +1,8 @@
 #ifndef HHMPCMATH_H
 #define HHMPCMATH_H
 
+/* Eulersche Zahl */
+#define E 2.71828182845904523536028747135266249775724709369995
 #define SQRT_ACC 1e-10
 
 #include "arithmetic.h"
@@ -26,7 +28,10 @@ void bwd_subst(real_t solution[],
 
 uint32_t mtx_cmp(const real_t mtxA[], const real_t mtxB[], real_t dim, real_t accuracy);
 
-real_t smpl_sqrt(real_t radikant, real_t sqrt_exp);
+real_t smpl_sqrt(real_t radikant, real_t sqrt_guess);
+
+real_t nth_root(real_t A, int n);
+real_t smpl_pow(real_t base, real_t exp);
 
 real_t smpl_abs(real_t x);
 
