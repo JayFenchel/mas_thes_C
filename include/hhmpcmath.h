@@ -30,7 +30,7 @@ uint32_t mtx_cmp(const real_t mtxA[], const real_t mtxB[], real_t dim, real_t ac
 
 real_t smpl_sqrt(real_t radikant, real_t sqrt_guess);
 
-real_t nth_root(real_t A, int n);
+real_t nth_root(real_t A, uint32_t n);
 real_t smpl_pow(real_t base, real_t exp);
 
 real_t smpl_abs(real_t x);
