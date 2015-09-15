@@ -44,6 +44,7 @@ enum {
     HHMPC_ZR,
     HHMPC_B_KL,
     HHMPC_H_KL,
+    HHMPC_HSOFT_KL,
     HHMPC_G_KL,
     
     HHMPC_PMETRIC_NUM
@@ -107,7 +108,12 @@ struct hhmpc_socp_prb {
     struct hhmpc_term *B;
     struct hhmpc_term *C;
     struct hhmpc_term *P;
-    struct hhmpc_term *Psoft_T;
+    struct hhmpc_term *Psoft;
+    struct hhmpc_term *Fusoft;
+    struct hhmpc_term *Fxsoft;
+    struct hhmpc_term *Ffsoft;
+    struct hhmpc_term *fsoft;
+    struct hhmpc_term *ffsoft;
     uint32_t nb_qc;
     struct hhmpc_qc **qc;
     uint32_t nb_socc;
@@ -116,6 +122,7 @@ struct hhmpc_socp_prb {
     struct hhmpc_term *b;
     
     struct hhmpc_term *h;
+    struct hhmpc_term *hsoft;
     /* To calculate length of vectors such as g */
     uint32_t horizon; /* Prediction horizon. */
     uint32_t optvar_veclen;  /* The length of each vector in the optimation variable sequence. */
