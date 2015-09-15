@@ -45,10 +45,6 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     
     ipm->b = prb->b->data;
     /*ipm->h = prb->h->data;*/
-    ipm->hsoft = prb->hsoft->data;
-    ipm->Fusoft = prb->Fusoft->data;
-    ipm->Fxsoft = prb->Fxsoft->data;
-    ipm->Ffsoft = prb->Ffsoft->data;
     ipm->g = prb->g->data;
     ipm->A = prb->A->data;
     ipm->B = prb->B->data;

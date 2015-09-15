@@ -84,13 +84,8 @@ struct hhmpc_ipm {
     real_t *P_T;
     real_t *P2_T;
     
-    real_t *Fusoft;
-    real_t *Fxsoft;
-    real_t *Ffsoft;
-    
     real_t *b;
     real_t *h;
-    real_t *hsoft;
     
     real_t *d;
     real_t *diag_d_sq;

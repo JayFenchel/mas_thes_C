@@ -4,7 +4,6 @@
 #include "include/hhmpcsocp.h"
 #include "include/mpcinccvpdynmem.h"
 #include "include/hhmpcsocpdynmem.h"
-#include "include/hhmpcmath.h"
 
 #include "include/mpcincfgm.h"
 #include "include/hhmpcipm.h"
@@ -14,18 +13,16 @@
 #include "include/hhmpcusefull.h"
 
 int main(void) {
-    real_t htd[30];
-    char *file = "test03data.json";
-     printf("%.15f \n", smpl_sqrt(8., 2.));   
+    
     /*struct mpcinc_cvp *cvp = mpcinc_cvp_allocate_former();*/
     struct hhmpc_socp *socp = hhmpc_socp_allocate_former();
     /*struct mpcinc_fgm *fgm = mpcinc_fgm_allocate_solver();*/
     struct hhmpc_ipm *ipm = hhmpc_ipm_allocate_solver();
     
-    if (hhmpc_socp_setup_former(socp, file)) {
+    if (hhmpc_socp_setup_former(socp, "test02data.json")) {
         return 0;
     }
-    if (hhmpc_ipm_setup_solver(ipm, socp->prb, file)) {
+    if (hhmpc_ipm_setup_solver(ipm, socp->prb, "test02data.json")) {
         return 0;
     }
 /*    
@@ -95,7 +92,7 @@ int main(void) {
     ipm->v_ini[28] = 0.;
     ipm->v_ini[29] = 0.;
     */
-    ipm->conf->in_iter = 12;
+    ipm->conf->in_iter = 34;
     ipm->conf->reg = .00000001;
     ipm->conf->warm_start = 1;
     
@@ -108,39 +105,28 @@ int main(void) {
     printf("u_opt4 = %f\n", ipm->z_opt[93]);
     printf("u_opt5 = %f\n", ipm->z_opt[124]);
     
-//     print_mtx(ipm->z_opt, ipm->optvar_seqlen, 1);
-//     
-//     ipm->conf->in_iter = 8;
-//     hhmpc_ipm_solve_problem(ipm);
-//     printf("u_opt1 = %f\n", ipm->z_opt[0]);
-//     printf("u_opt2 = %f\n", ipm->z_opt[31]);
-//     printf("u_opt3 = %f\n", ipm->z_opt[62]);
-//     printf("u_opt4 = %f\n", ipm->z_opt[93]);
-//     printf("u_opt5 = %f\n", ipm->z_opt[124]);
-// //     htd[0] = socp->prb->x_k->data[18];
-// //     sim_next_xk(socp);
-// //     htd[1] = socp->prb->x_k->data[18];
-// //     
-// //     for (uint32_t i = 2; i< 30; i++){
-// //   
-// //     ipm->conf->in_iter = 8;
-// //     hhmpc_socp_form_problem(socp);
-// //     hhmpc_ipm_solve_problem(ipm);
-// // //     printf("u_opt1 = %f\n", ipm->z_opt[0]);
-// // //     printf("u_opt2 = %f\n", ipm->z_opt[31]);
-// // //     printf("u_opt3 = %f\n", ipm->z_opt[62]);
-// // //     printf("u_opt4 = %f\n", ipm->z_opt[93]);
-// // //     printf("u_opt5 = %f\n", ipm->z_opt[124]);
-// //     sim_next_xk(socp);
-// //     htd[i] = socp->prb->x_k->data[18];
-// //     }
-// //     print_mtx(htd, 30, 1);
-// //     printf("%f\n", htd[0]);
-// //     hhmpc_socp_form_problem(socp);
+    print_mtx(ipm->z_opt, ipm->optvar_seqlen, 1);
+    
+    ipm->conf->in_iter = 8;
+    hhmpc_ipm_solve_problem(ipm);
+    printf("u_opt1 = %f\n", ipm->z_opt[0]);
+    printf("u_opt2 = %f\n", ipm->z_opt[31]);
+    printf("u_opt3 = %f\n", ipm->z_opt[62]);
+    printf("u_opt4 = %f\n", ipm->z_opt[93]);
+    printf("u_opt5 = %f\n", ipm->z_opt[124]);
+    
+    sim_next_xk(socp);
+  
+    ipm->conf->in_iter = 8;
+    hhmpc_socp_form_problem(socp);
+    hhmpc_ipm_solve_problem(ipm);
+    printf("u_opt1 = %f\n", ipm->z_opt[0]);
+    printf("u_opt2 = %f\n", ipm->z_opt[31]);
+    printf("u_opt3 = %f\n", ipm->z_opt[62]);
+    printf("u_opt4 = %f\n", ipm->z_opt[93]);
+    printf("u_opt5 = %f\n", ipm->z_opt[124]);
+    
     printf("%f \n", socp->constant[HHMPC_R_KL]->data[0]);
-    printf("%.15f \n", smpl_pow(E, 0.001));
-
-//     print_mtx(socp->pmetric[HHMPC_ZR]->val->data, 155, 1);
     printf("ENDE\n");
     return 0;
 }
