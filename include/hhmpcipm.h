@@ -93,7 +93,9 @@ struct hhmpc_ipm {
     real_t *hsoft;
     
     real_t *d;
+    real_t *dsoft;
     real_t *diag_d_sq;
+    real_t *diag_d_soft;
     real_t *Phi;
     real_t *r_p;
     real_t *r_d;
@@ -103,6 +105,7 @@ struct hhmpc_ipm {
     uint32_t *j_in;
     
     real_t *kappa;  /* Barrier parameter. */
+    real_t *roh;  /* Parameter for soft constraint vioalation penalty */
     uint32_t horizon; /* Prediction horizon. */
     uint32_t optvar_veclen;  /* The length of each vector in the optimation variable sequence. */
     uint32_t optvar_seqlen;  /* The full length of optimization variable sequence. */
@@ -110,6 +113,9 @@ struct hhmpc_ipm {
     uint32_t dual_seqlen;  /* Full length of dual variable v associated with the eq constr. */
     uint32_t control_veclen;  /* Dimension of control variable u_k */
     uint32_t nb_of_ueq_constr;
+    uint32_t nb_of_soft_constr;
+    uint32_t rowsFusoft;
+    uint32_t rowsFfsoft;
     uint32_t sizeof_dual_seqlen;
     uint32_t sizeof_optvar_seqlen;  /* Number of bytes in the optimization variable sequence. */
     
@@ -153,6 +159,12 @@ extern void update(struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
 
 extern void form_d(real_t *d, const real_t *P, const real_t *h, const real_t *z,
                    const uint32_t rowsP, const uint32_t colsP);
+
+extern void form_dsoft(real_t *dsoft, real_t *diag_d_soft, const real_t *roh, const real_t *z, const real_t *hsoft,
+                       const real_t *Fusoft, const real_t *Fxsoft, const real_t *Ffsoft,
+                       const uint32_t rowsFusoft, const uint32_t control_veclen,
+                       const uint32_t rowsFfsoft, const uint32_t state_veclen,
+                       const uint32_t horizon);
 
 extern void form_diag_d_sq(real_t *diag_d_sq, const real_t *d, const uint32_t dim);
 

@@ -25,6 +25,8 @@ struct hhmpc_ipm *hhmpc_ipm_allocate_solver(void)
     
     ipm->kappa = (real_t *)malloc(sizeof(real_t));
     if (NULL == ipm->kappa) {return NULL;}
+    ipm->roh = (real_t *)malloc(sizeof(real_t));
+    if (NULL == ipm->roh) {return NULL;}
     
     return ipm;
 }
@@ -89,7 +91,10 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->P_of_z->nb_socc = prb->nb_socc;
     ipm->P_of_z->nb_qc = prb->nb_qc;
     ipm->nb_of_ueq_constr = prb->P->rows+prb->nb_socc+prb->nb_qc;
-        
+    ipm->nb_of_soft_constr =
+            (prb->Fusoft->rows + prb->Fxsoft->rows)*ipm->horizon + prb->Ffsoft->rows;
+    ipm->rowsFusoft = prb->Fusoft->rows;
+    ipm->rowsFfsoft = prb->Ffsoft->rows;
     ipm->P_of_z->h_hat =
             (real_t*)malloc(sizeof(real_t) * ipm->nb_of_ueq_constr);
     if (NULL == ipm->P_of_z->h_hat) {return HHMPC_DYNMEM_FAIL;}
@@ -175,10 +180,15 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     
     ipm->d = (real_t *)malloc(sizeof(real_t) * ipm->nb_of_ueq_constr);
     if (NULL == ipm->d) {return HHMPC_DYNMEM_FAIL;}
+    ipm->dsoft = (real_t *)malloc(sizeof(real_t) * ipm->nb_of_soft_constr);
+    if (NULL == ipm->dsoft) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->diag_d_sq =
             (real_t *)malloc(sizeof(real_t) * ipm->nb_of_ueq_constr*ipm->nb_of_ueq_constr);
     if (NULL == ipm->diag_d_sq) {return HHMPC_DYNMEM_FAIL;}
+    ipm->diag_d_soft =
+            (real_t *)malloc(sizeof(real_t) * ipm->nb_of_soft_constr);
+    if (NULL == ipm->diag_d_soft) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->Phi = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
     if (NULL == ipm->Phi) {return HHMPC_DYNMEM_FAIL;}
@@ -307,7 +317,7 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
 
 hhmpc_dynmem_error_t hhmpc_ipm_parse_elements(struct hhmpc_ipm *ipm, cJSON *data)
 {
-    cJSON *kappa, *optvar, *veclen, *horizon, *state_veclen;
+    cJSON *kappa, *roh, *optvar, *veclen, *horizon, *state_veclen;
     
     kappa = cJSON_GetObjectItem(data, "kappa");
     if (NULL == kappa) {
@@ -315,6 +325,13 @@ hhmpc_dynmem_error_t hhmpc_ipm_parse_elements(struct hhmpc_ipm *ipm, cJSON *data
         return HHMPC_DYNMEM_FAIL;
     }
     *(ipm->kappa) = (real_t)kappa->valuedouble;
+    
+    roh = cJSON_GetObjectItem(data, "roh");
+    if (NULL == roh) {
+        printf("ERROR: could not parse item %s \n", "roh");
+        return HHMPC_DYNMEM_FAIL;
+    }
+    *(ipm->roh) = (real_t)roh->valuedouble;
     
     optvar = cJSON_GetObjectItem(data, "optvar");
     if (NULL == optvar) {

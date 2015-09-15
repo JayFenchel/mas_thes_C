@@ -52,6 +52,11 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
                t_solve_optvar_seqlen, t_optvar_seqlen);
         form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
                ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
+        form_dsoft(ipm->dsoft, ipm->diag_d_soft,
+                   ipm->roh, ipm->z_opt, ipm->hsoft,
+                   ipm->Fusoft, ipm->Fxsoft, ipm->Ffsoft,
+                   ipm->rowsFusoft, ipm->control_veclen, ipm->rowsFfsoft,
+                   ipm->state_veclen, ipm->horizon);
         form_diag_d_sq(ipm->diag_d_sq, ipm->d, ipm->nb_of_ueq_constr);
         form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, tmp_Phi, ipm->H,
                  ipm->P2_T, ipm->P2, ipm->P_of_z , ipm->d, ipm->diag_d_sq,
@@ -459,30 +464,45 @@ void form_d(real_t *d, const real_t *P, const real_t *h, const real_t *z,
     }
 }
 
-void form_dsoft(real_t *ds, const real_t *Ps, const real_t *hs, const real_t *z,
-            const uint32_t rowsPs, const uint32_t colsPs)
+void form_dsoft(real_t *ds, real_t *diags,
+                const real_t *roh, const real_t *z, const real_t *hs,
+                const real_t *Fus, const real_t *Fxs, const real_t *Ffs,
+                const uint32_t rowsFus, const uint32_t c_veclen,
+                const uint32_t rowsFfs, const uint32_t s_veclen,
+                const uint32_t T)
 {
-    uint32_t i, j;
-    for (i = 0; i < rowsP; i++){
-        d[i] = h[i];
-        for (j = 0; j < colsP; j++){
-            d[i] -= P[i*colsP + j]*z[j];
+    uint32_t k, i, j;
+    for (i = 0; i < rowsFus; i++){
+        ds[i] = hs[i];
+        for (j = 0; j < c_veclen; j++){
+            ds[i] -= (Fus+i*c_veclen)[j]*z[j];
         }
-        d[i] = 1/d[i];
+        ds[i] = smpl_pow(E, roh[0]*ds[i]);
+        
+        ds[i] = 1 / (1 + ds[i]);
     }
-    for (i = 0; i < rowsFu; i++){
-        mpcinc_mtx_multiply_mtx_vec(ds[i], Fus+i*ipm->control_veclen, z, 1, ipm->control_veclen);
-        ds[i] = smpl_pow(E, ipm.roh*(h[i] - ds[i]) );
-        ds[i] /= (1 + ds[i]);
+    for (k = 1; k < T; k++){
+        for (i = k*rowsFus; i < (k+1)*rowsFus; i++){
+            ds[i] = hs[i];
+            for (j = 0; j < s_veclen; j++){
+                ds[i] -= (Fxs+(i-k*rowsFus)*s_veclen)[j]*(z+k*c_veclen+(k-1)*s_veclen)[j];
+            }
+            for (j = 0; j < c_veclen; j++){
+                ds[i] -= (Fus+(i-k*rowsFus)*c_veclen)[j]*(z+k*c_veclen+(k)*s_veclen)[j];
+            }
+            ds[i] = smpl_pow(E, roh[0]*ds[i]);
+            ds[i] = 1 / (1 + ds[i]);
+        }
     }
-    
-    
-    
-    
-    
-    
-    
-    
+    for (i = T*rowsFus; i < T*rowsFus + rowsFfs; i++){
+        ds[i] = hs[i];
+        for (j = 0; j < s_veclen; j++){
+            ds[i] -= (Ffs+(i-T*rowsFus)*s_veclen)[j]*(z+T*c_veclen+(T-1)*s_veclen)[j];
+        }
+        ds[i] = smpl_pow(E, roh[0]*ds[i]);
+        ds[i] = 1 / (1 + ds[i]);
+    }
+    print_mtx(ds, T*rowsFus+rowsFfs, 1);
     
     
     
