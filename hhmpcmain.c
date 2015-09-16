@@ -16,7 +16,6 @@
 int main(void) {
     real_t htd[30];
     char *file = "test03data.json";
-     printf("%.15f \n", smpl_sqrt(8., 2.));   
     /*struct mpcinc_cvp *cvp = mpcinc_cvp_allocate_former();*/
     struct hhmpc_socp *socp = hhmpc_socp_allocate_former();
     /*struct mpcinc_fgm *fgm = mpcinc_fgm_allocate_solver();*/
@@ -95,7 +94,7 @@ int main(void) {
     ipm->v_ini[28] = 0.;
     ipm->v_ini[29] = 0.;
     */
-    ipm->conf->in_iter = 12;
+    ipm->conf->in_iter = 1;
     ipm->conf->reg = .00000001;
     ipm->conf->warm_start = 1;
     

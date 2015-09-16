@@ -65,8 +65,6 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
                  ipm->kappa[0], ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
         /* Calculate the residual */
         residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
-        
-        print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
         residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
 //         print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
         printf("res_norm = %f\n", f);
