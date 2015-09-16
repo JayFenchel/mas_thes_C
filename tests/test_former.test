@@ -1349,6 +1349,84 @@
     fail_unless(mtx_cmp(delta_ref2, ipm->delta_z, ipm-> optvar_seqlen, 1e-5) == -1, "false delta_z (test02data)");
     fail_unless(mtx_cmp(delta_ref2+ipm-> optvar_seqlen, ipm->delta_v, ipm->dual_seqlen, 1e-3) == -1, "false delta_v (test02data)");
 
+#test former_test03data_test
+    /* reference matrices */
+
+    struct hhmpc_socp *socp = hhmpc_socp_allocate_former();
+    struct hhmpc_ipm *ipm = hhmpc_ipm_allocate_solver();
+    real_t *t1_optvar_seqlen;
+    real_t *t2_optvar_seqlen;
+    real_t *t3_dual_seqlen;
+    real_t *tmp_Phi;
+    real_t *eye_nm;
+    real_t *eye_n;
+    real_t *t_L_Y;
+    real_t *t_L_Y_T;
+    if (hhmpc_socp_setup_former(socp, "test03data.json")) {
+        return 0;
+    }
+    if (hhmpc_ipm_setup_solver(ipm, socp->prb, "test03data.json")) {
+        return 0;
+    }
+    t1_optvar_seqlen = ipm->tmp1_optvar_seqlen;
+    t2_optvar_seqlen = ipm->tmp2_optvar_seqlen;
+    t3_dual_seqlen = ipm->tmp2_dual_seqlen;
+    eye_nm = ipm->eye_optvar_veclen;
+    eye_n = ipm->eye_state_veclen;
+    tmp_Phi = ipm->tmp4_mtx_optvar_optvar;
+    t_L_Y = ipm->tmp8_L_Y;
+    t_L_Y_T = ipm->tmp9_L_Y_T;
+    ipm->conf->reg = .00000001;
     
+    hhmpc_socp_form_problem(socp);
+    /* Do not use reference trajectory in test. */
+    zeroes(ipm->zref, ipm->optvar_seqlen);
+    
+    /*Take initial value*/
+    memcpy(ipm->z_opt, ipm->z_ini, ipm->sizeof_optvar_seqlen);
+    memcpy(ipm->v_opt, ipm->v_ini, ipm->sizeof_dual_seqlen);
+    /* Calculate Kappa for every time_step */
+    calc_kappa(ipm->kappa, ipm, ipm->z_opt);
+    printf("calculated kappa = %.20f\n", ipm->kappa[0]);
+    /* Update h for new xk */
+    memcpy(ipm->P_of_z->h_hat, ipm->P_of_z->h, sizeof(real_t) * ipm->P_of_z->nb_lin_constr);
+    
+    update(ipm->P_of_z, ipm->optvar_seqlen,
+           t1_optvar_seqlen, t2_optvar_seqlen);
+    form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
+           ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
+    form_diag_d_sq(ipm->diag_d_sq, ipm->d, ipm->nb_of_ueq_constr);
+    form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, tmp_Phi, ipm->H,
+             ipm->P2_T, ipm->P2, ipm->P_of_z , ipm->d, ipm->diag_d_sq,
+             ipm->kappa[0], ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
+    /* Calculate the residual */
+    residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
+    solve_sysofleq(ipm->delta_z, ipm->delta_v, ipm, ipm->Phi, ipm->r_d, ipm->r_p,
+                   ipm->C, ipm->C_T, ipm->A, ipm->A_T, ipm->B, ipm->B_T,
+                   ipm->state_veclen, ipm->optvar_veclen-ipm->state_veclen, /* TODO m einführen */
+                   ipm->horizon,
+                   eye_nm, eye_n,
+                   t1_optvar_seqlen,
+                   t3_dual_seqlen,
+                   t_L_Y, t_L_Y_T);
+    /* iterative refinement */
+    /* Hier mal testen? */
+
+//     fail_unless(mtx_cmp(diagref, ipm->diag_d_sq, 39*39, 1e-6) == -1, "false diag_d_sq (test02data)");
+//     fail_unless(mtx_cmp(Pref, ipm->P, 155*39, 1e-20) == -1, "false P2 (test02data)");
+// //     printf("Phicmp = %d\n", mtx_cmp(Phiref, ipm->Phi, 155*155, 4e-4));
+// //     printf("%f\t%f\n", Phiref[0], ipm->Phi[0]);
+//     fail_unless(mtx_cmp(Phiref, ipm->Phi, 155*155, 4e-4) == -1, "false Phi (test02data)");
+//     printf("%d\n", mtx_cmp(delta_ref2, ipm->delta_z, ipm-> optvar_seqlen, 2e-1));
+//     printf("%f\t%f\n", delta_ref2[143], ipm->delta_z[143]);
+//     fail_unless(mtx_cmp(delta_ref2, ipm->delta_z, ipm-> optvar_seqlen, 1e-1) == -1, "false delta_z (test02data)");
+//     /*printf("%d\n", mtx_cmp(delta_ref2+ipm-> optvar_seqlen, ipm->delta_v, ipm-> dual_seqlen, 110));
+//     printf("%f\t%f\n", (delta_ref2+ipm-> optvar_seqlen)[6], ipm->delta_v[6]);*/
+// //     fail_unless(mtx_cmp(delta_ref1+ipm-> optvar_seqlen, ipm->delta_v, ipm->dual_seqlen, 5) == -1, "false delta_v (test02data)");
+//     fail_unless(mtx_cmp(delta_ref2+ipm-> optvar_seqlen, ipm->delta_v, ipm->dual_seqlen, 5) == -1, "false delta_v (test02data)");
+//     iterative_refinement(ipm);
+//     fail_unless(mtx_cmp(delta_ref2, ipm->delta_z, ipm-> optvar_seqlen, 1e-5) == -1, "false delta_z (test02data)");
+//     fail_unless(mtx_cmp(delta_ref2+ipm-> optvar_seqlen, ipm->delta_v, ipm->dual_seqlen, 1e-3) == -1, "false delta_v (test02data)");
+
     
     
