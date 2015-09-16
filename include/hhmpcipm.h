@@ -13,6 +13,12 @@ struct hhmpc_ipm_conf {
     real_t reg;  /* For Regularization. */
 };
 
+struct hhmpc_block {
+    uint32_t rows;
+    uint32_t cols;
+    real_t *data;
+};
+
 /**/
 struct hhmpc_ipm_qc {
     real_t *Gamma;
@@ -89,6 +95,8 @@ struct hhmpc_ipm {
     real_t *Ffsoft;
     real_t *Psoft;
     real_t *Psoft_T;
+    struct hhmpc_block **Phi_sft_blks;
+    struct hhmpc_block *tmp_Phi_sft_blk;  /* Size optvar_seqlen x nb_soft_constr */ 
     
     real_t *b;
     real_t *h;
@@ -120,6 +128,7 @@ struct hhmpc_ipm {
     uint32_t nb_of_soft_constr;
     uint32_t rowsFusoft;
     uint32_t rowsFfsoft;
+    uint32_t sizeof_optvar_veclen;
     uint32_t sizeof_dual_seqlen;
     uint32_t sizeof_optvar_seqlen;  /* Number of bytes in the optimization variable sequence. */
     
@@ -172,7 +181,7 @@ extern void form_dsoft(real_t *dsoft, real_t *diag_d_soft, real_t *rd_soft, real
                        const real_t *Fusoft, const real_t *Fxsoft, const real_t *Ffsoft,
                        const uint32_t rowsFusoft, const uint32_t control_veclen,
                        const uint32_t rowsFfsoft, const uint32_t state_veclen,
-                       const uint32_t horizon);
+                       const uint32_t horizon, const struct hhmpc_ipm *ipm);
 
 extern void form_diag_d_sq(real_t *diag_d_sq, const real_t *d, const uint32_t dim);
 

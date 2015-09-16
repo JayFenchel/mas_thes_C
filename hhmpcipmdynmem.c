@@ -40,6 +40,9 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     uint32_t i;
     real_t *tmp;
     
+    struct hhmpc_block *bl;
+    struct hhmpc_block **bls;
+    
     data = hhmpc_dynmem_get_data(fname);
     if (NULL == data) {return HHMPC_DYNMEM_FAIL;}
     ret = hhmpc_ipm_parse_elements(ipm, data);
@@ -324,6 +327,39 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->eye_state_veclen = (real_t *)malloc(sizeof(real_t) * ipm->state_veclen*ipm->state_veclen);
     if (NULL == ipm->eye_state_veclen) {return HHMPC_DYNMEM_FAIL;}
     eye(ipm->eye_state_veclen, ipm->state_veclen);
+    
+    ipm->sizeof_optvar_veclen = sizeof(real_t) * ipm->optvar_veclen;
+    
+    bl = (struct hhmpc_block*)malloc(sizeof(struct hhmpc_block));
+    if (NULL == bl) {return HHMPC_DYNMEM_FAIL;}
+    bl->rows = ipm->optvar_veclen;
+    bl->cols = ipm->nb_of_soft_constr;
+    bl->data = (real_t *)malloc(ipm->sizeof_optvar_veclen * bl->cols);
+    if (NULL == bl->data) {return HHMPC_DYNMEM_FAIL;}
+    ipm->tmp_Phi_sft_blk = bl;
+    bls = (struct hhmpc_block**)calloc(ipm->horizon + 1, sizeof(struct hhmpc_block*));
+    if (NULL == bls) {return HHMPC_DYNMEM_FAIL;}
+    bls[0] = (struct hhmpc_block*)malloc(sizeof(struct hhmpc_block));
+    if (NULL == bls[0]) {return HHMPC_DYNMEM_FAIL;}
+    bls[0]->rows = ipm->control_veclen;
+    bls[0]->cols = ipm->control_veclen;
+    bls[0]->data = (real_t *)malloc(sizeof(real_t) * bls[i]->rows * bls[i]->cols);
+    if (NULL == bls[0]->data) {return HHMPC_DYNMEM_FAIL;}
+    for (i = 1; i < ipm->horizon; i++){
+        bls[i] = (struct hhmpc_block*)malloc(sizeof(struct hhmpc_block));
+        if (NULL == bls[i]) {return HHMPC_DYNMEM_FAIL;}
+        bls[i]->rows = ipm->optvar_veclen;
+        bls[i]->cols = ipm->optvar_veclen;
+        bls[i]->data = (real_t *)malloc(sizeof(real_t) * bls[i]->rows * bls[i]->cols);
+        if (NULL == bls[i]->data) {return HHMPC_DYNMEM_FAIL;}
+    }
+    bls[i] = (struct hhmpc_block*)malloc(sizeof(struct hhmpc_block));
+    if (NULL == bls[i]) {return HHMPC_DYNMEM_FAIL;}
+    bls[i]->rows = ipm->state_veclen;
+    bls[i]->cols = ipm->state_veclen;
+    bls[i]->data = (real_t *)malloc(sizeof(real_t) * bls[i]->rows * bls[i]->cols);
+    if (NULL == bls[i]->data) {return HHMPC_DYNMEM_FAIL;}
+    ipm->Phi_sft_blks = bls;
     
     return HHMPC_DYNMEM_OK;
 }

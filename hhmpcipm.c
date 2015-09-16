@@ -58,7 +58,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
                    ipm->Psoft, ipm->Psoft_T, ipm->hsoft,
                    ipm->Fusoft, ipm->Fxsoft, ipm->Ffsoft,
                    ipm->rowsFusoft, ipm->control_veclen, ipm->rowsFfsoft,
-                   ipm->state_veclen, ipm->horizon);
+                   ipm->state_veclen, ipm->horizon, ipm);
         form_diag_d_sq(ipm->diag_d_sq, ipm->d, ipm->nb_of_ueq_constr);
         form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, tmp_Phi, ipm, ipm->H,
                  ipm->P2_T, ipm->P2, ipm->P_of_z , ipm->d, ipm->diag_d_sq,
@@ -113,7 +113,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
                    ipm->Psoft, ipm->Psoft_T, ipm->hsoft,
                    ipm->Fusoft, ipm->Fxsoft, ipm->Ffsoft,
                    ipm->rowsFusoft, ipm->control_veclen, ipm->rowsFfsoft,
-                   ipm->state_veclen, ipm->horizon);
+                   ipm->state_veclen, ipm->horizon, ipm);
     residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
     residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
     printf("res_norm = %.11f\n", f);
@@ -335,7 +335,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
                    ipm->Psoft, ipm->Psoft_T, ipm->hsoft,
                    ipm->Fusoft, ipm->Fxsoft, ipm->Ffsoft,
                    ipm->rowsFusoft, ipm->control_veclen, ipm->rowsFfsoft,
-                   ipm->state_veclen, ipm->horizon);
+                   ipm->state_veclen, ipm->horizon, ipm);
     residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
     residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
                   ipm->optvar_seqlen, ipm->dual_seqlen);
@@ -361,7 +361,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
                    ipm->Psoft, ipm->Psoft_T, ipm->hsoft,
                    ipm->Fusoft, ipm->Fxsoft, ipm->Ffsoft,
                    ipm->rowsFusoft, ipm->control_veclen, ipm->rowsFfsoft,
-                   ipm->state_veclen, ipm->horizon);
+                   ipm->state_veclen, ipm->horizon, ipm);
     residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
     residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
                   ipm->optvar_seqlen, ipm->dual_seqlen);
@@ -388,7 +388,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
                    ipm->Psoft, ipm->Psoft_T, ipm->hsoft,
                    ipm->Fusoft, ipm->Fxsoft, ipm->Ffsoft,
                    ipm->rowsFusoft, ipm->control_veclen, ipm->rowsFfsoft,
-                   ipm->state_veclen, ipm->horizon);
+                   ipm->state_veclen, ipm->horizon, ipm);
         residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
         residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
                       ipm->optvar_seqlen, ipm->dual_seqlen);
@@ -506,7 +506,7 @@ void form_dsoft(real_t *ds, real_t *diags, real_t *rd_soft, real_t *Phi_soft,
                 const real_t *Fus, const real_t *Fxs, const real_t *Ffs,
                 const uint32_t rowsFus, const uint32_t c_veclen,
                 const uint32_t rowsFfs, const uint32_t s_veclen,
-                const uint32_t T)
+                const uint32_t T, const struct hhmpc_ipm *ipm)
 {
 //     real_t rd_soft[T*(c_veclen+s_veclen)];
 //     real_t tmp[T*(c_veclen+s_veclen)*(rowsFus*T+rowsFfs)];
@@ -911,7 +911,10 @@ void form_dsoft(real_t *ds, real_t *diags, real_t *rd_soft, real_t *Phi_soft,
     
     
     
-    
+    mpcinc_mtx_multiply_mtx_mtx(ipm->tmp_Phi_sft_blk, diags, Fus,
+                                rowsFus, rowsFus, c_veclen);
+//     mpcinc_mtx_multiply_mtx_mtx();
+//     print_mtx(ipm->tmp_Phi_sft_blk, rowsFus, c_veclen);
     
     
     
