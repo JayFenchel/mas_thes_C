@@ -92,9 +92,16 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->P_of_z->nb_qc = prb->nb_qc;
     ipm->nb_of_ueq_constr = prb->P->rows+prb->nb_socc+prb->nb_qc;
     ipm->nb_of_soft_constr =
-            (prb->Fusoft->rows + prb->Fxsoft->rows)*ipm->horizon + prb->Ffsoft->rows;
+            (prb->Fusoft->rows)*ipm->horizon + prb->Ffsoft->rows;
+            printf("nb of s%d\n", ipm->nb_of_soft_constr);
     ipm->rowsFusoft = prb->Fusoft->rows;
     ipm->rowsFfsoft = prb->Ffsoft->rows;
+    ipm->Psoft = prb->Psoft->data;
+    ipm->Psoft_T =
+            (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->nb_of_soft_constr);
+    if (NULL == ipm->Psoft_T) {return HHMPC_DYNMEM_FAIL;}
+    mpcinc_mtx_transpose(ipm->Psoft_T, ipm->Psoft, prb->Psoft->rows, prb->Psoft->cols);
+    
     ipm->P_of_z->h_hat =
             (real_t*)malloc(sizeof(real_t) * ipm->nb_of_ueq_constr);
     if (NULL == ipm->P_of_z->h_hat) {return HHMPC_DYNMEM_FAIL;}
@@ -187,11 +194,13 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
             (real_t *)malloc(sizeof(real_t) * ipm->nb_of_ueq_constr*ipm->nb_of_ueq_constr);
     if (NULL == ipm->diag_d_sq) {return HHMPC_DYNMEM_FAIL;}
     ipm->diag_d_soft =
-            (real_t *)malloc(sizeof(real_t) * ipm->nb_of_soft_constr);
+            (real_t *)malloc(sizeof(real_t) * ipm->nb_of_soft_constr*ipm->nb_of_soft_constr);
     if (NULL == ipm->diag_d_soft) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->Phi = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
     if (NULL == ipm->Phi) {return HHMPC_DYNMEM_FAIL;}
+    ipm->Phi_soft = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
+    if (NULL == ipm->Phi_soft) {return HHMPC_DYNMEM_FAIL;}
 /*    
     ipm->P_T = (real_t *)malloc(sizeof(real_t) * prb->P->rows*prb->P->cols);
     if (NULL == ipm->P_T) {return HHMPC_DYNMEM_FAIL;}
@@ -225,6 +234,9 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     ipm->r_d = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
     if (NULL == ipm->r_d) {return HHMPC_DYNMEM_FAIL;}
     
+    ipm->r_d_soft = (real_t *)malloc(ipm->sizeof_optvar_seqlen);
+    if (NULL == ipm->r_d_soft) {return HHMPC_DYNMEM_FAIL;}
+    
     ipm->r_p = (real_t *)malloc(ipm->sizeof_dual_seqlen);
     if (NULL == ipm->r_p) {return HHMPC_DYNMEM_FAIL;}
     
@@ -241,6 +253,9 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     if (NULL == ipm->tmp2_dual_seqlen) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->tmp3_mtx_optvar_nb_of_ueq = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->nb_of_ueq_constr);
+    if (NULL == ipm->tmp3_mtx_optvar_nb_of_ueq) {return HHMPC_DYNMEM_FAIL;}
+    
+    ipm->tmp3_mtx_optvar_nb_of_soft = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->nb_of_soft_constr);
     if (NULL == ipm->tmp3_mtx_optvar_nb_of_ueq) {return HHMPC_DYNMEM_FAIL;}
     
     ipm->tmp3_state_veclen = (real_t *)malloc(sizeof(real_t) * ipm->state_veclen);

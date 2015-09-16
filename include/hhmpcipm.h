@@ -87,6 +87,8 @@ struct hhmpc_ipm {
     real_t *Fusoft;
     real_t *Fxsoft;
     real_t *Ffsoft;
+    real_t *Psoft;
+    real_t *Psoft_T;
     
     real_t *b;
     real_t *h;
@@ -97,8 +99,10 @@ struct hhmpc_ipm {
     real_t *diag_d_sq;
     real_t *diag_d_soft;
     real_t *Phi;
+    real_t *Phi_soft;
     real_t *r_p;
     real_t *r_d;
+    real_t *r_d_soft;
     
     real_t *st_size;
     real_t *reg;
@@ -124,6 +128,7 @@ struct hhmpc_ipm {
     real_t *tmp2_dual_seqlen;  /* Temporary variable of length optvar_seqlen. */
     real_t *tmp3_state_veclen;
     real_t *tmp3_mtx_optvar_nb_of_ueq;
+    real_t *tmp3_mtx_optvar_nb_of_soft;
     real_t *tmp4_mtx_optvar_optvar;
     real_t *tmp4_nb_of_constr;
     real_t *tmp5_nb_of_constr;
@@ -160,7 +165,10 @@ extern void update(struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
 extern void form_d(real_t *d, const real_t *P, const real_t *h, const real_t *z,
                    const uint32_t rowsP, const uint32_t colsP);
 
-extern void form_dsoft(real_t *dsoft, real_t *diag_d_soft, const real_t *roh, const real_t *z, const real_t *hsoft,
+extern void form_dsoft(real_t *dsoft, real_t *diag_d_soft, real_t *rd_soft, real_t *Phi_soft,
+                       real_t *tmp,
+                       const real_t *roh, const real_t *z,
+                       const real_t *Psoft, const real_t *Psoft_T, const real_t *hsoft,
                        const real_t *Fusoft, const real_t *Fxsoft, const real_t *Ffsoft,
                        const uint32_t rowsFusoft, const uint32_t control_veclen,
                        const uint32_t rowsFfsoft, const uint32_t state_veclen,
@@ -169,6 +177,7 @@ extern void form_dsoft(real_t *dsoft, real_t *diag_d_soft, const real_t *roh, co
 extern void form_diag_d_sq(real_t *diag_d_sq, const real_t *d, const uint32_t dim);
 
 extern void form_Phi(real_t *Phi, real_t *help, real_t *tmp_Phi,
+                     const struct hhmpc_ipm *ipm,
                      const real_t *H, const real_t *P_T, const real_t *P,
                      const struct hhmpc_ipm_P_hat *P_hat,
                      const real_t *d, const real_t *diag_d_sq,

@@ -29,6 +29,7 @@ enum {
         
         HHMPC_P,
         /* Soft Constraints: */
+        HHMPC_PSOFT,
         HHMPC_FXSOFT,  /* mtx[Fx, Fu]*[x, u] <= f */
         HHMPC_FUSOFT,
         HHMPC_FSOFT,

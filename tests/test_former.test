@@ -115,6 +115,7 @@
     ipm->diag_d_sq =
             (real_t *)malloc(sizeof(real_t) * ipm->nb_of_ueq_constr*ipm->nb_of_ueq_constr);
     ipm->Phi = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
+    ipm->Phi_soft = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
     Phi_ref = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
     ipm->tmp3_mtx_optvar_nb_of_ueq =
             (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->nb_of_ueq_constr);
@@ -169,7 +170,7 @@
     form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
            ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
     form_diag_d_sq(ipm->diag_d_sq, ipm->d, ipm->nb_of_ueq_constr);
-    form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->tmp4_mtx_optvar_optvar, ipm->H,
+    form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->tmp4_mtx_optvar_optvar, ipm, ipm->H,
              ipm->P2_T, ipm->P2, ipm->P_of_z , ipm->d, ipm->diag_d_sq,
              ipm->kappa[0], ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
     
@@ -322,6 +323,7 @@
     ipm->diag_d_sq =
             (real_t *)malloc(sizeof(real_t) * ipm->nb_of_ueq_constr*ipm->nb_of_ueq_constr);
     ipm->Phi = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
+    ipm->Phi_soft = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
     Phi_ref = (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->optvar_seqlen);
     ipm->tmp3_mtx_optvar_nb_of_ueq =
             (real_t *)malloc(sizeof(real_t) * ipm->optvar_seqlen*ipm->nb_of_ueq_constr);
@@ -399,7 +401,7 @@
     form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
            ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
     form_diag_d_sq(ipm->diag_d_sq, ipm->d, ipm->nb_of_ueq_constr);
-    form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->tmp4_mtx_optvar_optvar, ipm->H,
+    form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, ipm->tmp4_mtx_optvar_optvar, ipm, ipm->H,
              ipm->P2_T, ipm->P2, ipm->P_of_z , ipm->d, ipm->diag_d_sq,
              ipm->kappa[0], ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
     
@@ -1317,7 +1319,7 @@
     form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
            ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
     form_diag_d_sq(ipm->diag_d_sq, ipm->d, ipm->nb_of_ueq_constr);
-    form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, tmp_Phi, ipm->H,
+    form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, tmp_Phi, ipm, ipm->H,
              ipm->P2_T, ipm->P2, ipm->P_of_z , ipm->d, ipm->diag_d_sq,
              ipm->kappa[0], ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
     /* Calculate the residual */
@@ -1396,7 +1398,7 @@
     form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
            ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
     form_diag_d_sq(ipm->diag_d_sq, ipm->d, ipm->nb_of_ueq_constr);
-    form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, tmp_Phi, ipm->H,
+    form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, tmp_Phi, ipm, ipm->H,
              ipm->P2_T, ipm->P2, ipm->P_of_z , ipm->d, ipm->diag_d_sq,
              ipm->kappa[0], ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
     /* Calculate the residual */
