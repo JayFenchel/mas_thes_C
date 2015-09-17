@@ -67,7 +67,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
         residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
 //         print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
-        printf("res_norm = %f\n", f);
+//         printf("res_norm = %f\n", f);
         
         /* Solve system of linear equations to obtain the step direction */
         solve_sysofleq(ipm->delta_z, ipm->delta_v, ipm, ipm->Phi, ipm->r_d, ipm->r_p,
@@ -87,7 +87,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 //         print_mtx(ipm->delta_v, ipm->dual_seqlen, 1);
         /* Find best step size (0...1] */
         bt_line_search(ipm->st_size, ipm);
-        printf("st_size = %f\n", ipm->st_size[0]);
+//         printf("st_size = %f\n", ipm->st_size[0]);
         
         /* Update z */
         mpcinc_mtx_scale_direct(ipm->delta_z, ipm->st_size[0],
@@ -340,7 +340,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
                   ipm->optvar_seqlen, ipm->dual_seqlen);
     g_in_dir = (f_p_g - f_p)/g_step;
-    printf("Grad in dir = %.8f\n", g_in_dir);
+//     printf("Grad in dir = %.8f\n", g_in_dir);
     
     mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st_size[0],
                      ipm->optvar_seqlen, 1);
@@ -911,10 +911,11 @@ void form_dsoft(real_t *ds, real_t *diags, real_t *rd_soft, real_t *Phi_soft,
     
     
     
-    mpcinc_mtx_multiply_mtx_mtx(ipm->tmp_Phi_sft_blk, diags, Fus,
-                                rowsFus, rowsFus, c_veclen);
+//     mpcinc_mtx_multiply_mtx_mtx(ipm->tmp_Phi_sft_blk->data, diags, Fus,
+//                                 rowsFus, rowsFus, c_veclen);
+    
 //     mpcinc_mtx_multiply_mtx_mtx();
-//     print_mtx(ipm->tmp_Phi_sft_blk, rowsFus, c_veclen);
+//     print_mtx(ipm->tmp_Phi_sft_blk->data, rowsFus, c_veclen);
     
     
     

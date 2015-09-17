@@ -83,9 +83,10 @@ real_t smpl_sqrt(real_t r, real_t e)
 real_t nth_root(real_t A, uint32_t n){
     if (n == 0) return 1.;
     const uint32_t K = 8;
+    uint32_t k;
 //     printf("n=%d\n",n);
     real_t x[] = {1., 0., 0., 0., 0., 0., 0., 0.};
-    for (uint32_t k = 0; k < K - 1; k++){
+    for (k = 0; k < K - 1; k++){
         x[k + 1] = (1./n) * ((n - 1)*x[k] + A/smpl_pow(x[k], n - 1));
     }
 //     printf("f=%f\n",x[K-1]);
