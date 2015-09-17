@@ -343,7 +343,7 @@ hhmpc_dynmem_error_t hhmpc_ipm_setup_solver(struct hhmpc_ipm *ipm,
     if (NULL == bls[0]) {return HHMPC_DYNMEM_FAIL;}
     bls[0]->rows = ipm->control_veclen;
     bls[0]->cols = ipm->control_veclen;
-    bls[0]->data = (real_t *)malloc(sizeof(real_t) * bls[i]->rows * bls[i]->cols);
+    bls[0]->data = (real_t *)malloc(sizeof(real_t) * bls[0]->rows * bls[0]->cols);
     if (NULL == bls[0]->data) {return HHMPC_DYNMEM_FAIL;}
     for (i = 1; i < ipm->horizon; i++){
         bls[i] = (struct hhmpc_block*)malloc(sizeof(struct hhmpc_block));
