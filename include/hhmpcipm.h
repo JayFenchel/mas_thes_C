@@ -5,6 +5,7 @@
 
 #include "mc04types.h"
 #include "arithmetic.h"
+#include "mpc_const.h"
 
 /* Configuration parameters of the HHMPC algorithm. */
 struct hhmpc_ipm_conf {
