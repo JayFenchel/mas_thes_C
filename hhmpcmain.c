@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <time.h>
+// #include <sys/time.h>
+// #include <unistd.h>
 
 #include "include/mpcincmtxops.h"
 #include "include/hhmpcsocp.h"
@@ -14,6 +17,8 @@
 #include "include/hhmpcusefull.h"
 
 int main(void) {
+    real_t time;
+    clock_t begin, end;
     real_t htd[30];
     char *file = "test03data.json";
     /*struct mpcinc_cvp *cvp = mpcinc_cvp_allocate_former();*/
@@ -94,12 +99,29 @@ int main(void) {
     ipm->v_ini[28] = 0.;
     ipm->v_ini[29] = 0.;
     */
-    ipm->conf->in_iter = 1;
+    ipm->conf->in_iter = 12;
     ipm->conf->reg = .00000001;
     ipm->conf->warm_start = 1;
-    
+    begin = clock();
     hhmpc_socp_form_problem(socp);
+    end = clock();
+    printf("begin:                         %d\n", begin);
+    printf("end:                           %d\n", end);
+    printf("clocks für form_problem: %d\n", end - begin);
+    time=end - begin;
+    time/=CLOCKS_PER_SEC;
+    printf("Zeit für form_problem:   %f Sekunden\n", time);
+    printf("CLOCKS_PER_SEC:                %d\n", CLOCKS_PER_SEC);
+    begin = clock();
     hhmpc_ipm_solve_problem(ipm);
+    end = clock();
+    printf("begin:                         %d\n", begin);
+    printf("end:                           %d\n", end);
+    printf("clocks für solve_problem: %d\n", end - begin);
+    time=end - begin;
+    time/=CLOCKS_PER_SEC;
+    printf("Zeit für solve_problem:   %f Sekunden\n", time);
+    printf("CLOCKS_PER_SEC:                %d\n", CLOCKS_PER_SEC);
 //     print_mtx(ipm->z_ini, ipm->optvar_seqlen,1);
     printf("u_opt1 = %f\n", ipm->z_opt[0]);
     printf("u_opt2 = %f\n", ipm->z_opt[31]);
