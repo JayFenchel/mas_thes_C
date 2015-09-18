@@ -14,8 +14,12 @@ void cholesky(real_t sol[],
         for (j = 0; j < i; j++){
             sol[i*dim+i] -= sol[i*dim+j]*sol[i*dim+j];
         }
-        sol[i*dim+i] = smpl_sqrt(smpl_abs(sol[i*dim+i]), 2.);
+//         printf("HIER sqrt\n");
         
+        sol[i*dim+i] = sqrtf(smpl_abs(sol[i*dim+i]));
+//         sol[i*dim+i] = smpl_sqrt(smpl_abs(sol[i*dim+i]), 2.);
+        
+//         printf("HIER after sqrt\n");
         for (j = i+1; j < dim; j++){
             for (k = 0; k < i; k++){
                 sol[j*dim+i] -= sol[j*dim+k]*sol[i*dim+k];
@@ -74,6 +78,7 @@ uint32_t mtx_cmp(const real_t mtxA[], const real_t mtxB[], real_t dim, real_t ac
 
 real_t smpl_sqrt(real_t r, real_t e)
 {
+    if (r != r) printf("r < 0 :%f\n", r);
     if  (smpl_abs(r/e - e) < SQRT_ACC)
         return e;
     else
@@ -82,32 +87,47 @@ real_t smpl_sqrt(real_t r, real_t e)
 
 real_t nth_root(real_t A, uint32_t n){
     if (n == 0) return 1.;
-    const uint32_t K = 8;
+    const uint32_t K = 3;
     uint32_t k;
 //     printf("n=%d\n",n);
-    real_t x[] = {1., 0., 0., 0., 0., 0., 0., 0.};
+    real_t x[] = {1., 0., 0.};
     for (k = 0; k < K - 1; k++){
-        x[k + 1] = (1./n) * ((n - 1)*x[k] + A/smpl_pow(x[k], n - 1));
+        printf("in sp3\n");
+        x[k + 1] = (1./n) * ((n - 1)*x[k] + A/smpl_pow(&x[k], n - 1));
     }
 //     printf("f=%f\n",x[K-1]);
     return x[K-1];
 }
 
-real_t smpl_pow(real_t b, real_t e)
+real_t smpl_pow(real_t *b, real_t e)
 {
-    if (e == 0.){
-        return 1.;
-    }else if (e < 0){
-        return 1 / smpl_pow(b, -e);
-    }else if (e > 0. && e < 1){
-//         printf("%f\n", (1./((uint32_t)(1/(1./((uint32_t)(1/e)) - e))) - (1./((uint32_t)(1/e)) - e)));
-        return nth_root(b, 1./e) / ( nth_root(b, 1./(1./((uint32_t)(1/e)) - e)) / nth_root(b, 1./(1./((uint32_t)(1/(1./((uint32_t)(1/e)) - e))) - (1./((uint32_t)(1/e)) - e))) );
-    }else if ((uint32_t)e % 2 == 0){
-        real_t half_pow = smpl_pow(b, e/2);
-        return half_pow * half_pow;
-    }else{
-        return b * smpl_pow(b, e - 1);
-    }
+//     real_t half_pow, e_halbe;
+//     printf("in sp1\n");
+//     printf("in sp2 %f\n", e);
+//     if (e != e){
+//          printf("in sp6 %f\n", e);
+//         return e;}
+//     if (e == 0.){
+//         return 1.;
+//         
+//     }else if (e < 0){
+//         printf("in sp5 %f\n", e_halbe);
+//         return 1 / smpl_pow(b, -e);
+//     }else if (e > 0. && e < 1){
+// //         printf("%f\n", (1./((uint32_t)(1/(1./((uint32_t)(1/e)) - e))) - (1./((uint32_t)(1/e)) - e)));
+//         printf("in sp\n");
+//         return nth_root(b[0], 1./e) / ( nth_root(b[0], 1./(1./((uint32_t)(1/e)) - e)) / nth_root(b[0], 1./(1./((uint32_t)(1/(1./((uint32_t)(1/e)) - e))) - (1./((uint32_t)(1/e)) - e))) );
+//     }else if ((uint32_t)e % 2 == 0){
+//         printf("in sp2\n");
+//         e_halbe = e/2;
+//         
+//         half_pow = smpl_pow(b, e_halbe);
+//         
+//         return half_pow * half_pow;
+//     }else{
+//         return b[0] * smpl_pow(b, e - 1);
+//     }
+    return expf(e);
 }
 
 real_t smpl_abs(real_t x)

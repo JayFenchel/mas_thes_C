@@ -336,6 +336,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
                    ipm->Fusoft, ipm->Fxsoft, ipm->Ffsoft,
                    ipm->rowsFusoft, ipm->control_veclen, ipm->rowsFfsoft,
                    ipm->state_veclen, ipm->horizon, ipm);
+    HIER
     residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
     residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
                   ipm->optvar_seqlen, ipm->dual_seqlen);
@@ -669,12 +670,13 @@ void form_dsoft(real_t *ds, real_t *diags, real_t *rd_soft, real_t *Phi_soft,
     
     
     uint32_t k, i, j;
+    real_t ex[] = {E};
     for (i = 0; i < rowsFus; i++){
         ds[i] = hs[i];
         for (j = 0; j < c_veclen; j++){
             ds[i] -= (Fus+i*c_veclen)[j]*z[j];
         }
-        ds[i] = smpl_pow(E, roh[0]*ds[i]);
+        ds[i] = smpl_pow(ex, roh[0]*ds[i]);
         diags[i*(rowsFus*T+rowsFfs)+i] = ds[i];
         ds[i] = 1 / (1 + ds[i]);
         diags[i*(rowsFus*T+rowsFfs)+i] = diags[i*(rowsFus*T+rowsFfs)+i] * ds[i] * ds[i];
@@ -688,7 +690,7 @@ void form_dsoft(real_t *ds, real_t *diags, real_t *rd_soft, real_t *Phi_soft,
             for (j = 0; j < c_veclen; j++){
                 ds[i] -= (Fus+(i-k*rowsFus)*c_veclen)[j]*(z+k*c_veclen+(k)*s_veclen)[j];
             }
-            ds[i] = smpl_pow(E, roh[0]*ds[i]);
+            ds[i] = smpl_pow(ex, roh[0]*ds[i]);
             diags[i*(rowsFus*T+rowsFfs)+i] = ds[i];
             ds[i] = 1 / (1 + ds[i]);
             diags[i*(rowsFus*T+rowsFfs)+i] = diags[i*(rowsFus*T+rowsFfs)+i] * ds[i] * ds[i];
@@ -699,7 +701,7 @@ void form_dsoft(real_t *ds, real_t *diags, real_t *rd_soft, real_t *Phi_soft,
         for (j = 0; j < s_veclen; j++){
             ds[i] -= (Ffs+(i-T*rowsFus)*s_veclen)[j]*(z+T*c_veclen+(T-1)*s_veclen)[j];
         }
-        ds[i] = smpl_pow(E, roh[0]*ds[i]);
+        ds[i] = smpl_pow(ex, roh[0]*ds[i]);
         diags[i*(rowsFus*T+rowsFfs)+i] = ds[i];
         ds[i] = 1 / (1 + ds[i]);
         diags[i*(rowsFus*T+rowsFfs)+i] = diags[i*(rowsFus*T+rowsFfs)+i] * ds[i] * ds[i];
