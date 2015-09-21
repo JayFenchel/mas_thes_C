@@ -2171,9 +2171,7 @@ socp->par[HHMPC_ZINI] = &zini_term;
 socp->par[HHMPC_VINI] = &vini_term;
 
 socp->pmetric[HHMPC_ZR] = &zref;
-
 socp->pmetric[HHMPC_ZR]->fac_num = &zref_fac_num;
-
 socp->pmetric[HHMPC_ZR]->val = &zref_val_term;
 socp->pmetric[HHMPC_ZR]->aux = &zref_aux_term;
 socp->pmetric[HHMPC_ZR]->fac0 = &zref_fac0_term;
@@ -2181,19 +2179,10 @@ socp->pmetric[HHMPC_ZR]->par = &pzref_par_term;
 socp->pmetric[HHMPC_ZR]->fac = &pzref_fac_term;
 socp->pmetric[HHMPC_ZR]->fac[0] = &zref_fac1_term;
 socp->pmetric[HHMPC_ZR]->par[0] = &ur_term;
-printf("fac %d\n", zref_fac_num);
-
-printf("fac %d\n", zref_fac_num);
 socp->pmetric[HHMPC_ZR]->fac[1] = &zref_fac2_term;
-printf("fac %d\n", zref_fac_num);
-
-printf("fac %d\n", zref_fac_num);
-printf("fac %d\n", zref_fac_num);
-printf("%d\t", socp->pmetric[HHMPC_ZR]->fac_num[0]);
 socp->pmetric[HHMPC_ZR]->par[1] = &xr_term;
-printf("%d\n", socp->pmetric[HHMPC_ZR]->fac_num[0]);
+
 socp->pmetric[HHMPC_B_KL] = &b;
-printf("fac %d\n", zref_fac_num);
 socp->pmetric[HHMPC_B_KL]->fac_num = &b_fac_num;
 socp->pmetric[HHMPC_B_KL]->val = &b_val_term;
 socp->pmetric[HHMPC_B_KL]->aux = &b_aux_term;
@@ -2203,9 +2192,7 @@ socp->pmetric[HHMPC_B_KL]->fac = &pb_fac_term;
 socp->pmetric[HHMPC_B_KL]->fac[0] = &b_fac1_term;
 socp->pmetric[HHMPC_B_KL]->par[0] = &xk_term;
 
-
 socp->pmetric[HHMPC_H_KL] = &h;
-// printf("%d\n", (&zref)->fac_num[0]);
 socp->pmetric[HHMPC_H_KL]->fac_num = &h_fac_num;
 socp->pmetric[HHMPC_H_KL]->val = &h_val_term;
 socp->pmetric[HHMPC_H_KL]->aux = &h_aux_term;
@@ -2215,7 +2202,6 @@ socp->pmetric[HHMPC_H_KL]->fac = &ph_fac_term;
 socp->pmetric[HHMPC_H_KL]->fac[0] = &h_fac1_term;
 socp->pmetric[HHMPC_H_KL]->par[0] = &xk_term;
 
-printf("%d\n", socp->pmetric[HHMPC_ZR]->fac_num[0]);
 socp->pmetric[HHMPC_HSOFT_KL] = &hsoft;
 socp->pmetric[HHMPC_HSOFT_KL]->fac_num = &hsoft_fac_num;
 socp->pmetric[HHMPC_HSOFT_KL]->val = &hsoft_val_term;
@@ -2225,12 +2211,8 @@ socp->pmetric[HHMPC_HSOFT_KL]->par = &phsoft_par_term;
 socp->pmetric[HHMPC_HSOFT_KL]->fac = &phsoft_fac_term;
 socp->pmetric[HHMPC_HSOFT_KL]->fac[0] = &hsoft_fac1_term;
 socp->pmetric[HHMPC_HSOFT_KL]->par[0] = &xk_term;
-printf("%d\n", socp->pmetric[HHMPC_HSOFT_KL]->fac_num[0]);
 
-printf("%d\n", socp->pmetric[HHMPC_ZR]->fac_num[0]);
 socp->pmetric[HHMPC_G_KL] = &g;
-printf("%d\n", socp->pmetric[HHMPC_HSOFT_KL]->fac_num[0]);
-
 socp->pmetric[HHMPC_G_KL]->fac_num = &g_fac_num;
 socp->pmetric[HHMPC_G_KL]->val = &g_val_term;
 socp->pmetric[HHMPC_G_KL]->aux = &g_aux_term;
@@ -2239,8 +2221,6 @@ socp->pmetric[HHMPC_G_KL]->par = &pg_par_term;
 socp->pmetric[HHMPC_G_KL]->fac = &pg_fac_term;
 socp->pmetric[HHMPC_G_KL]->fac[0] = socp->constant[HHMPC_S_T];
 socp->pmetric[HHMPC_G_KL]->par[0] = &xk_term;
-
-printf("%d\n", socp->pmetric[HHMPC_ZR]->fac_num[0]);
 socp->prb = &prb;
 
 socp->prb->z_ini = socp->par[HHMPC_ZINI];

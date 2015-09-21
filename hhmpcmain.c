@@ -8,6 +8,7 @@
 #include "include/mpcinccvpdynmem.h"
 #include "include/hhmpcsocpdynmem.h"
 #include "include/hhmpcmath.h"
+#include "include/socp_data.h"
 
 #include "include/mpcincfgm.h"
 #include "include/hhmpcipm.h"
@@ -20,6 +21,7 @@ int main(void) {
     real_t time;
     clock_t begin, end;
     real_t htd[30];
+    struct hhmpc_socp socp_new;
     char *file = "test03data.json";
     /*struct mpcinc_cvp *cvp = mpcinc_cvp_allocate_former();*/
     struct hhmpc_socp *socp = hhmpc_socp_allocate_former();
@@ -29,6 +31,7 @@ int main(void) {
     if (hhmpc_socp_setup_former(socp, file)) {
         return 0;
     }
+    form_socp(&socp_new);
     if (hhmpc_ipm_setup_solver(ipm, socp->prb, file)) {
         return 0;
     }
@@ -99,11 +102,13 @@ int main(void) {
     ipm->v_ini[28] = 0.;
     ipm->v_ini[29] = 0.;
     */
-    ipm->conf->in_iter = 12;
-    ipm->conf->reg = .00000001;
+    ipm->conf->in_iter = 1;
+    ipm->conf->reg = .001;
     ipm->conf->warm_start = 1;
     begin = clock();
     hhmpc_socp_form_problem(socp);
+    hhmpc_socp_form_problem(&socp_new);
+    cmp_socp(socp, &socp_new);
     end = clock();
 //     printf("begin:                         %d\n", begin);
 //     printf("end:                           %d\n", end);
@@ -159,14 +164,57 @@ int main(void) {
 // //     printf("%f\n", htd[0]);
 // //     hhmpc_socp_form_problem(socp);
     printf("%f \n", socp->constant[HHMPC_R_KL]->data[0]);
-    printf("%.15f \n", smpl_pow(E, 0.001));
+//     printf("%.15f \n", smpl_pow(E, 0.001));
 
 //     print_mtx(socp->pmetric[HHMPC_ZR]->val->data, 155, 1);
     printf("ENDE\n");
     return 0;
 }
 
-
+void cmp_socp(struct hhmpc_socp *socp1, struct hhmpc_socp *socp2){
+    printf("%d\n", mtx_cmp(socp1->prb->P->data, socp2->prb->P->data,
+            socp1->prb->P->rows*socp1->prb->P->cols, 1e-10)
+          );   
+    printf("%d\n", mtx_cmp(socp1->prb->Psoft->data, socp2->prb->Psoft->data,
+            socp1->prb->Psoft->rows*socp1->prb->Psoft->cols, 1e-10)
+          );  
+    
+    printf("%d\n", mtx_cmp(socp1->prb->H->data, socp2->prb->H->data,
+            socp1->prb->H->rows*socp1->prb->H->cols, 1e-10)
+          );    
+    
+    
+    printf("%d\n", mtx_cmp(socp1->prb->v_ini->data, socp2->prb->v_ini->data,
+            socp1->prb->v_ini->rows, 1e-10)
+          );
+    
+    printf("%d\n", mtx_cmp(socp1->prb->z_ini->data, socp2->prb->z_ini->data,
+            socp1->prb->z_ini->rows, 1e-10)
+          );    
+    
+    printf("%d\n", mtx_cmp(socp1->prb->hsoft->data, socp2->prb->hsoft->data,
+            socp2->prb->hsoft->rows, 1e-10)
+          );
+    
+    printf("%d\n", mtx_cmp(socp1->prb->b->data, socp2->prb->b->data,
+            socp1->prb->b->rows, 1e-10)
+          );    
+    
+    printf("%d\n", mtx_cmp(socp1->prb->g->data, socp2->prb->g->data,
+            socp1->prb->g->rows, 1e-10)
+          );    
+    
+    printf("%d\n", mtx_cmp(socp1->prb->zref->data, socp2->prb->zref->data,
+            socp1->prb->zref->rows, 1e-10)
+          );
+//     printf("%f\t%f\n", socp1->prb->zref->data[143], socp2->prb->zref->data[143]);
+    
+    printf("%d\n", mtx_cmp(socp1->prb->h->data, socp2->prb->h->data,
+            socp1->prb->h->rows, 1e-10)
+          );
+//     printf("%f\t%f\n", socp1->prb->h->data[33], socp2->prb->h->data[33]);
+    
+}
 
 /*// #include <stdio.h>
 // #include <stdlib.h>
