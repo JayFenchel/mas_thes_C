@@ -8,7 +8,7 @@
 #include "include/mpcinccvpdynmem.h"
 #include "include/hhmpcsocpdynmem.h"
 #include "include/hhmpcmath.h"
-#include "include/socp_data.h"
+#include "include/static_data.h"
 
 #include "include/mpcincfgm.h"
 #include "include/hhmpcipm.h"
