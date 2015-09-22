@@ -24,6 +24,8 @@ int main(void) {
     real_t time;
     clock_t begin, end;
     real_t htd[30];
+    real_t wtd[30];
+    real_t ut[30];
     struct hhmpc_socp socp_tmp;
     struct hhmpc_socp *socp, *socp_new;
     char *file = "test03data.json";
@@ -40,8 +42,8 @@ int main(void) {
 socp_new = &socp_tmp;
      form_socp(socp_new);
 
-socp = socp_new;
-// socp = socp_old;
+// socp = socp_new;
+socp = socp_old;
 
 HIER    
     
@@ -157,26 +159,31 @@ HIER
 //     printf("u_opt3 = %f\n", ipm->z_opt[62]);
 //     printf("u_opt4 = %f\n", ipm->z_opt[93]);
 //     printf("u_opt5 = %f\n", ipm->z_opt[124]);
-// //     htd[0] = socp->prb->x_k->data[18];
-// //     sim_next_xk(socp);
-// //     htd[1] = socp->prb->x_k->data[18];
-// //     
-// //     for (uint32_t i = 2; i< 30; i++){
-// //   
-// //     ipm->conf->in_iter = 8;
-// //     hhmpc_socp_form_problem(socp);
-// //     hhmpc_ipm_solve_problem(ipm);
-// // //     printf("u_opt1 = %f\n", ipm->z_opt[0]);
-// // //     printf("u_opt2 = %f\n", ipm->z_opt[31]);
-// // //     printf("u_opt3 = %f\n", ipm->z_opt[62]);
-// // //     printf("u_opt4 = %f\n", ipm->z_opt[93]);
-// // //     printf("u_opt5 = %f\n", ipm->z_opt[124]);
-// //     sim_next_xk(socp);
-// //     htd[i] = socp->prb->x_k->data[18];
-// //     }
-// //     print_mtx(htd, 30, 1);
-// //     printf("%f\n", htd[0]);
-// //     hhmpc_socp_form_problem(socp);
+    htd[0] = socp->prb->x_k->data[18];
+    wtd[0] = socp->prb->x_k->data[6];
+    ut[0] = ipm->z_opt[0];
+    sim_next_xk(socp);
+    htd[1] = socp->prb->x_k->data[18];
+    wtd[1] = socp->prb->x_k->data[6];
+    for (uint32_t i = 2; i< 30; i++){
+  
+    ipm->conf->in_iter = 8;
+    hhmpc_socp_form_problem(socp);
+    hhmpc_ipm_solve_problem(ipm);
+    ut[i-1] = ipm->z_opt[0];
+//     printf("u_opt1 = %f\n", ipm->z_opt[0]);
+//     printf("u_opt2 = %f\n", ipm->z_opt[31]);
+//     printf("u_opt3 = %f\n", ipm->z_opt[62]);
+//     printf("u_opt4 = %f\n", ipm->z_opt[93]);
+//     printf("u_opt5 = %f\n", ipm->z_opt[124]);
+    sim_next_xk(socp);
+    htd[i] = socp->prb->x_k->data[18];
+    wtd[i] = socp->prb->x_k->data[6];
+    }
+    print_mtx(htd, 30, 1);
+    print_mtx(wtd, 30, 1);
+    printf("%f\n", htd[0]);
+    hhmpc_socp_form_problem(socp);
     printf("%f \n", socp->constant[HHMPC_R_KL]->data[0]);
 //     printf("%.15f \n", smpl_pow(E, 0.001));
 
