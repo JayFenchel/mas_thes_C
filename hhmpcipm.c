@@ -336,7 +336,6 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
                    ipm->Fusoft, ipm->Fxsoft, ipm->Ffsoft,
                    ipm->rowsFusoft, ipm->control_veclen, ipm->rowsFfsoft,
                    ipm->state_veclen, ipm->horizon, ipm);
-    HIER
     residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
     residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
                   ipm->optvar_seqlen, ipm->dual_seqlen);

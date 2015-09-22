@@ -42,15 +42,13 @@ int main(void) {
 socp_new = &socp_tmp;
      form_socp(socp_new);
 
-// socp = socp_new;
-socp = socp_old;
+socp = socp_new;
+// socp = socp_old;
 
-HIER    
     
     if (hhmpc_ipm_setup_solver(ipm, socp->prb, file)) {
         return 0;
     }
-HIER
 /*    
     ipm->z_ini[0] = 0.9;
     ipm->z_ini[1] = 0.7;
@@ -159,31 +157,31 @@ HIER
 //     printf("u_opt3 = %f\n", ipm->z_opt[62]);
 //     printf("u_opt4 = %f\n", ipm->z_opt[93]);
 //     printf("u_opt5 = %f\n", ipm->z_opt[124]);
-    htd[0] = socp->prb->x_k->data[18];
-    wtd[0] = socp->prb->x_k->data[6];
-    ut[0] = ipm->z_opt[0];
-    sim_next_xk(socp);
-    htd[1] = socp->prb->x_k->data[18];
-    wtd[1] = socp->prb->x_k->data[6];
-    for (uint32_t i = 2; i< 30; i++){
-  
-    ipm->conf->in_iter = 8;
-    hhmpc_socp_form_problem(socp);
-    hhmpc_ipm_solve_problem(ipm);
-    ut[i-1] = ipm->z_opt[0];
-//     printf("u_opt1 = %f\n", ipm->z_opt[0]);
-//     printf("u_opt2 = %f\n", ipm->z_opt[31]);
-//     printf("u_opt3 = %f\n", ipm->z_opt[62]);
-//     printf("u_opt4 = %f\n", ipm->z_opt[93]);
-//     printf("u_opt5 = %f\n", ipm->z_opt[124]);
-    sim_next_xk(socp);
-    htd[i] = socp->prb->x_k->data[18];
-    wtd[i] = socp->prb->x_k->data[6];
-    }
-    print_mtx(htd, 30, 1);
-    print_mtx(wtd, 30, 1);
-    printf("%f\n", htd[0]);
-    hhmpc_socp_form_problem(socp);
+// //     htd[0] = socp->prb->x_k->data[18];
+// //     wtd[0] = socp->prb->x_k->data[6];
+// //     ut[0] = ipm->z_opt[0];
+// //     sim_next_xk(socp);
+// //     htd[1] = socp->prb->x_k->data[18];
+// //     wtd[1] = socp->prb->x_k->data[6];
+// //     for (uint32_t i = 2; i< 30; i++){
+// //   
+// //     ipm->conf->in_iter = 8;
+// //     hhmpc_socp_form_problem(socp);
+// //     hhmpc_ipm_solve_problem(ipm);
+// //     ut[i-1] = ipm->z_opt[0];
+// // //     printf("u_opt1 = %f\n", ipm->z_opt[0]);
+// // //     printf("u_opt2 = %f\n", ipm->z_opt[31]);
+// // //     printf("u_opt3 = %f\n", ipm->z_opt[62]);
+// // //     printf("u_opt4 = %f\n", ipm->z_opt[93]);
+// // //     printf("u_opt5 = %f\n", ipm->z_opt[124]);
+// //     sim_next_xk(socp);
+// //     htd[i] = socp->prb->x_k->data[18];
+// //     wtd[i] = socp->prb->x_k->data[6];
+// //     }
+// //     print_mtx(htd, 30, 1);
+// //     print_mtx(wtd, 30, 1);
+// //     printf("%f\n", htd[0]);
+// //     hhmpc_socp_form_problem(socp);
     printf("%f \n", socp->constant[HHMPC_R_KL]->data[0]);
 //     printf("%.15f \n", smpl_pow(E, 0.001));
 
