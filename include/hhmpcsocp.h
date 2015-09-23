@@ -105,6 +105,7 @@ struct hhmpc_socp_prb {
     struct hhmpc_term *C;
     struct hhmpc_term *P;
     struct hhmpc_term *Psoft;
+    struct hhmpc_term *Psoft_T;
     struct hhmpc_term *Fusoft;
     struct hhmpc_term *Fxsoft;
     struct hhmpc_term *Ffsoft;
@@ -121,6 +122,7 @@ struct hhmpc_socp_prb {
     struct hhmpc_term *hsoft;
     /* To calculate length of vectors such as g */
     uint32_t horizon; /* Prediction horizon. */
+    uint32_t state_veclen;
     uint32_t optvar_veclen;  /* The length of each vector in the optimation variable sequence. */
     uint32_t optvar_seqlen;  /* The full length of optimization variable sequence. */
     uint32_t sizeof_optvar_seqlen;  /* Number of bytes in the optimization variable sequence. */

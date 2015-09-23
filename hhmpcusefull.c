@@ -14,7 +14,7 @@ void zeroes(real_t mtx[], const uint32_t l)
 {
     uint32_t i;
     for (i = 0; i < l; i++)
-        mtx[i] = 0;
+        mtx[i] = 0.;
 }
 
 void print_mtx(const real_t mtx[], const uint32_t rows, const uint32_t cols)

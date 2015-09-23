@@ -27,6 +27,8 @@ int main(void) {
     real_t wtd[30];
     real_t ut[30];
     struct hhmpc_socp socp_tmp;
+//     struct hhmpc_ipm ipm_new;
+//     struct hhmpc_ipm *ipm;
     struct hhmpc_socp *socp, *socp_new;
     char *file = "test03data.json";
     /*struct mpcinc_cvp *cvp = mpcinc_cvp_allocate_former();*/
@@ -41,9 +43,10 @@ int main(void) {
 
 socp_new = &socp_tmp;
      form_socp(socp_new);
-
-socp = socp_new;
-// socp = socp_old;
+// form_ipm(&ipm_new, socp_new->prb);
+// ipm = &ipm_new;
+// socp = socp_new;
+socp = socp_old;
 
     
     if (hhmpc_ipm_setup_solver(ipm, socp->prb, file)) {
