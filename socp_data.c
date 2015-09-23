@@ -1,6 +1,6 @@
 #include "include/static_data.h"
 #include "include/hhmpcusefull.h"
-#include <stdio.h>
+// #include <stdio.h>
 
 // Data for pars in socp
 real_t xk_data[] = {0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
@@ -2289,6 +2289,10 @@ struct hhmpc_socc socc4_term = {&soccA_term, &soccb_term, &soccc_term,
 struct hhmpc_socc socc5_term = {&soccA_term, &soccb_term, &soccc_term,
                                 &soccd_term, 125, 30};
 
+void form_socp_H(struct hhmpc_socp *socp)
+{
+    socp->constant[HHMPC_H] = &H_term;
+}
 void form_socp(struct hhmpc_socp *socp)
 {
 

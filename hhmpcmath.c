@@ -78,7 +78,7 @@ uint32_t mtx_cmp(const real_t mtxA[], const real_t mtxB[], real_t dim, real_t ac
 
 real_t smpl_sqrt(real_t r, real_t e)
 {
-    if (r != r) printf("r < 0 :%f\n", r);
+    if (r != r) {; /*printf("r < 0 :%f\n", r);*/}
     if  (smpl_abs(r/e - e) < SQRT_ACC)
         return e;
     else
@@ -92,7 +92,7 @@ real_t nth_root(real_t A, uint32_t n){
 //     printf("n=%d\n",n);
     real_t x[] = {1., 0., 0.};
     for (k = 0; k < K - 1; k++){
-        printf("in sp3\n");
+//         printf("in sp3\n");
         x[k + 1] = (1./n) * ((n - 1)*x[k] + A/smpl_pow(&x[k], n - 1));
     }
 //     printf("f=%f\n",x[K-1]);

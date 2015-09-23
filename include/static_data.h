@@ -22,6 +22,8 @@
 
 extern void form_ipm(struct hhmpc_ipm *ipm, struct hhmpc_socp_prb *prb);
 
+extern void form_socp_H(struct hhmpc_socp *socp);
+
 extern void form_socp(struct hhmpc_socp *socp);
 
 
