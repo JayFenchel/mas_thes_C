@@ -121,7 +121,7 @@ socp = socp_new;
     ipm->v_ini[28] = 0.;
     ipm->v_ini[29] = 0.;
     */
-    ipm->conf->in_iter = 12;
+    ipm->conf->in_iter = 25;
     ipm->conf->reg = .01;
     ipm->conf->warm_start = 1;
     begin = clock();
@@ -170,7 +170,7 @@ socp = socp_new;
     wtd[1] = socp->prb->x_k->data[6];
     for (uint32_t i = 2; i< HHMPC_SIMPOINTS; i++){
   
-    ipm->conf->in_iter = 8;
+    ipm->conf->in_iter = 25;
     hhmpc_socp_form_problem(socp);
     hhmpc_ipm_solve_problem(ipm);
     ut[i-1] = ipm->z_opt[0];

@@ -3,9 +3,9 @@
 
 uint32_t in_iter = 1;
 uint32_t warm_start = 1;
-real_t reg = 0.001;
+real_t reg = 0.01;
 // struct hhmpc_ipm_conf conf = {in_iter, warm_start, reg};
-struct hhmpc_ipm_conf conf = {1, 1, 0.001};
+struct hhmpc_ipm_conf conf = {1, 1, 0.01};
 struct hhmpc_ipm_P_hat P;
 real_t kappa = 90.;
 real_t roh = 10.;
