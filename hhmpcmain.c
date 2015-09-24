@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <time.h>
+#include <stdlib.h>
 // #include <sys/time.h>
 // #include <unistd.h>
 
@@ -21,20 +22,21 @@
 static void cmp_socp(struct hhmpc_socp *socp1, struct hhmpc_socp *socp2);
 
 int main(void) {
-    real_t time;
+    time_t t;
+    real_t zeit;
     clock_t begin, end;
-    real_t htd[30];
-    real_t wtd[30];
-    real_t ut[30];
+    real_t htd[HHMPC_SIMPOINTS];
+    real_t wtd[HHMPC_SIMPOINTS];
+    real_t ut[HHMPC_SIMPOINTS];
     struct hhmpc_socp socp_tmp;
-//     struct hhmpc_ipm ipm_new;
-//     struct hhmpc_ipm *ipm;
+    struct hhmpc_ipm ipm_new;
+    struct hhmpc_ipm *ipm;
     struct hhmpc_socp *socp, *socp_new;
     char *file = "test03data.json";
     /*struct mpcinc_cvp *cvp = mpcinc_cvp_allocate_former();*/
     struct hhmpc_socp *socp_old = hhmpc_socp_allocate_former();
     /*struct mpcinc_fgm *fgm = mpcinc_fgm_allocate_solver();*/
-    struct hhmpc_ipm *ipm = hhmpc_ipm_allocate_solver();
+//     struct hhmpc_ipm *ipm = hhmpc_ipm_allocate_solver();
     
     if (hhmpc_socp_setup_former(socp_old, file)) {
         return 0;
@@ -43,15 +45,15 @@ int main(void) {
 
 socp_new = &socp_tmp;
      form_socp(socp_new);
-// form_ipm(&ipm_new, socp_new->prb);
-// ipm = &ipm_new;
-// socp = socp_new;
-socp = socp_old;
+form_ipm(&ipm_new, socp_new->prb);
+ipm = &ipm_new;
+socp = socp_new;
+// socp = socp_old;
 
     
-    if (hhmpc_ipm_setup_solver(ipm, socp->prb, file)) {
-        return 0;
-    }
+//     if (hhmpc_ipm_setup_solver(ipm, socp->prb, file)) {
+//         return 0;
+//     }
 /*    
     ipm->z_ini[0] = 0.9;
     ipm->z_ini[1] = 0.7;
@@ -120,7 +122,7 @@ socp = socp_old;
     ipm->v_ini[29] = 0.;
     */
     ipm->conf->in_iter = 12;
-    ipm->conf->reg = .001;
+    ipm->conf->reg = .01;
     ipm->conf->warm_start = 1;
     begin = clock();
     hhmpc_socp_form_problem(socp);
@@ -130,9 +132,9 @@ socp = socp_old;
 //     printf("begin:                         %d\n", begin);
 //     printf("end:                           %d\n", end);
 //     printf("clocks für form_problem: %d\n", end - begin);
-    time=end - begin;
-    time/=CLOCKS_PER_SEC;
-    printf("Zeit für form_problem:   %f Sekunden\n", time);
+    zeit=end - begin;
+    zeit/=CLOCKS_PER_SEC;
+    printf("Zeit für form_problem:   %f Sekunden\n", zeit);
 //     printf("CLOCKS_PER_SEC:                %d\n", CLOCKS_PER_SEC);
     begin = clock();
     hhmpc_ipm_solve_problem(ipm);
@@ -140,9 +142,9 @@ socp = socp_old;
 //     printf("begin:                         %d\n", begin);
 //     printf("end:                           %d\n", end);
 //     printf("clocks für solve_problem: %d\n", end - begin);
-    time=end - begin;
-    time/=CLOCKS_PER_SEC;
-    printf("Zeit für solve_problem:   %f Sekunden\n", time);
+    zeit=end - begin;
+    zeit/=CLOCKS_PER_SEC;
+    printf("Zeit für solve_problem:   %f Sekunden\n", zeit);
 //     printf("CLOCKS_PER_SEC:                %d\n", CLOCKS_PER_SEC);
 //     print_mtx(ipm->z_ini, ipm->optvar_seqlen,1);
     printf("u_opt1 = %f\n", ipm->z_opt[0]);
@@ -160,35 +162,61 @@ socp = socp_old;
 //     printf("u_opt3 = %f\n", ipm->z_opt[62]);
 //     printf("u_opt4 = %f\n", ipm->z_opt[93]);
 //     printf("u_opt5 = %f\n", ipm->z_opt[124]);
-// //     htd[0] = socp->prb->x_k->data[18];
-// //     wtd[0] = socp->prb->x_k->data[6];
-// //     ut[0] = ipm->z_opt[0];
-// //     sim_next_xk(socp);
-// //     htd[1] = socp->prb->x_k->data[18];
-// //     wtd[1] = socp->prb->x_k->data[6];
-// //     for (uint32_t i = 2; i< 30; i++){
-// //   
-// //     ipm->conf->in_iter = 8;
-// //     hhmpc_socp_form_problem(socp);
-// //     hhmpc_ipm_solve_problem(ipm);
-// //     ut[i-1] = ipm->z_opt[0];
-// // //     printf("u_opt1 = %f\n", ipm->z_opt[0]);
-// // //     printf("u_opt2 = %f\n", ipm->z_opt[31]);
-// // //     printf("u_opt3 = %f\n", ipm->z_opt[62]);
-// // //     printf("u_opt4 = %f\n", ipm->z_opt[93]);
-// // //     printf("u_opt5 = %f\n", ipm->z_opt[124]);
-// //     sim_next_xk(socp);
-// //     htd[i] = socp->prb->x_k->data[18];
-// //     wtd[i] = socp->prb->x_k->data[6];
-// //     }
-// //     print_mtx(htd, 30, 1);
-// //     print_mtx(wtd, 30, 1);
-// //     printf("%f\n", htd[0]);
-// //     hhmpc_socp_form_problem(socp);
+    htd[0] = socp->prb->x_k->data[18];
+    wtd[0] = socp->prb->x_k->data[6];
+    ut[0] = ipm->z_opt[0];
+    sim_next_xk(socp);
+    htd[1] = socp->prb->x_k->data[18];
+    wtd[1] = socp->prb->x_k->data[6];
+    for (uint32_t i = 2; i< HHMPC_SIMPOINTS; i++){
+  
+    ipm->conf->in_iter = 8;
+    hhmpc_socp_form_problem(socp);
+    hhmpc_ipm_solve_problem(ipm);
+    ut[i-1] = ipm->z_opt[0];
+//     printf("u_opt1 = %f\n", ipm->z_opt[0]);
+//     printf("u_opt2 = %f\n", ipm->z_opt[31]);
+//     printf("u_opt3 = %f\n", ipm->z_opt[62]);
+//     printf("u_opt4 = %f\n", ipm->z_opt[93]);
+//     printf("u_opt5 = %f\n", ipm->z_opt[124]);
+    sim_next_xk(socp);
+    htd[i] = socp->prb->x_k->data[18];
+    wtd[i] = socp->prb->x_k->data[6];
+    }
+    print_mtx(htd, HHMPC_SIMPOINTS, 1);
+    print_mtx(wtd, HHMPC_SIMPOINTS, 1);
+    printf("%f\n", htd[0]);
+    hhmpc_socp_form_problem(socp);
     printf("%f \n", socp->constant[HHMPC_R_KL]->data[0]);
 //     printf("%.15f \n", smpl_pow(E, 0.001));
 
 //     print_mtx(socp->pmetric[HHMPC_ZR]->val->data, 155, 1);
+    time(&t);
+    srand((unsigned int)t);
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
+    printf("%f\n", rand()/(2147483647.));
     printf("ENDE\n");
     return 0;
 }

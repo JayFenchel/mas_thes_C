@@ -32,7 +32,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     real_t f;
     
     /*Check if initial value is valid*/
-    hhmpc_ipm_check_valid(ipm, ipm->z_ini);
+    printf("%d\n", hhmpc_ipm_check_valid(ipm, ipm->z_ini));
     
     /*Take initial value*/
     memcpy(ipm->z_opt, ipm->z_ini, ipm->sizeof_optvar_seqlen);
@@ -50,6 +50,8 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     for (j = 0; j < *(ipm->j_in); j++) {
         update(ipm->P_of_z, ipm->optvar_seqlen,
                t_solve_optvar_seqlen, t_optvar_seqlen);
+        /*Check if initial value is valid*/
+        printf("%d\n", hhmpc_ipm_check_valid(ipm, ipm->z_opt));
         form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
                ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
         form_dsoft(ipm->dsoft, ipm->diag_d_soft, ipm->r_d_soft, ipm->Phi_soft,
@@ -152,12 +154,25 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
     mpcinc_mtx_scale(help1, ipm->h, -1, ipm->nb_of_ueq_constr, 1);
     mpcinc_mtx_mul_add(help1, help2, ipm->P, z_check,
                        ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
+//     print_mtx(help1, ipm->nb_of_ueq_constr, 1);
 //     printf("check:\n");
-    for (i = 0; i < ipm->nb_of_ueq_constr; i++){
-        /*printf("%f\n", help1[i]);*/
-        if (help1[i] >= 0) {return 1;}
+#ifdef HHMPC_QPTEST
+    for (i = 0; i < 2; i++){
+//         printf("%f\n", help1[i]);
+        if (help1[i] > 0) {return i;}
     }
-    return 0;
+    for (i = 3; i < ipm->nb_of_ueq_constr; i++){
+//         printf("%f\n", help1[i]);
+        if (help1[i] > 0) {return i;}
+    }
+#endif
+#ifdef HHMPC_SOCPTEST
+    for (i = 0; i < ipm->nb_of_ueq_constr; i++){
+//         printf("%f\n", help1[i]);
+        if (help1[i] > 0) {return i;}
+    }
+#endif
+    return -1;
 }
 
 void iterative_refinement(const struct hhmpc_ipm *ipm)
@@ -365,7 +380,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
     residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
                   ipm->optvar_seqlen, ipm->dual_seqlen);
-    while (hhmpc_ipm_check_valid(ipm, ipm->z_opt) || (f_p_g > (f_p + alpha**st_size*g_in_dir)) )
+    while ((hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1) || (f_p_g > (f_p + alpha**st_size*g_in_dir)) )
     {
         *st_size *= beta;
         

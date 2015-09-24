@@ -1,5 +1,7 @@
 #include "include/hhmpcsocp.h"
 #include "include/mpcincmtxops.h"
+#include <time.h>
+#include <stdlib.h>
 
 
 static void hhmpc_copy_data(struct hhmpc_term *dest, struct hhmpc_term *src);
@@ -24,6 +26,12 @@ void hhmpc_socp_form_problem(struct hhmpc_socp *socp)
 void sim_next_xk(const struct hhmpc_socp *socp)
 {   
     struct hhmpc_term *tmp = socp->prb->tmp_state_veclen;
+    real_t theta2;
+    time_t t;
+    time(&t);
+    srand((unsigned int)t);
+    theta2 = .5 + rand()/(2147483647.);
+    
     hhmpc_copy_data(tmp, socp->prb->x_k);
     mpcinc_mtx_multiply_mtx_vec(socp->prb->x_k->data,
                                 socp->prb->A->data, tmp->data,
@@ -31,6 +39,7 @@ void sim_next_xk(const struct hhmpc_socp *socp)
     mpcinc_mtx_multiply_mtx_vec(tmp->data,
                                 socp->prb->B->data, socp->prb->u_k->data,
                                 socp->prb->B->rows, socp->prb->B->cols);
+    mpcinc_mtx_scale_direct(tmp->data, theta2, socp->prb->B->rows, 1);
     mpcinc_mtx_add_direct(socp->prb->x_k->data, tmp->data, socp->prb->x_k->rows, 1);
 }
 
