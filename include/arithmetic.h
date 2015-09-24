@@ -5,7 +5,7 @@
 
 #ifndef __real_t_defined
 #define __real_t_defined
-typedef float32_t real_t;
+typedef float64_t real_t;
 #endif
 
 #endif
