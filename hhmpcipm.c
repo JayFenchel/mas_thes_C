@@ -175,6 +175,16 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
         if (help1[i] > 0) {return i;}
     }
 #endif
+#ifdef HHMPC_QPSMALLTEST
+    for (i = 0; i < 2; i++){
+//         printf("%f\n", help1[i]);
+        if (help1[i] > 0) {return i;}
+    }
+    for (i = 3; i < ipm->nb_of_ueq_constr; i++){
+//         printf("%f\n", help1[i]);
+        if (help1[i] > 0) {return i;}
+    }
+#endif
 #ifdef HHMPC_SOCPTEST
     for (i = 0; i < ipm->nb_of_ueq_constr; i++){
 //         printf("%f\n", help1[i]);
@@ -993,6 +1003,10 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     mpcinc_mtx_multiply_mtx_vec(kappa, ipm->g, z, 1, ipm->optvar_seqlen);
     kappa[0] += tmp2[0];
     kappa[0] *= 0.01/ipm->optvar_veclen;  /* TODO auf optvar_seqlen umstellen*/
+#ifdef HHMPC_QPSMALLTEST
+    kappa[0] /= 6;
+#endif
     kappa[0] += 15;
+
 }
 

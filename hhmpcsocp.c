@@ -1,10 +1,15 @@
 #include "include/hhmpcsocp.h"
 #include "include/mpcincmtxops.h"
+#include "include/mpcinccvp.h"
 #include <time.h>
 #include <stdlib.h>
 
 
 static void hhmpc_copy_data(struct hhmpc_term *dest, struct hhmpc_term *src);
+
+void hhmpc_get_socp_of_cvp(struct hhmpc_socp *socp, struct mpcinc_cvp *cvp){
+    
+}
 
 void hhmpc_socp_form_problem(struct hhmpc_socp *socp)
 {
