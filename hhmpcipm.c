@@ -173,6 +173,16 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
         if (help1[i] >= 0.001) {return i;}
     }
 #endif
+#ifdef HHMPC_SOCPHARDTEST
+    for (i = 0; i < 2; i++){
+//         printf("%f\n", help1[i]);
+        if (help1[i] > 0) {return i;}
+    }
+    for (i = 3; i < ipm->nb_of_ueq_constr; i++){
+//         printf("%f\n", help1[i]);
+        if (help1[i] > 0) {return i;}
+    }
+#endif
     return -1;
 }
 

@@ -9,6 +9,9 @@
 #ifdef HHMPC_SOCPTEST
 #include "hhmpc_socpdata01.h"
 #endif
+#ifdef HHMPC_SOCPHARDTEST
+#include "hhmpc_socpharddata01.h"
+#endif
 #ifdef HHMPC_SOCPSOFTTEST
 #include "hhmpc_socpwithsoftdata01.h"
 #endif

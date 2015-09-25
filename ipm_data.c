@@ -8,7 +8,7 @@ real_t reg = 0.01;
 struct hhmpc_ipm_conf conf = {1, 1, 0.01};
 struct hhmpc_ipm_P_hat P;
 real_t kappa = 90.;
-real_t roh = 10.;
+real_t roh = .1;
 
 real_t z_opt[HHMPC_OS];
 real_t delta_z[HHMPC_OS];
