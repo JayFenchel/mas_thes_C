@@ -2,8 +2,8 @@
 #define STATIC_DATA_H
 
 /* Define desired example here. */
-#define HHMPC_QPTEST
-// #define HHMPC_SOCPTEST
+// #define HHMPC_QPTEST
+#define HHMPC_SOCPTEST
 // #define HHMPC_SOCPHARDTEST
 // #define HHMPC_SOCPSOFTTEST
 

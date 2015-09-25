@@ -1722,7 +1722,7 @@ real_t soccA_data[] = {0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.00000
                        0.000000, 0.000000, 0.333333333333333, 0.000000, 0.000000, 0.000000,
                        0.000000, 0.000000, 0.000000, 0.200000000000000, 0.000000, 0.000000,
                        0.000000, 0.000000, 0.000000, 0.000000, 0.111111111111111, 0.000000,
-                       0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.200000000000000 };
+                       0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.200000000000000};
 struct hhmpc_term soccA_term = {6, 6, soccA_data};
 real_t soccb_data[] = {0.000000,
 0.000000,
@@ -1731,14 +1731,14 @@ real_t soccb_data[] = {0.000000,
 0.000000,
 0.000000};
 struct hhmpc_term soccb_term = {6, 1, soccb_data};
-real_t soccc_data[] = {-1.000000*4.3589,
+real_t soccc_data[] = {-1.00000/4.,
 0.000000,
 0.000000,
 0.000000,
 0.000000,
 0.000000};
 struct hhmpc_term soccc_term = {6, 1, soccc_data};
-real_t soccd_data[] = {0.349000*4.3589};
+real_t soccd_data[] = {0.349000/4.};
 struct hhmpc_term soccd_term = {1, 1, soccd_data};
 struct hhmpc_socc socc1_term = {&soccA_term, &soccb_term, &soccc_term,
                                 &soccd_term, 7, 6};
