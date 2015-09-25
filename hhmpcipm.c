@@ -5,6 +5,7 @@
 #include "include/mpcincmtxops.h"
 #include <hhmpcusefull.h>
 #include "hhmpcsolve.h"
+#include "static_data.h"
 /* static functions declaration */
 
 
@@ -169,7 +170,7 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
 #ifdef HHMPC_SOCPTEST
     for (i = 0; i < ipm->nb_of_ueq_constr; i++){
 //         printf("%f\n", help1[i]);
-        if (help1[i] >= 0) {return i;}
+        if (help1[i] >= 0.001) {return i;}
     }
 #endif
     return -1;
