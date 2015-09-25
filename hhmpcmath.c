@@ -11,11 +11,12 @@ void cholesky(real_t sol[],
     }
     
     for (i = 0; i < dim; i++){
+        sol[i*dim+i]+=0.0001;
         for (j = 0; j < i; j++){
             sol[i*dim+i] -= sol[i*dim+j]*sol[i*dim+j];
         }
 //         printf("HIER sqrt\n");
-        
+        if (sol[i*dim+i]<0) printf("WARNUNG! %f\n",sol[i*dim+i] ); 
         sol[i*dim+i] = sqrtf(smpl_abs(sol[i*dim+i]));
 //         sol[i*dim+i] = smpl_sqrt(smpl_abs(sol[i*dim+i]), 2.);
         

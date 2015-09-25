@@ -107,7 +107,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         /*
         print_mtx(ipm->z_opt, ipm->optvar_seqlen, 1);
         print_mtx(ipm->v_opt, ipm->dual_seqlen, 1);*/
-        if (f <= 1e-6){
+        if (f <= 1e-4){
             printf("break, res_norm = %f\n", f);
             break;
         }
@@ -351,7 +351,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
 {
     const real_t g_step = 1e-6;
     const real_t alpha = 0.15;  /* [0.4] Measure for reduction of function value  */
-    const real_t beta = 0.4;  /* [0.6] Factor to decrease step ervery iteration */
+    const real_t beta = 0.5;  /* [0.6] Factor to decrease step ervery iteration */
     real_t *help_z = ipm->tmp6_optvar_seqlen;
     real_t *help_v = ipm->tmp7_dual_seqlen;
     real_t *t_solve_optvar_seqlen = ipm->tmp1_optvar_seqlen;
@@ -390,6 +390,8 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
                   ipm->optvar_seqlen, ipm->dual_seqlen);
     g_in_dir = (f_p_g - f_p)/g_step;
+//     printf("Grad in dir = %.8f\n", g_in_dir);
+//     g_in_dir = g_in_dir <= 0 ? g_in_dir : 0.;
 //     printf("Grad in dir = %.8f\n", g_in_dir);
     
     mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st_size[0],
@@ -1006,7 +1008,7 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
 #ifdef HHMPC_QPSMALLTEST
     kappa[0] /= 6;
 #endif
-    kappa[0] += 15;
+    kappa[0] += 0;
 
 }
 
