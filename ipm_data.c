@@ -89,7 +89,6 @@ void form_ipm(struct hhmpc_ipm *ipm, struct hhmpc_socp_prb *prb){
     
     uint32_t i;
     real_t *tmp;
-    
     ipm->conf = &conf;
     ipm->P_of_z = &P;
     ipm->kappa = &kappa;
@@ -124,7 +123,6 @@ void form_ipm(struct hhmpc_ipm *ipm, struct hhmpc_socp_prb *prb){
     ipm->delta_z = delta_z;
     ipm->v_opt = v_opt;
     ipm->delta_v = delta_v;
-    
     /* u_k points on first entries in z_opt*/
     prb->u_k->data = ipm->z_opt;
     prb->u_k->rows = ipm->control_veclen;
@@ -165,6 +163,7 @@ void form_ipm(struct hhmpc_ipm *ipm, struct hhmpc_socp_prb *prb){
         ipm->P_of_z->socc[i]->A = prb->socc[i]->A->data;
         ipm->P_of_z->socc[i]->b = prb->socc[i]->b->data;
         ipm->P_of_z->socc[i]->c = prb->socc[i]->c->data;
+
         ipm->P_of_z->socc[i]->d = prb->socc[i]->d->data;
         ipm->P_of_z->socc[i]->par = ipm->z_opt+prb->socc[i]->par_0;
         ipm->P_of_z->socc[i]->par_0 = prb->socc[i]->par_0;

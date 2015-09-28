@@ -41,7 +41,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     
     /* Calculate Kappa for every time_step */
     calc_kappa(ipm->kappa, ipm, ipm->z_opt);
-    printf("calculated kappa = %.20f\n", ipm->kappa[0]);
+//     printf("calculated kappa = %.20f\n", ipm->kappa[0]);
     
     /* Update h for new xk */
     memcpy(ipm->P_of_z->h_hat, ipm->P_of_z->h, sizeof(real_t) * ipm->P_of_z->nb_lin_constr);
@@ -55,6 +55,8 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 //         printf("%d\n", hhmpc_ipm_check_valid(ipm, ipm->z_opt));
         form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
                ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
+//         print_mtx(ipm->d, ipm->nb_of_ueq_constr, 1);
+
         form_dsoft(ipm->dsoft, ipm->diag_d_soft, ipm->r_d_soft, ipm->Phi_soft,
                    ipm->tmp3_mtx_optvar_nb_of_soft,
                    ipm->roh, ipm->z_opt, 
@@ -71,7 +73,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
 //         print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
 //         printf("res_norm = %f\n", f);
-        
+//         print_mtx(ipm->Phi, ipm->optvar_seqlen, ipm->optvar_seqlen);
         /* Solve system of linear equations to obtain the step direction */
         solve_sysofleq(ipm->delta_z, ipm->delta_v, ipm, ipm->Phi, ipm->r_d, ipm->r_p,
                        ipm->C, ipm->C_T, ipm->A, ipm->A_T, ipm->B, ipm->B_T,
@@ -81,6 +83,31 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
                        t_solve_optvar_seqlen,
                        t_solve_dual_seqlen,
                        t_L_Y, t_L_Y_T);
+
+#if 0
+        real_t chol_PHI[5*5];
+        real_t chol_PHI_T[5*5];
+        real_t tmp_solve[5]; 
+        real_t solu[5];
+        real_t m_rd[5];
+        int i;
+        for (i=0; i<5; i++)
+            m_rd[i] = -1*ipm->r_d[i];
+        print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
+//         solveBlock(ipm->delta_z, chol_PHI, chol_PHI_T,
+//                 ipm->Phi, 5, m_rd, 5,
+//                 tmp_solve);
+//         print_mtx(ipm->delta_z, 5 ,1);
+        print_mtx(ipm->Phi, 5, 5);
+        cholesky(chol_PHI, ipm->Phi, 5);
+        print_mtx(chol_PHI, 5, 5);
+        mpcinc_mtx_transpose(chol_PHI_T, chol_PHI, 5, 5);
+        fwd_subst(tmp_solve, chol_PHI, 5, m_rd, 5);
+        print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
+        print_mtx(solu, 5, 1);
+        bwd_subst(ipm->delta_z, chol_PHI_T, 5, tmp_solve, 5);
+        print_mtx(solu, 5 ,1);
+#endif
 //         print_mtx(ipm->delta_z, ipm->optvar_seqlen, 1);
         iterative_refinement(ipm);
         iterative_refinement(ipm);
@@ -129,7 +156,6 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
     printf("res_norm = %.11f\n", f);
     /* Update x_k (und andere Parameter) */
-    
     if (ipm->conf->warm_start) {
         hhmpc_ipm_warm_start(ipm);
     }
@@ -183,6 +209,12 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
     for (i = 3; i < ipm->nb_of_ueq_constr; i++){
 //         printf("%f\n", help1[i]);
         if (help1[i] > 0) {return i;}
+    }
+#endif
+#ifdef HHMPC_SOCPCONDTEST
+    for (i = 0; i < ipm->nb_of_ueq_constr; i++){
+//         printf("%f\n", help1[i]);
+        if (help1[i] >= 0.) {return i;}
     }
 #endif
 #ifdef HHMPC_SOCPTEST
@@ -285,9 +317,11 @@ void update(struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
                                     socc_i->rowsA, socc_i->colsA);
         mpcinc_mtx_add_direct(tmp1, socc_i->b, 1, socc_i->rowsA);
         mpcinc_mtx_add_direct(tmp1, socc_i->b, 1, socc_i->rowsA);
+
         mpcinc_mtx_multiply_mtx_mtx(P->P_hat+socc_i->par_0,
                                     tmp1, socc_i->A,
                                     1, socc_i->rowsA, socc_i->colsA);
+//         print_mtx(P->P_hat+socc_i->par_0, 1, socc_i->colsA);
         mpcinc_mtx_multiply_mtx_vec(tmp1, socc_i->c, socc_i->par,
                                     1, socc_i->colsA);
         tmp1[0] += 2*socc_i->d[0];
@@ -301,6 +335,8 @@ void update(struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
     mpcinc_mtx_transpose(P->P_hat_T, P->P_hat,
                          P->nb_lin_constr + P->nb_qc + P->nb_socc,
                          optvar_seqlen);
+    
+//         print_mtx(P->P_hat, P->nb_lin_constr+P->nb_socc, optvar_seqlen);
     
 /**************************/
     memcpy(P->P2_hat, P->P, sizeof(real_t) * P->nb_lin_constr*optvar_seqlen);
@@ -1007,6 +1043,9 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     kappa[0] *= 0.01/ipm->optvar_veclen;  /* TODO auf optvar_seqlen umstellen*/
 #ifdef HHMPC_QPSMALLTEST
     kappa[0] /= 6;
+#endif
+#ifdef HHMPC_SOCPCONDTEST
+    kappa[0] = 90.;
 #endif
     kappa[0] += 0;
 

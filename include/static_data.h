@@ -2,6 +2,7 @@
 #define STATIC_DATA_H
 
 /* Define desired example here. */
+// #define HHMPC_SOCPCONDTEST
 // #define HHMPC_QPTEST
 // #define HHMPC_QPSMALLTEST
 #define HHMPC_SOCPTEST
@@ -9,11 +10,28 @@
 // #define HHMPC_SOCPSOFTTEST
 
 #include "hhmpcsocp.h"
+#include "mpccvp.h"
 #include "hhmpcipm.h"
 #include "mpcincmtxops.h"
 #include "hhmpcusefull.h"
 
 #define HHMPC_SIMPOINTS 60
+
+#ifdef HHMPC_SOCPCONDTEST
+
+#define HHMPC_HORIZON 5
+#define HHMPC_SV 0
+#define HHMPC_CV 1
+#define HHMPC_OV 1
+#define HHMPC_OS 5
+#define HHMPC_DS 0
+#define HHMPC_NB_LCONSTR 10
+#define HHMPC_NB_QC 0
+#define HHMPC_NB_SOCC 5
+#define HHMPC_NB_IEQ (HHMPC_NB_LCONSTR+HHMPC_NB_QC+HHMPC_NB_SOCC)
+#define HHMPC_NB_SOFT 0
+
+#endif
 
 #ifdef HHMPC_QPTEST
 
@@ -98,6 +116,8 @@
 extern void form_ipm(struct hhmpc_ipm *ipm, struct hhmpc_socp_prb *prb);
 
 extern void form_socp_H(struct hhmpc_socp *socp);
+
+extern void form_socp_with_cvp(struct hhmpc_socp *socp, struct mpc_cvp_prb *cvp_prb);
 
 extern void form_socp(struct hhmpc_socp *socp);
 
