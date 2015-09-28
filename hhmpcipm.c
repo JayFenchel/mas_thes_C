@@ -84,35 +84,13 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
                        t_solve_dual_seqlen,
                        t_L_Y, t_L_Y_T);
 
-#if 0
-        real_t chol_PHI[5*5];
-        real_t chol_PHI_T[5*5];
-        real_t tmp_solve[5]; 
-        real_t solu[5];
-        real_t m_rd[5];
-        int i;
-        for (i=0; i<5; i++)
-            m_rd[i] = -1*ipm->r_d[i];
-        print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
-//         solveBlock(ipm->delta_z, chol_PHI, chol_PHI_T,
-//                 ipm->Phi, 5, m_rd, 5,
-//                 tmp_solve);
-//         print_mtx(ipm->delta_z, 5 ,1);
-        print_mtx(ipm->Phi, 5, 5);
-        cholesky(chol_PHI, ipm->Phi, 5);
-        print_mtx(chol_PHI, 5, 5);
-        mpcinc_mtx_transpose(chol_PHI_T, chol_PHI, 5, 5);
-        fwd_subst(tmp_solve, chol_PHI, 5, m_rd, 5);
-        print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
-        print_mtx(solu, 5, 1);
-        bwd_subst(ipm->delta_z, chol_PHI_T, 5, tmp_solve, 5);
-        print_mtx(solu, 5 ,1);
-#endif
 //         print_mtx(ipm->delta_z, ipm->optvar_seqlen, 1);
+#ifndef HHMPC_SOCPCONDTEST
         iterative_refinement(ipm);
         iterative_refinement(ipm);
         iterative_refinement(ipm);
         iterative_refinement(ipm);
+#endif
 //         real_t tom1[ipm->optvar_seqlen*ipm->optvar_seqlen];
 //         real_t tom2[ipm->optvar_seqlen];
 //         cholesky(tom1, ipm->Phi, ipm->optvar_seqlen);
@@ -392,8 +370,8 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     real_t *help_v = ipm->tmp7_dual_seqlen;
     real_t *t_solve_optvar_seqlen = ipm->tmp1_optvar_seqlen;
     real_t *t_optvar_seqlen = ipm->tmp2_optvar_seqlen;
-    
-    *st_size = 1.;
+    real_t st = 1.;
+    st_size[0] = st;
     
     real_t f_p;
     real_t f_p_g;
@@ -453,15 +431,15 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
     residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
                   ipm->optvar_seqlen, ipm->dual_seqlen);
-    while ((hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1) || (f_p_g > (f_p + alpha**st_size*g_in_dir)) )
+    while ((hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1) || (f_p_g > (f_p + alpha*st*g_in_dir)) )
     {
-        *st_size *= beta;
+        st *= beta;
         
-        mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st_size[0],
+        mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st,
                          ipm->optvar_seqlen, 1);
         mpcinc_mtx_add_direct(ipm->z_opt, help_z,
                               ipm->optvar_seqlen, 1);
-        mpcinc_mtx_scale(ipm->v_opt, ipm->delta_v, st_size[0],
+        mpcinc_mtx_scale(ipm->v_opt, ipm->delta_v, st,
                          ipm->dual_seqlen, 1);
         mpcinc_mtx_add_direct(ipm->v_opt, help_v,
                               ipm->dual_seqlen, 1);
@@ -485,6 +463,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     /*Load back maintain value*/
     memcpy(ipm->z_opt, help_z, ipm->sizeof_optvar_seqlen);
     memcpy(ipm->v_opt, help_v, ipm->sizeof_dual_seqlen);
+    st_size[0] = st;
 }
 
 void residual_norm(real_t *f, const real_t *r_d, const real_t *r_p,
@@ -1045,7 +1024,7 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     kappa[0] /= 6;
 #endif
 #ifdef HHMPC_SOCPCONDTEST
-    kappa[0] = 90.;
+    kappa[0] = 0.0017;
 #endif
     kappa[0] += 0;
 
