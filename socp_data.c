@@ -46,7 +46,7 @@ socp->constant[HHMPC_FUSOFT] = &Fusoft_term;
 socp->constant[HHMPC_FSOFT] = &fsoft_term;
 socp->constant[HHMPC_FFSOFT] = &Ffsoft_term;
 socp->constant[HHMPC_FFSOFT_KL] = &ffsoft_term;
-socp->constant[HHMPC_H] = &H_term;
+// socp->constant[HHMPC_H] = &H_term;
 // 
 socp->constant[HHMPC_C] = &C_term;
 // 
