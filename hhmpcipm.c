@@ -21,7 +21,7 @@ static void hhmpc_ipm_warm_start(const struct hhmpc_ipm *ipm);
 
 void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 {
-    uint32_t j;
+    uint32_t j, k, l;
     real_t *t_solve_optvar_seqlen = ipm->tmp1_optvar_seqlen;
     real_t *t_optvar_seqlen = ipm->tmp2_optvar_seqlen;
     real_t *t_solve_dual_seqlen = ipm->tmp2_dual_seqlen;
@@ -31,7 +31,18 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     real_t *eye_nm = ipm->eye_optvar_veclen;
     real_t *eye_n = ipm->eye_state_veclen;
     real_t f;
-    
+//     printf("g = ");
+//     print_mtx(ipm->g, 5, 1);
+//     printf("H = ");
+//     print_mtx(ipm->H, 5, 5);
+#ifdef HHMPC_SOCPCONDTEST
+    for (k = 0; k < 5; k++){
+        for (l = 0; l < 5; l++){
+            ipm->H[k*5+l] /= 2.;
+        }
+    }
+#endif
+//     printf(" inner step %d ", inner);
     /*Check if initial value is valid*/
 //     printf("%d\n", hhmpc_ipm_check_valid(ipm, ipm->z_ini));
     
@@ -48,10 +59,14 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     /*
     print_mtx(ipm->h, ipm->nb_of_ueq_constr, 1);*/
     /*Improve z for a fixed number of steps j_in*/
-    for (j = 0; j < *(ipm->j_in); j++) {
+    for (j = 0; j < *(ipm->j_in); j++) {  /*  TODO here error, compiling for MC */
         update(ipm->P_of_z, ipm->optvar_seqlen,
                t_solve_optvar_seqlen, t_optvar_seqlen);
         /*Check if initial value is valid*/
+        if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
+            printf("return");
+            return;
+        }
 //         printf("%d\n", hhmpc_ipm_check_valid(ipm, ipm->z_opt));
         form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
                ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
@@ -109,14 +124,18 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
                                 ipm->dual_seqlen, 1);
         mpcinc_mtx_add_direct(ipm->v_opt, ipm->delta_v,
                               ipm->dual_seqlen, 1);
+        if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
+            printf("return");
+            return;
+        }
         /*
         print_mtx(ipm->z_opt, ipm->optvar_seqlen, 1);
         print_mtx(ipm->v_opt, ipm->dual_seqlen, 1);*/
-        if (f <= 1e-4){
+        if (f <= 1e-12){
             printf("break, res_norm = %f\n", f);
             break;
         }
-            
+//         ipm->kappa[0] *= 0.1;
     }
 //     ipm->kappa[0] = 95.;
     update(ipm->P_of_z, ipm->optvar_seqlen,
@@ -190,6 +209,21 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
     }
 #endif
 #ifdef HHMPC_SOCPCONDTEST
+    real_t help01[5];
+    real_t help02[5];
+    for (i = 0; i < 5; i++){
+//         printf("%d\n", i); 
+        mpcinc_mtx_multiply_mtx_vec(help01, ipm->P_of_z->socc[i]->A, ipm->z_opt, 5, 5);
+        mpcinc_mtx_add_direct(help01, ipm->P_of_z->socc[i]->b, 5, 1);
+        mpcinc_mtx_multiply_mtx_vec(help02, help01, help01, 1, 5);
+//         printf("Au+b = %f", help02[0]);
+//         print_mtx(help01, 5, 1);
+        mpcinc_mtx_multiply_mtx_vec(help01, ipm->P_of_z->socc[i]->c, ipm->z_opt, 1, 5);
+        mpcinc_mtx_add_direct(help01, ipm->P_of_z->socc[i]->d, 5, 1);
+//         printf("cu+d = %f \n", help01[0]);
+        if (help01[0] < help02[0]) {return i;}
+//         print_mtx(help01, 5, 1);
+    }
     for (i = 0; i < ipm->nb_of_ueq_constr; i++){
 //         printf("%f\n", help1[i]);
         if (help1[i] >= 0.) {return i;}
@@ -416,10 +450,10 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
                      ipm->dual_seqlen, 1);
     mpcinc_mtx_add_direct(ipm->v_opt, help_v,
                           ipm->dual_seqlen, 1);
-    hhmpc_ipm_check_valid(ipm, ipm->z_opt);
     /* update P matrices */
     update(ipm->P_of_z, ipm->optvar_seqlen,
                t_solve_optvar_seqlen, t_optvar_seqlen);
+    hhmpc_ipm_check_valid(ipm, ipm->z_opt);
     form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
     form_dsoft(ipm->dsoft, ipm->diag_d_soft, ipm->r_d_soft, ipm->Phi_soft,
                    ipm->tmp3_mtx_optvar_nb_of_soft,
@@ -1024,7 +1058,7 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     kappa[0] /= 6;
 #endif
 #ifdef HHMPC_SOCPCONDTEST
-    kappa[0] = 0.0017;
+    kappa[0] = 0.0008;
 #endif
     kappa[0] += 0;
 
