@@ -148,7 +148,6 @@ socp->prb->socc[0]->d->data = cvp_prb->ws0->data;
 printf("%f\n", cvp_prb->ws0->data[0]);
 
 printf("%f\n", socp->prb->socc[0]->d->data[0]);
-HIER
 socp->prb->socc[1] = &socc2_term; 
 socp->prb->socc[1]->A->data = cvp_prb->Wm1->data;
 socp->prb->socc[1]->b->data= cvp_prb->wn1->data;
@@ -171,6 +170,7 @@ socp->prb->socc[4]->c->data = cvp_prb->wvT4->data;
 socp->prb->socc[4]->d->data = cvp_prb->ws4->data;
 
 socp->prb->u_k = &u_k_term;
+socp->prb->x_k = &xk_real_term;
 
 socp->prb->nb_qc = nb_qc;
 socp->prb->nb_socc = nb_socc;

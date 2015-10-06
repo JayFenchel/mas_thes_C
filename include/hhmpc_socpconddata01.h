@@ -7,6 +7,8 @@
 // Data for pars in socp
 real_t xk_data[HHMPC_SV];
 struct hhmpc_term xk_term = {HHMPC_SV, 1, xk_data};
+real_t xk_real_data[30];
+struct hhmpc_term xk_real_term = {30, 1, xk_real_data};
 real_t xr_data[HHMPC_SV];
 struct hhmpc_term xr_term = {HHMPC_SV, 1, xr_data};
 real_t zr_data[] = {0.000000,
