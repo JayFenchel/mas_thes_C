@@ -31,15 +31,18 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     real_t *eye_nm = ipm->eye_optvar_veclen;
     real_t *eye_n = ipm->eye_state_veclen;
     real_t f;
-//     printf("g = ");
-//     print_mtx(ipm->g, 5, 1);
-//     printf("H = ");
-//     print_mtx(ipm->H, 5, 5);
+    printf("g = ");
+    print_mtx(ipm->g, 5, 1);
+    printf("H = ");
+    print_mtx(ipm->H, 5, 5);
 #ifdef HHMPC_SOCPCONDTEST
+//     for (k = 0; k < 5; k++){
+//         for (l = 0; l < 5; l++){
+//             ipm->H[k*5+l] *= 500.;
+//         }
+//     }
     for (k = 0; k < 5; k++){
-        for (l = 0; l < 5; l++){
-            ipm->H[k*5+l] /= 2.;
-        }
+            ipm->g[k] *= 2.;
     }
 #endif
 //     printf(" inner step %d ", inner);
@@ -87,7 +90,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
         residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
 //         print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
-//         printf("res_norm = %f\n", f);
+        printf("res_norm = %f\n", f);
 //         print_mtx(ipm->Phi, ipm->optvar_seqlen, ipm->optvar_seqlen);
         /* Solve system of linear equations to obtain the step direction */
         solve_sysofleq(ipm->delta_z, ipm->delta_v, ipm, ipm->Phi, ipm->r_d, ipm->r_p,
@@ -113,7 +116,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 //         print_mtx(ipm->delta_v, ipm->dual_seqlen, 1);
         /* Find best step size (0...1] */
         bt_line_search(ipm->st_size, ipm);
-//         printf("st_size = %f\n", ipm->st_size[0]);
+        printf("st_size = %f\n", ipm->st_size[0]);
         
         /* Update z */
         mpcinc_mtx_scale_direct(ipm->delta_z, ipm->st_size[0],
@@ -441,7 +444,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
 //     printf("Grad in dir = %.8f\n", g_in_dir);
 //     g_in_dir = g_in_dir <= 0 ? g_in_dir : 0.;
 //     printf("Grad in dir = %.8f\n", g_in_dir);
-    
+    printf("st size inner = %f\n", st_size[0]);
     mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st_size[0],
                      ipm->optvar_seqlen, 1);
     mpcinc_mtx_add_direct(ipm->z_opt, help_z,
@@ -1058,7 +1061,7 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     kappa[0] /= 6;
 #endif
 #ifdef HHMPC_SOCPCONDTEST
-    kappa[0] = 0.0008;
+    kappa[0] = 0.00008;
 #endif
     kappa[0] += 0;
 

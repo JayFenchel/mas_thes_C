@@ -209,6 +209,7 @@ void form_ipm(struct hhmpc_ipm *ipm, struct hhmpc_socp_prb *prb){
     ipm->P2_T = ipm->P_of_z->P2_hat_T;
     
     ipm->j_in = &(ipm->conf->in_iter);
+    printf("j_in = %d\n", ipm->j_in[0]);
     ipm->reg = &(ipm->conf->reg);
     
     ipm->d = d;
