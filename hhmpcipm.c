@@ -209,17 +209,17 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
     }
 #endif
 #ifdef HHMPC_SOCPCONDTEST
-    real_t help01[5];
-    real_t help02[5];
-    for (i = 0; i < 5; i++){
+    real_t help01[ipm->P_of_z->nb_socc];
+    real_t help02[ipm->P_of_z->nb_socc];
+    for (i = 0; i < ipm->P_of_z->nb_socc; i++){
 //         printf("%d\n", i); 
-        mpcinc_mtx_multiply_mtx_vec(help01, ipm->P_of_z->socc[i]->A, ipm->z_opt, 5, 5);
-        mpcinc_mtx_add_direct(help01, ipm->P_of_z->socc[i]->b, 5, 1);
-        mpcinc_mtx_multiply_mtx_vec(help02, help01, help01, 1, 5);
+        mpcinc_mtx_multiply_mtx_vec(help01, ipm->P_of_z->socc[i]->A, ipm->z_opt, ipm->P_of_z->nb_socc, 5);
+        mpcinc_mtx_add_direct(help01, ipm->P_of_z->socc[i]->b, ipm->P_of_z->nb_socc, 1);
+        mpcinc_mtx_multiply_mtx_vec(help02, help01, help01, 1, ipm->P_of_z->nb_socc);
 //         printf("Au+b = %f", help02[0]);
 //         print_mtx(help01, 5, 1);
-        mpcinc_mtx_multiply_mtx_vec(help01, ipm->P_of_z->socc[i]->c, ipm->z_opt, 1, 5);
-        mpcinc_mtx_add_direct(help01, ipm->P_of_z->socc[i]->d, 5, 1);
+        mpcinc_mtx_multiply_mtx_vec(help01, ipm->P_of_z->socc[i]->c, ipm->z_opt, 1, ipm->P_of_z->nb_socc);
+        mpcinc_mtx_add_direct(help01, ipm->P_of_z->socc[i]->d, ipm->P_of_z->nb_socc, 1);
 //         printf("cu+d = %f \n", help01[0]);
         if (help01[0] < help02[0]) {return i;}
 //         print_mtx(help01, 5, 1);
