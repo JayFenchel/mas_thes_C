@@ -167,6 +167,8 @@ extern void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm);
 
 extern uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_check);
 
+extern uint32_t hhmpc_ipm_check_positiv(const struct hhmpc_ipm *ipm, const real_t *z_check);
+
 extern void iterative_refinement(const struct hhmpc_ipm *ipm);
 
 extern void update(struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,

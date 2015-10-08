@@ -57,12 +57,12 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     calc_kappa(ipm->kappa, ipm, ipm->z_opt);
     printf("calculated kappa = %.20f\n", ipm->kappa[0]);
     
-//             if (ipm->P_of_z->socc[0]->c[0] * ipm->z_ini[0] <
-//                     (0.2 - ipm->P_of_z->socc[0]->d[0])){
-//             printf("corrected z_opt[0]\n");
-//             ipm->z_ini[0] = 
-//                     (0.2 - ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
-//             }
+            if (ipm->P_of_z->socc[0]->c[0] * ipm->z_ini[0] <
+                    (0.2 - ipm->P_of_z->socc[0]->d[0])){
+            printf("corrected z_opt[0]\n");
+            ipm->z_ini[0] = 
+                    (0.2 - ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
+            }
     /* Update h for new xk */
     memcpy(ipm->P_of_z->h_hat, ipm->P_of_z->h, sizeof(real_t) * ipm->P_of_z->nb_lin_constr);
     /*
@@ -79,25 +79,25 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 //                 update(ipm->P_of_z, ipm->optvar_seqlen,
 //                        t_solve_optvar_seqlen, t_optvar_seqlen);
 //             }
-            uint32_t z = hhmpc_ipm_check_valid(ipm, ipm->z_opt);
-            if (ipm->z_opt[z]>0){
-                ipm->z_opt[z] = 0.04;
-                ipm->z_ini[z] = 0.04; 
-            }
-            if (ipm->z_opt[z]<0){
-                ipm->z_opt[z] = 0.04;
-                ipm->z_ini[z] = 0.04; 
-            }
-            real_t h_low[5];
-            real_t z_low[5];
-            for (i = 0; i < 5; i++){
-                h_low[i] = ipm->h[i+ipm->P_of_z->nb_lin_constr] - 0.001;
-            }
-            fwd_subst(z_low, ipm->P+5*ipm->P_of_z->nb_lin_constr, 5, h_low, 1);
-//             print_mtx(z_low, 5, 1);
-            printf("%d return", hhmpc_ipm_check_valid(ipm, z_low));
-            HIER
-            return;
+//             uint32_t z = hhmpc_ipm_check_valid(ipm, ipm->z_opt);
+//             if (ipm->z_opt[z]>0){
+//                 ipm->z_opt[z] = 0.04;
+//                 ipm->z_ini[z] = 0.04; 
+//             }
+//             if (ipm->z_opt[z]<0){
+//                 ipm->z_opt[z] = 0.04;
+//                 ipm->z_ini[z] = 0.04; 
+//             }
+//             real_t h_low[5];
+//             real_t z_low[5];
+//             for (i = 0; i < 5; i++){
+//                 h_low[i] = ipm->h[i+ipm->P_of_z->nb_lin_constr] - 0.001;
+//             }
+//             fwd_subst(z_low, ipm->P+5*ipm->P_of_z->nb_lin_constr, 5, h_low, 1);
+// //             print_mtx(z_low, 5, 1);
+//             printf("%d return", hhmpc_ipm_check_valid(ipm, z_low));
+//             HIER
+//             return;
         }
 //         printf("%d\n", hhmpc_ipm_check_valid(ipm, ipm->z_opt));
         form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
@@ -211,6 +211,23 @@ void hhmpc_ipm_warm_start(const struct hhmpc_ipm *ipm)
     return;
 }
 
+uint32_t hhmpc_ipm_check_positiv(const struct hhmpc_ipm *ipm, const real_t *z_check)
+{
+    uint32_t i;
+    real_t *tmp_os = ipm->tmp1_optvar_seqlen;
+    
+    for (i = 0; i < ipm->P_of_z->nb_socc; i++){
+        mpcinc_mtx_multiply_mtx_vec(tmp_os, ipm->P_of_z->socc[i]->c, z_check,
+                                    1, ipm->optvar_seqlen);
+        if (tmp_os[0] + ipm->P_of_z->socc[i]->d[0] < 0){
+            return i;    
+        }
+    }
+    
+    return -1;
+}
+
+
 uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_check)
 {
     uint32_t i;
@@ -257,25 +274,25 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
 //     
 //     print_mtx(ipm->z_opt, 1, 5);
 // 
-    real_t help01[ipm->P_of_z->nb_socc];
-    real_t help02[ipm->P_of_z->nb_socc];
-    for (i = 0; i < ipm->P_of_z->nb_socc; i++){
-//         printf("%d\n", i); 
-        mpcinc_mtx_multiply_mtx_vec(help01, ipm->P_of_z->socc[i]->A, ipm->z_opt, ipm->P_of_z->nb_socc, 5);
-        mpcinc_mtx_add_direct(help01, ipm->P_of_z->socc[i]->b, ipm->P_of_z->nb_socc, 1);
-        mpcinc_mtx_multiply_mtx_vec(help02, help01, help01, 1, ipm->P_of_z->nb_socc);
-//         printf("Au+b = %f", help02[0]);
-//         print_mtx(help01, 5, 1);
-        mpcinc_mtx_multiply_mtx_vec(help01, ipm->P_of_z->socc[i]->c, ipm->z_opt, 1, ipm->P_of_z->nb_socc);
-        mpcinc_mtx_add_direct(help01, ipm->P_of_z->socc[i]->d, ipm->P_of_z->nb_socc, 1);
-//         printf("cu+d = %f \n", help01[0]);
-        if (help01[0] < help02[0]) {/*print_mtx(help1, ipm->nb_of_ueq_constr, 1); printf("%d\n", i);*/ return i;}
-//         print_mtx(help01, 5, 1);
-    }
-    for (i = 0; i < ipm->nb_of_ueq_constr; i++){
-//         printf("%f\n", help1[i]);
-        if (help1[i] >= 0.0) {return i;}
-    }
+//     real_t help01[ipm->P_of_z->nb_socc];
+//     real_t help02[ipm->P_of_z->nb_socc];
+//     for (i = 0; i < ipm->P_of_z->nb_socc; i++){
+// //         printf("%d\n", i); 
+//         mpcinc_mtx_multiply_mtx_vec(help01, ipm->P_of_z->socc[i]->A, ipm->z_opt, ipm->P_of_z->nb_socc, 5);
+//         mpcinc_mtx_add_direct(help01, ipm->P_of_z->socc[i]->b, ipm->P_of_z->nb_socc, 1);
+//         mpcinc_mtx_multiply_mtx_vec(help02, help01, help01, 1, ipm->P_of_z->nb_socc);
+// //         printf("Au+b = %f", help02[0]);
+// //         print_mtx(help01, 5, 1);
+//         mpcinc_mtx_multiply_mtx_vec(help01, ipm->P_of_z->socc[i]->c, ipm->z_opt, 1, ipm->P_of_z->nb_socc);
+//         mpcinc_mtx_add_direct(help01, ipm->P_of_z->socc[i]->d, ipm->P_of_z->nb_socc, 1);
+// //         printf("cu+d = %f \n", help01[0]);
+//         if (help01[0] < help02[0]) {/*print_mtx(help1, ipm->nb_of_ueq_constr, 1); printf("%d\n", i);*/ return i;}
+// //         print_mtx(help01, 5, 1);
+//     }
+//     for (i = 0; i < ipm->nb_of_ueq_constr; i++){
+// //         printf("%f\n", help1[i]);
+//         if (help1[i] >= 0.0) {return i;}
+//     }
 #endif
 #ifdef HHMPC_SOCPTEST
     for (i = 0; i < ipm->nb_of_ueq_constr; i++){
@@ -446,8 +463,8 @@ void update(struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
 void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
 {
     const real_t g_step = 1e-6;
-    const real_t alpha = 0.15;  /* [0.4] Measure for reduction of function value  */
-    const real_t beta = 0.5;  /* [0.6] Factor to decrease step ervery iteration */
+    const real_t alpha = 0.25; //0.15;  /* [0.4] Measure for reduction of function value  */
+    const real_t beta = 0.6; //0.5;  /* [0.6] Factor to decrease step ervery iteration */
     real_t *help_z = ipm->tmp6_optvar_seqlen;
     real_t *help_v = ipm->tmp7_dual_seqlen;
     real_t *t_solve_optvar_seqlen = ipm->tmp1_optvar_seqlen;
@@ -513,9 +530,10 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
     residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
                   ipm->optvar_seqlen, ipm->dual_seqlen);
-    while ((hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1) || (f_p_g > (f_p + alpha*st*g_in_dir)) )
+    while ((hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1) || (f_p_g > (f_p + alpha*st*g_in_dir)) || (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1) )
     {
         st *= beta;
+        if (st < g_step){break;}
         
         mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st,
                          ipm->optvar_seqlen, 1);
@@ -1107,10 +1125,10 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
 #endif
 #ifdef HHMPC_SOCPCONDTEST
 //     kappa[0] /= 6;
-    kappa[0] = 0.00008;
+//     kappa[0] = 0.00008;
 #endif
     kappa[0] += 0;
-    kappa[0] = (kappa[0] > 1e-5)? kappa[0] : 1e-5;
+    kappa[0] = (kappa[0] > 8*1e-5)? kappa[0] : 8*1e-5;
 
 }
 
