@@ -140,7 +140,7 @@ socp->prb->H->rows = cvp_prb->H->rows;
 socp->prb->H->cols = cvp_prb->H->cols;
 
 socp->prb->socc = psocc_term;
-socp->prb->socc[0] = &socc1_term; 
+socp->prb->socc[0] = &socc0_term; 
 socp->prb->socc[0]->A->data = cvp_prb->Wm0->data;
 socp->prb->socc[0]->b->data = cvp_prb->wn0->data;
 socp->prb->socc[0]->c->data = cvp_prb->wvT0->data;
@@ -148,22 +148,22 @@ socp->prb->socc[0]->d->data = cvp_prb->ws0->data;
 printf("%f\n", cvp_prb->ws0->data[0]);
 
 printf("%f\n", socp->prb->socc[0]->d->data[0]);
-socp->prb->socc[1] = &socc2_term; 
+socp->prb->socc[1] = &socc1_term; 
 socp->prb->socc[1]->A->data = cvp_prb->Wm1->data;
 socp->prb->socc[1]->b->data= cvp_prb->wn1->data;
 socp->prb->socc[1]->c->data = cvp_prb->wvT1->data;
 socp->prb->socc[1]->d->data = cvp_prb->ws1->data;
-socp->prb->socc[2] = &socc3_term; 
+socp->prb->socc[2] = &socc2_term; 
 socp->prb->socc[2]->A->data = cvp_prb->Wm2->data;
 socp->prb->socc[2]->b->data = cvp_prb->wn2->data;
 socp->prb->socc[2]->c->data = cvp_prb->wvT2->data;
 socp->prb->socc[2]->d->data = cvp_prb->ws2->data;
-socp->prb->socc[3] = &socc4_term; 
+socp->prb->socc[3] = &socc3_term; 
 socp->prb->socc[3]->A->data = cvp_prb->Wm3->data;
 socp->prb->socc[3]->b->data = cvp_prb->wn3->data;
 socp->prb->socc[3]->c->data = cvp_prb->wvT3->data;
 socp->prb->socc[3]->d->data = cvp_prb->ws3->data;
-socp->prb->socc[4] = &socc5_term; 
+socp->prb->socc[4] = &socc4_term; 
 socp->prb->socc[4]->A->data = cvp_prb->Wm4->data;
 socp->prb->socc[4]->b->data = cvp_prb->wn4->data;
 socp->prb->socc[4]->c->data = cvp_prb->wvT4->data;
@@ -289,11 +289,11 @@ socp->prb->P = socp->constant[HHMPC_P];
 socp->prb->H = socp->constant[HHMPC_H];
 
 socp->prb->socc = psocc_term;
-socp->prb->socc[0] = &socc1_term; 
-socp->prb->socc[1] = &socc2_term; 
-socp->prb->socc[2] = &socc3_term; 
-socp->prb->socc[3] = &socc4_term; 
-socp->prb->socc[4] = &socc5_term; 
+socp->prb->socc[0] = &socc0_term; 
+socp->prb->socc[1] = &socc1_term; 
+socp->prb->socc[2] = &socc2_term; 
+socp->prb->socc[3] = &socc3_term; 
+socp->prb->socc[4] = &socc4_term; 
 
 socp->prb->u_k = &u_k_term;
 

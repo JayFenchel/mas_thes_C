@@ -160,11 +160,12 @@ void form_ipm(struct hhmpc_ipm *ipm, struct hhmpc_socp_prb *prb){
         ipm->P_of_z->socc[i] = &socc[i];
         ipm->P_of_z->socc[i]->rowsA = prb->socc[i]->A->rows;
         ipm->P_of_z->socc[i]->colsA = prb->socc[i]->A->cols;
+        
         ipm->P_of_z->socc[i]->A = prb->socc[i]->A->data;
         ipm->P_of_z->socc[i]->b = prb->socc[i]->b->data;
         ipm->P_of_z->socc[i]->c = prb->socc[i]->c->data;
-
         ipm->P_of_z->socc[i]->d = prb->socc[i]->d->data;
+        
         ipm->P_of_z->socc[i]->par = ipm->z_opt+prb->socc[i]->par_0;
         ipm->P_of_z->socc[i]->par_0 = prb->socc[i]->par_0;
         ipm->P_of_z->socc[i]->par_l = prb->socc[i]->par_l;
@@ -209,7 +210,6 @@ void form_ipm(struct hhmpc_ipm *ipm, struct hhmpc_socp_prb *prb){
     ipm->P2_T = ipm->P_of_z->P2_hat_T;
     
     ipm->j_in = &(ipm->conf->in_iter);
-    printf("j_in = %d\n", ipm->j_in[0]);
     ipm->reg = &(ipm->conf->reg);
     
     ipm->d = d;

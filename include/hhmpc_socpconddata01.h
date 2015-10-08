@@ -1166,10 +1166,10 @@ uint32_t optvar_seqlen = HHMPC_OS;
 uint32_t sizeof_optvar_seqlen;
 
 struct hhmpc_socc *psocc_term[5];
-real_t soccA1_data[] = {0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.};
-struct hhmpc_term soccA1_term = {5, HHMPC_OS, soccA1_data};
 real_t soccA0_data[] = {0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.};
 struct hhmpc_term soccA0_term = {5, HHMPC_OS, soccA0_data};
+real_t soccA1_data[] = {0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.};
+struct hhmpc_term soccA1_term = {5, HHMPC_OS, soccA1_data};
 real_t soccA2_data[] = {0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.};
 struct hhmpc_term soccA2_term = {5, HHMPC_OS, soccA2_data};
 real_t soccA3_data[] = {0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.};
@@ -1207,15 +1207,15 @@ struct hhmpc_term soccd3_term = {1, 1, soccd3_data};
 real_t soccd4_data[1];
 struct hhmpc_term soccd4_term = {1, 1, soccd4_data};
 
-struct hhmpc_socc socc1_term = {&soccA0_term, &soccb0_term, &soccc0_term,
+struct hhmpc_socc socc0_term = {&soccA0_term, &soccb0_term, &soccc0_term,
                                 &soccd0_term, 0, HHMPC_OS};
-struct hhmpc_socc socc2_term = {&soccA1_term, &soccb1_term, &soccc1_term,
+struct hhmpc_socc socc1_term = {&soccA1_term, &soccb1_term, &soccc1_term,
                                 &soccd1_term, 0, HHMPC_OS};
-struct hhmpc_socc socc3_term = {&soccA2_term, &soccb2_term, &soccc2_term,
+struct hhmpc_socc socc2_term = {&soccA2_term, &soccb2_term, &soccc2_term,
                                 &soccd2_term, 0, HHMPC_OS};
-struct hhmpc_socc socc4_term = {&soccA3_term, &soccb3_term, &soccc3_term, 
+struct hhmpc_socc socc3_term = {&soccA3_term, &soccb3_term, &soccc3_term, 
                                 &soccd3_term, 0, HHMPC_OS};
-struct hhmpc_socc socc5_term = {&soccA4_term, &soccb4_term, &soccc4_term,
+struct hhmpc_socc socc4_term = {&soccA4_term, &soccb4_term, &soccc4_term,
                                 &soccd4_term, 0, HHMPC_OS};
 
 #endif
