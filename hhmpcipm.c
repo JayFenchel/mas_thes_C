@@ -157,7 +157,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         mpcinc_mtx_add_direct(ipm->v_opt, ipm->delta_v,
                               ipm->dual_seqlen, 1);
         if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
-            printf("return");
+            printf("No valid step possible: return");
             return;
         }
         /*
@@ -289,10 +289,14 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
 //         if (help01[0] < help02[0]) {/*print_mtx(help1, ipm->nb_of_ueq_constr, 1); printf("%d\n", i);*/ return i;}
 // //         print_mtx(help01, 5, 1);
 //     }
-//     for (i = 0; i < ipm->nb_of_ueq_constr; i++){
-// //         printf("%f\n", help1[i]);
-//         if (help1[i] >= 0.0) {return i;}
-//     }
+    if (hhmpc_ipm_check_positiv(ipm, z_check) + 1){
+        return ipm->nb_of_ueq_constr;
+    }else{
+        for (i = 0; i < ipm->nb_of_ueq_constr; i++){
+    //         printf("%f\n", help1[i]);
+            if (help1[i] >= 0.0) {return i;}
+        }
+    }
 #endif
 #ifdef HHMPC_SOCPTEST
     for (i = 0; i < ipm->nb_of_ueq_constr; i++){
@@ -1124,7 +1128,7 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     kappa[0] /= 6;
 #endif
 #ifdef HHMPC_SOCPCONDTEST
-//     kappa[0] /= 6;
+    kappa[0] /= 6;
 //     kappa[0] = 0.00008;
 #endif
     kappa[0] += 0;
