@@ -31,10 +31,10 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     real_t *eye_nm = ipm->eye_optvar_veclen;
     real_t *eye_n = ipm->eye_state_veclen;
     real_t f;
-//     printf("g = ");
-//     print_mtx(ipm->g, 5, 1);
+    printf("g = ");
+    print_mtx(ipm->g, 6, 1);
 //     printf("H = ");
-//     print_mtx(ipm->H, 5, 5);
+//     print_mtx(ipm->H, 6, 6);
 #ifdef HHMPC_SOCPCONDTEST
 //     for (k = 0; k < 5; k++){
 //         for (l = 0; l < 5; l++){
@@ -76,6 +76,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     
         update(ipm->P_of_z, ipm->optvar_seqlen,
             t_solve_optvar_seqlen, t_optvar_seqlen);
+        hhmpc_ipm_check_valid(ipm, ipm->z_opt);
         if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
         
 //             if (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1){
@@ -167,7 +168,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 //         printf("%d\n", hhmpc_ipm_check_valid(ipm, ipm->z_opt));
         form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
                ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
-//         print_mtx(ipm->d, ipm->nb_of_ueq_constr, 1);
+        print_mtx(ipm->d, ipm->nb_of_ueq_constr, 1);
 
         form_dsoft(ipm->dsoft, ipm->diag_d_soft, ipm->r_d_soft, ipm->Phi_soft,
                    ipm->tmp3_mtx_optvar_nb_of_soft,
@@ -183,9 +184,9 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         /* Calculate the residual */
         residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
         residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
-//         print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
+        print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
 //         printf("res_norm = %f\n", f);
-//         print_mtx(ipm->Phi, ipm->optvar_seqlen, ipm->optvar_seqlen);
+        print_mtx(ipm->Phi, ipm->optvar_seqlen, ipm->optvar_seqlen);
         /* Solve system of linear equations to obtain the step direction */
         solve_sysofleq(ipm->delta_z, ipm->delta_v, ipm, ipm->Phi, ipm->r_d, ipm->r_p,
                        ipm->C, ipm->C_T, ipm->A, ipm->A_T, ipm->B, ipm->B_T,
@@ -196,7 +197,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
                        t_solve_dual_seqlen,
                        t_L_Y, t_L_Y_T);
 
-//         print_mtx(ipm->delta_z, ipm->optvar_seqlen, 1);
+        print_mtx(ipm->delta_z, ipm->optvar_seqlen, 1);
 #ifndef HHMPC_SOCPCONDTEST
         iterative_refinement(ipm);
         iterative_refinement(ipm);
@@ -210,7 +211,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 //         print_mtx(ipm->delta_v, ipm->dual_seqlen, 1);
         /* Find best step size (0...1] */
         bt_line_search(ipm->st_size, ipm);
-//         printf("st_size = %f\n", ipm->st_size[0]);
+        printf("st_size = %f\n", ipm->st_size[0]);
         
         /* Update z */
         mpcinc_mtx_scale_direct(ipm->delta_z, ipm->st_size[0],
@@ -225,9 +226,9 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
             printf("No valid step possible: return");
             return;
         }
-        /*
+        
         print_mtx(ipm->z_opt, ipm->optvar_seqlen, 1);
-        print_mtx(ipm->v_opt, ipm->dual_seqlen, 1);*/
+        print_mtx(ipm->v_opt, ipm->dual_seqlen, 1);
         if (f <= 1e-12){
             printf("break, res_norm = %f\n", f);
             break;
@@ -261,14 +262,17 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 void hhmpc_ipm_warm_start(const struct hhmpc_ipm *ipm)
 {
     real_t *tmp = ipm->tmp3_state_veclen;
-    mpcinc_mtx_shift_sequence(ipm->z_ini, ipm->z_opt, ipm->optvar_veclen,
-            ipm->optvar_seqlen);
+//     mpcinc_mtx_shift_sequence(ipm->z_ini, ipm->z_opt, ipm->optvar_veclen,
+//             ipm->optvar_seqlen);
+    mpcinc_mtx_shift_sequence(ipm->z_ini, ipm->z_opt, 1,
+            ipm->optvar_seqlen-1);
     mpcinc_mtx_multiply_mtx_vec((ipm->z_ini)+ipm->optvar_seqlen-ipm->state_veclen,
                                 ipm->A, (ipm->z_opt)+ipm->optvar_seqlen-ipm->state_veclen,
                                 ipm->state_veclen, ipm->state_veclen);
     mpcinc_mtx_mul_add((ipm->z_ini)+ipm->optvar_seqlen-ipm->state_veclen, tmp,
                                 ipm->B, (ipm->z_opt)+ipm->optvar_seqlen-ipm->optvar_veclen,
-                                ipm->state_veclen, ipm->control_veclen);    
+                                ipm->state_veclen, ipm->control_veclen);   
+    ipm->z_ini[ipm->optvar_seqlen-1] = 0.2;
     mpcinc_mtx_scale_direct(ipm->z_ini, 1., ipm->optvar_seqlen, 1);
     mpcinc_mtx_shift_sequence(ipm->v_ini, ipm->v_opt, ipm->state_veclen,
             ipm->dual_seqlen);

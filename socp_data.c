@@ -169,7 +169,7 @@ socp->prb->socc[4]->b->data = cvp_prb->wn4->data;
 socp->prb->socc[4]->c->data = cvp_prb->wvT4->data;
 socp->prb->socc[4]->d->data = cvp_prb->ws4->data;
 
-socp->prb->u_k = &u_k_term;
+socp->prb->u_k = &u_k_next_term;
 socp->prb->x_k = &xk_real_term;
 
 socp->prb->nb_qc = nb_qc;
@@ -295,7 +295,7 @@ socp->prb->socc[2] = &socc2_term;
 socp->prb->socc[3] = &socc3_term; 
 socp->prb->socc[4] = &socc4_term; 
 
-socp->prb->u_k = &u_k_term;
+socp->prb->u_k = &u_k_next_term;
 
 socp->prb->nb_qc = nb_qc;
 socp->prb->nb_socc = nb_socc;
