@@ -1172,9 +1172,9 @@ uint32_t sizeof_optvar_seqlen;
 
 struct hhmpc_socc *psocc_term[5];
 real_t soccA0_data[] = {0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.};
-struct hhmpc_term soccA0_term = {5, HHMPC_CV, soccA0_data};
+struct hhmpc_term soccA0_term = {6, HHMPC_CV+1, soccA0_data};
 real_t soccA1_data[] = {0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.};
-struct hhmpc_term soccA1_term = {5, HHMPC_CV, soccA1_data};
+struct hhmpc_term soccA1_term = {6, HHMPC_CV+1, soccA1_data};
 real_t soccA2_data[] = {0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.};
 struct hhmpc_term soccA2_term = {5, HHMPC_CV, soccA2_data};
 real_t soccA3_data[] = {0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.};
@@ -1182,9 +1182,9 @@ struct hhmpc_term soccA3_term = {5, HHMPC_CV, soccA3_data};
 real_t soccA4_data[] = {0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.,0., 0., 0.,0. ,0.};
 struct hhmpc_term soccA4_term = {5, HHMPC_CV, soccA4_data};
 real_t soccb0_data[] = {0.,0.,0.,0.,0.};
-struct hhmpc_term soccb0_term = {5, 1, soccb0_data};
+struct hhmpc_term soccb0_term = {6, 1, soccb0_data};
 real_t soccb1_data[] = {0.,0.,0.,0.,0.};
-struct hhmpc_term soccb1_term = {5, 1, soccb1_data};
+struct hhmpc_term soccb1_term = {6, 1, soccb1_data};
 real_t soccb2_data[] = {0.,0.,0.,0.,0.};
 struct hhmpc_term soccb2_term = {5, 1, soccb2_data};
 real_t soccb3_data[] = {0.,0.,0.,0.,0.};
@@ -1192,9 +1192,9 @@ struct hhmpc_term soccb3_term = {5, 1, soccb3_data};
 real_t soccb4_data[] = {0.,0.,0.,0.,0.};
 struct hhmpc_term soccb4_term = {5, 1, soccb4_data};
 real_t soccc0_data[5];
-struct hhmpc_term soccc0_term = {HHMPC_CV, 1, soccc0_data};
+struct hhmpc_term soccc0_term = {HHMPC_CV+1, 1, soccc0_data};
 real_t soccc1_data[5];
-struct hhmpc_term soccc1_term = {HHMPC_CV, 1, soccc1_data};
+struct hhmpc_term soccc1_term = {HHMPC_CV+1, 1, soccc1_data};
 real_t soccc2_data[5];
 struct hhmpc_term soccc2_term = {HHMPC_CV, 1, soccc2_data};
 real_t soccc3_data[5];
@@ -1213,9 +1213,9 @@ real_t soccd4_data[1];
 struct hhmpc_term soccd4_term = {1, 1, soccd4_data};
 
 struct hhmpc_socc socc0_term = {&soccA0_term, &soccb0_term, &soccc0_term,
-                                &soccd0_term, 0, HHMPC_CV};
+                                &soccd0_term, 0, HHMPC_OS};
 struct hhmpc_socc socc1_term = {&soccA1_term, &soccb1_term, &soccc1_term,
-                                &soccd1_term, 0, HHMPC_CV};
+                                &soccd1_term, 0, HHMPC_OS};
 struct hhmpc_socc socc2_term = {&soccA2_term, &soccb2_term, &soccc2_term,
                                 &soccd2_term, 0, HHMPC_CV};
 struct hhmpc_socc socc3_term = {&soccA3_term, &soccb3_term, &soccc3_term, 
