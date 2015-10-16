@@ -25,7 +25,7 @@ real_t zini_data[] = {0.000000,
 0.000000,
 0.000000,
 0.000000,
-    0.01};
+    0.0000001};
 struct hhmpc_term zini_term = {HHMPC_OS, 1, zini_data};
 real_t vini_data[HHMPC_DS];
 struct hhmpc_term vini_term = {HHMPC_DS, 1, vini_data};

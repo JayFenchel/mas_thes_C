@@ -1,4 +1,5 @@
 #include "include/hhmpcmath.h"
+#include <hhmpcusefull.h>
 
 
 void cholesky(real_t sol[],
@@ -11,12 +12,12 @@ void cholesky(real_t sol[],
     }
     
     for (i = 0; i < dim; i++){
-        sol[i*dim+i]+=0.0001;
+        sol[i*dim+i]+=0.0035;
         for (j = 0; j < i; j++){
             sol[i*dim+i] -= sol[i*dim+j]*sol[i*dim+j];
         }
 //         printf("HIER sqrt\n");
-        if (sol[i*dim+i]<0) printf("WARNUNG! %f\n",sol[i*dim+i] ); 
+        if (sol[i*dim+i]<0) {printf("WARNUNG! %f\n",sol[i*dim+i] ); /*print_mtx(mtx, 6, 6);*/} 
         sol[i*dim+i] = sqrtf(smpl_abs(sol[i*dim+i]));
 //         sol[i*dim+i] = smpl_sqrt(smpl_abs(sol[i*dim+i]), 2.);
         
@@ -33,6 +34,7 @@ void cholesky(real_t sol[],
             sol[i*dim+j] = 0.;
         }
     }
+//     print_mtx(sol, 6, 6);
 }
 
 void fwd_subst(real_t sol[],
