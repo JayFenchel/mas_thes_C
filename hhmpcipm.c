@@ -79,12 +79,12 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 // //         hhmpc_ipm_check_valid(ipm, ipm->z_opt);
 // //         if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
 // //         
-// // //             if (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1){
-// // //                 print_mtx(ipm->z_opt, 5, 1);
-// // //                 printf("corrected pos z_opt[0]\n");
-// // //                 ipm->z_opt[0] = (-1 * ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
-// // //                 print_mtx(ipm->z_opt, 5, 1);
-// // //             }
+            if (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1){
+                print_mtx(ipm->z_opt, 5, 1);
+                printf("corrected pos z_opt[0]\n");
+                ipm->z_opt[0] = (-1 * ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
+                print_mtx(ipm->z_opt, 5, 1);
+            }
 // // //             real_t tmp[5];
 // // //             print_mtx(ipm->P_of_z->socc[4]->A, 5, 5);
 // // //             print_mtx(ipm->P_of_z->socc[4]->b, 1, 5);
@@ -361,7 +361,7 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
     if (hhmpc_ipm_check_positiv(ipm, z_check) + 1){
         return ipm->nb_of_ueq_constr;
     }else{
-        for (i = 0; i < ipm->nb_of_ueq_constr; i++){
+        for (i = 0; i < ipm->P_of_z->nb_lin_constr; i++){
 //             printf("%f\n", help1[i]);
             if (help1[i] >= 0.0) {return i;}
         }
