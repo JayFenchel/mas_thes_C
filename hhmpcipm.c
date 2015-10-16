@@ -53,6 +53,10 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     memcpy(ipm->z_opt, ipm->z_ini, ipm->sizeof_optvar_seqlen);
     memcpy(ipm->v_opt, ipm->v_ini, ipm->sizeof_dual_seqlen);
     
+    /* Update h for new xk */
+    memcpy(ipm->P_of_z->h_hat, ipm->P_of_z->h, sizeof(real_t) * ipm->P_of_z->nb_lin_constr);
+    
+    
     /* Calculate Kappa for every time_step */
     calc_kappa(ipm->kappa, ipm, ipm->z_opt);
     printf("calculated kappa = %.20f\n", ipm->kappa[0]);
@@ -74,15 +78,15 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 // //         i++;
 // //     }
     
-// //         update(ipm->P_of_z, ipm->optvar_seqlen,
-// //             t_solve_optvar_seqlen, t_optvar_seqlen);
+        update(ipm->P_of_z, ipm->optvar_seqlen,
+            t_solve_optvar_seqlen, t_optvar_seqlen);
 // //         hhmpc_ipm_check_valid(ipm, ipm->z_opt);
 // //         if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
 // //         
             if (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1){
                 print_mtx(ipm->z_opt, 5, 1);
                 printf("corrected pos z_opt[0]\n");
-                ipm->z_opt[0] = (-1 * ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
+                ipm->z_opt[0] = (0.01 - ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
                 print_mtx(ipm->z_opt, 5, 1);
             }
 // // //             real_t tmp[5];
@@ -129,9 +133,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 // //             }
 // //         }
             
-    /* Update h for new xk */
-    memcpy(ipm->P_of_z->h_hat, ipm->P_of_z->h, sizeof(real_t) * ipm->P_of_z->nb_lin_constr);
-    /*
+/*
     print_mtx(ipm->h, ipm->nb_of_ueq_constr, 1);*/
     /*Improve z for a fixed number of steps j_in*/
     for (j = 0; j < *(ipm->j_in); j++) {  /*  TODO here error, compiling for MC */
@@ -272,7 +274,7 @@ void hhmpc_ipm_warm_start(const struct hhmpc_ipm *ipm)
     mpcinc_mtx_mul_add((ipm->z_ini)+ipm->optvar_seqlen-ipm->state_veclen, tmp,
                                 ipm->B, (ipm->z_opt)+ipm->optvar_seqlen-ipm->optvar_veclen,
                                 ipm->state_veclen, ipm->control_veclen);   
-    ipm->z_ini[ipm->optvar_seqlen-1] = 0.2;
+    ipm->z_ini[ipm->optvar_seqlen-1] = 0.01;
     mpcinc_mtx_scale_direct(ipm->z_ini, 1., ipm->optvar_seqlen, 1);
     mpcinc_mtx_shift_sequence(ipm->v_ini, ipm->v_opt, ipm->state_veclen,
             ipm->dual_seqlen);
