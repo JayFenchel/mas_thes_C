@@ -84,11 +84,18 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 // //         if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
 // //         
             if (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1){
-//                 print_mtx(ipm->z_opt, 5, 1);
-                printf("corrected pos z_opt[0]\n");
+                print_mtx(ipm->z_opt, 5, 1);
+                printf("corrected pos z_opt[0] %d\n", hhmpc_ipm_check_positiv(ipm, ipm->z_opt));
                 ipm->z_opt[0] = (0.01 - ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
-//                 ipm->z_opt[1] = (0.01 - ipm->P_of_z->socc[1]->d[0] - ipm->P_of_z->socc[1]->c[0]*ipm->z_opt[0]) / ipm->P_of_z->socc[1]->c[1];
-//                 print_mtx(ipm->z_opt, 5, 1);
+                ipm->z_opt[1] = (0.01 - ipm->P_of_z->socc[1]->d[0] - ipm->P_of_z->socc[1]->c[0]*ipm->z_opt[0]) / ipm->P_of_z->socc[1]->c[1];
+                ipm->z_opt[2] = (0.01 - ipm->P_of_z->socc[2]->d[0] - ipm->P_of_z->socc[2]->c[0]*ipm->z_opt[0] - ipm->P_of_z->socc[2]->c[1]*ipm->z_opt[1]) / ipm->P_of_z->socc[2]->c[2];
+                ipm->z_opt[3] = (0.01 - ipm->P_of_z->socc[3]->d[0] - ipm->P_of_z->socc[3]->c[0]*ipm->z_opt[0] - ipm->P_of_z->socc[3]->c[1]*ipm->z_opt[1] - ipm->P_of_z->socc[3]->c[2]*ipm->z_opt[2]) / ipm->P_of_z->socc[3]->c[3];
+                ipm->z_opt[4] = (0.01 - ipm->P_of_z->socc[4]->d[0] - ipm->P_of_z->socc[4]->c[0]*ipm->z_opt[0] - ipm->P_of_z->socc[4]->c[1]*ipm->z_opt[1] - ipm->P_of_z->socc[4]->c[2]*ipm->z_opt[2] - ipm->P_of_z->socc[4]->c[3]*ipm->z_opt[3]) / ipm->P_of_z->socc[4]->c[4];
+                                print_mtx(ipm->z_opt, 5, 1);
+                if (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1){
+                    printf("not corrected pos z_opt[0] enough %d\n", hhmpc_ipm_check_positiv(ipm, ipm->z_opt));
+                    return;
+                }
             }
 // // //             real_t tmp[5];
 // // //             print_mtx(ipm->P_of_z->socc[4]->A, 5, 5);
@@ -540,7 +547,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
 {
     const real_t g_step = 1e-6;
     const real_t alpha = 0.25; //0.15;  /* [0.4] Measure for reduction of function value  */
-    const real_t beta = 0.8; //0.5;  /* [0.6] Factor to decrease step ervery iteration */
+    const real_t beta = 0.6; //0.5;  /* [0.6] Factor to decrease step ervery iteration */
     real_t *help_z = ipm->tmp6_optvar_seqlen;
     real_t *help_v = ipm->tmp7_dual_seqlen;
     real_t *t_solve_optvar_seqlen = ipm->tmp1_optvar_seqlen;
