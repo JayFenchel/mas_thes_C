@@ -86,11 +86,18 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
             if (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1){
                 print_mtx(ipm->z_opt, 5, 1);
                 printf("corrected pos z_opt[0] %d\n", hhmpc_ipm_check_positiv(ipm, ipm->z_opt));
-                ipm->z_opt[0] = (0.01 - ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
-                ipm->z_opt[1] = (0.01 - ipm->P_of_z->socc[1]->d[0] - ipm->P_of_z->socc[1]->c[0]*ipm->z_opt[0]) / ipm->P_of_z->socc[1]->c[1];
-                ipm->z_opt[2] = (0.01 - ipm->P_of_z->socc[2]->d[0] - ipm->P_of_z->socc[2]->c[0]*ipm->z_opt[0] - ipm->P_of_z->socc[2]->c[1]*ipm->z_opt[1]) / ipm->P_of_z->socc[2]->c[2];
-                ipm->z_opt[3] = (0.01 - ipm->P_of_z->socc[3]->d[0] - ipm->P_of_z->socc[3]->c[0]*ipm->z_opt[0] - ipm->P_of_z->socc[3]->c[1]*ipm->z_opt[1] - ipm->P_of_z->socc[3]->c[2]*ipm->z_opt[2]) / ipm->P_of_z->socc[3]->c[3];
-                ipm->z_opt[4] = (0.01 - ipm->P_of_z->socc[4]->d[0] - ipm->P_of_z->socc[4]->c[0]*ipm->z_opt[0] - ipm->P_of_z->socc[4]->c[1]*ipm->z_opt[1] - ipm->P_of_z->socc[4]->c[2]*ipm->z_opt[2] - ipm->P_of_z->socc[4]->c[3]*ipm->z_opt[3]) / ipm->P_of_z->socc[4]->c[4];
+                for (k = hhmpc_ipm_check_positiv(ipm, ipm->z_opt); k < ipm->P_of_z->nb_socc; k++){
+                    ipm->z_opt[k] = 0.01 - ipm->P_of_z->socc[k]->d[0];
+                    for (i = 0; i < k; i++){
+                        ipm->z_opt[k] -= ipm->P_of_z->socc[k]->c[i]*ipm->z_opt[i];
+                    }
+                    ipm->z_opt[k] /= ipm->P_of_z->socc[k]->c[k];
+                }
+//                 ipm->z_opt[0] = (0.01 - ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
+//                 ipm->z_opt[1] = (0.01 - ipm->P_of_z->socc[1]->d[0] - ipm->P_of_z->socc[1]->c[0]*ipm->z_opt[0]) / ipm->P_of_z->socc[1]->c[1];
+//                 ipm->z_opt[2] = (0.01 - ipm->P_of_z->socc[2]->d[0] - ipm->P_of_z->socc[2]->c[0]*ipm->z_opt[0] - ipm->P_of_z->socc[2]->c[1]*ipm->z_opt[1]) / ipm->P_of_z->socc[2]->c[2];
+//                 ipm->z_opt[3] = (0.01 - ipm->P_of_z->socc[3]->d[0] - ipm->P_of_z->socc[3]->c[0]*ipm->z_opt[0] - ipm->P_of_z->socc[3]->c[1]*ipm->z_opt[1] - ipm->P_of_z->socc[3]->c[2]*ipm->z_opt[2]) / ipm->P_of_z->socc[3]->c[3];
+//                 ipm->z_opt[4] = (0.01 - ipm->P_of_z->socc[4]->d[0] - ipm->P_of_z->socc[4]->c[0]*ipm->z_opt[0] - ipm->P_of_z->socc[4]->c[1]*ipm->z_opt[1] - ipm->P_of_z->socc[4]->c[2]*ipm->z_opt[2] - ipm->P_of_z->socc[4]->c[3]*ipm->z_opt[3]) / ipm->P_of_z->socc[4]->c[4];
                                 print_mtx(ipm->z_opt, 5, 1);
                 if (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1){
                     printf("not corrected pos z_opt[0] enough %d\n", hhmpc_ipm_check_positiv(ipm, ipm->z_opt));
