@@ -57,79 +57,13 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     calc_kappa(ipm->kappa, ipm, ipm->z_opt);
     printf("calculated kappa = %.20f\n", ipm->kappa[0]);
     
-// //     i = 1;
-// //     update(ipm->P_of_z, ipm->optvar_seqlen,
-// //             t_solve_optvar_seqlen, t_optvar_seqlen);
-// //     printf("%d\n", hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1);
-// //     while (hhmpc_ipm_check_valid(ipm, ipm->z_opt) >= ipm->P_of_z->nb_lin_constr){
-// // //         if (ipm->P_of_z->socc[0]->c[0] * ipm->z_opt[0] <
-// // //                 (0.002*i*i - ipm->P_of_z->socc[0]->d[0])){
-// //             printf("corrected %d z_opt[0]\n", i);
-// //             ipm->z_opt[0] = 
-// //                 (0.001*i*i - ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
-// //             print_mtx(ipm->z_opt, 5, 1);
-// // //         }
-// //         update(ipm->P_of_z, ipm->optvar_seqlen,
-// //             t_solve_optvar_seqlen, t_optvar_seqlen);
-// //         i++;
-// //     }
     
-        update(ipm->P_of_z, ipm->optvar_seqlen,
-            t_solve_optvar_seqlen, t_optvar_seqlen);
-        if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
-        
-//             if (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1){
-//                 print_mtx(ipm->z_opt, 5, 1);
-//                 printf("corrected pos z_opt[0]\n");
-//                 ipm->z_opt[0] = (-1 * ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
-//                 print_mtx(ipm->z_opt, 5, 1);
-//             }
-//             real_t tmp[5];
-//             print_mtx(ipm->P_of_z->socc[4]->A, 5, 5);
-//             print_mtx(ipm->P_of_z->socc[4]->b, 1, 5);
-//             mpcinc_mtx_multiply_mtx_vec(tmp, ipm->P_of_z->socc[4]->A, ipm->z_opt, 5, 5);
-//             print_mtx(tmp, 5, 1);
-//             update(ipm->P_of_z, ipm->optvar_seqlen,
-//                t_solve_optvar_seqlen, t_optvar_seqlen);
-// //             print_mtx(ipm->P, ipm->nb_of_ueq_constr, 5);
-//             printf("%f\n", ipm->P[ipm->P_of_z->nb_lin_constr*ipm->optvar_seqlen]);
-//             ipm->z_opt[0] = (ipm->h[ipm->P_of_z->nb_lin_constr] - 0.0001) /
-//                             ipm->P[ipm->P_of_z->nb_lin_constr*ipm->optvar_seqlen];
-//             print_mtx(ipm->z_opt, 5, 1);
-                            
-            if (ipm->P_of_z->socc[0]->c[0] * ipm->z_opt[0] <
-                    (0.01 - ipm->P_of_z->socc[0]->d[0])){
-                printf("corrected 1 z_opt[0]\n");
-                ipm->z_opt[0] = 
-                    (0.01 - ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
-                print_mtx(ipm->z_opt, 5, 1);            
-            }
-        }
-        update(ipm->P_of_z, ipm->optvar_seqlen,
-            t_solve_optvar_seqlen, t_optvar_seqlen);
-        if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
-            if (ipm->P_of_z->socc[0]->c[0] * ipm->z_opt[0] <
-                    (0.05 - ipm->P_of_z->socc[0]->d[0])){
-                printf("corrected 2 z_opt[0]\n");
-                ipm->z_opt[0] = 
-                    (0.05 - ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
-                print_mtx(ipm->z_opt, 5, 1);            
-            }
-        }
-        update(ipm->P_of_z, ipm->optvar_seqlen,
-            t_solve_optvar_seqlen, t_optvar_seqlen);
-        if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
-            if (ipm->P_of_z->socc[0]->c[0] * ipm->z_opt[0] <
-                    (0.2 - ipm->P_of_z->socc[0]->d[0])){
-                printf("corrected 2 z_opt[0]\n");
-                ipm->z_opt[0] = 
-                    (0.2 - ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
-                print_mtx(ipm->z_opt, 5, 1);            
-            }
-        }
             
     /* Update h for new xk */
     memcpy(ipm->P_of_z->h_hat, ipm->P_of_z->h, sizeof(real_t) * ipm->P_of_z->nb_lin_constr);
+    
+    hhmpc_ipm_get_valid_trick(ipm);
+    
     /*
     print_mtx(ipm->h, ipm->nb_of_ueq_constr, 1);*/
     /*Improve z for a fixed number of steps j_in*/
@@ -386,6 +320,84 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
     }
 #endif
     return -1;
+}
+
+void hhmpc_ipm_get_valid_trick(const struct hhmpc_ipm* ipm)
+{
+    real_t *t_solve_optvar_seqlen = ipm->tmp1_optvar_seqlen;
+    real_t *t_optvar_seqlen = ipm->tmp2_optvar_seqlen;
+    
+    
+// //     i = 1;
+// //     update(ipm->P_of_z, ipm->optvar_seqlen,
+// //             t_solve_optvar_seqlen, t_optvar_seqlen);
+// //     printf("%d\n", hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1);
+// //     while (hhmpc_ipm_check_valid(ipm, ipm->z_opt) >= ipm->P_of_z->nb_lin_constr){
+// // //         if (ipm->P_of_z->socc[0]->c[0] * ipm->z_opt[0] <
+// // //                 (0.002*i*i - ipm->P_of_z->socc[0]->d[0])){
+// //             printf("corrected %d z_opt[0]\n", i);
+// //             ipm->z_opt[0] = 
+// //                 (0.001*i*i - ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
+// //             print_mtx(ipm->z_opt, 5, 1);
+// // //         }
+// //         update(ipm->P_of_z, ipm->optvar_seqlen,
+// //             t_solve_optvar_seqlen, t_optvar_seqlen);
+// //         i++;
+// //     }
+    
+        update(ipm->P_of_z, ipm->optvar_seqlen,
+            t_solve_optvar_seqlen, t_optvar_seqlen);
+        if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
+        
+//             if (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1){
+//                 print_mtx(ipm->z_opt, 5, 1);
+//                 printf("corrected pos z_opt[0]\n");
+//                 ipm->z_opt[0] = (-1 * ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
+//                 print_mtx(ipm->z_opt, 5, 1);
+//             }
+//             real_t tmp[5];
+//             print_mtx(ipm->P_of_z->socc[4]->A, 5, 5);
+//             print_mtx(ipm->P_of_z->socc[4]->b, 1, 5);
+//             mpcinc_mtx_multiply_mtx_vec(tmp, ipm->P_of_z->socc[4]->A, ipm->z_opt, 5, 5);
+//             print_mtx(tmp, 5, 1);
+//             update(ipm->P_of_z, ipm->optvar_seqlen,
+//                t_solve_optvar_seqlen, t_optvar_seqlen);
+// //             print_mtx(ipm->P, ipm->nb_of_ueq_constr, 5);
+//             printf("%f\n", ipm->P[ipm->P_of_z->nb_lin_constr*ipm->optvar_seqlen]);
+//             ipm->z_opt[0] = (ipm->h[ipm->P_of_z->nb_lin_constr] - 0.0001) /
+//                             ipm->P[ipm->P_of_z->nb_lin_constr*ipm->optvar_seqlen];
+//             print_mtx(ipm->z_opt, 5, 1);
+                            
+            if (ipm->P_of_z->socc[0]->c[0] * ipm->z_opt[0] <
+                    (0.01 - ipm->P_of_z->socc[0]->d[0])){
+                printf("corrected 1 z_opt[0]\n");
+                ipm->z_opt[0] = 
+                    (0.01 - ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
+                print_mtx(ipm->z_opt, 5, 1);            
+            }
+        }
+        update(ipm->P_of_z, ipm->optvar_seqlen,
+            t_solve_optvar_seqlen, t_optvar_seqlen);
+        if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
+            if (ipm->P_of_z->socc[0]->c[0] * ipm->z_opt[0] <
+                    (0.05 - ipm->P_of_z->socc[0]->d[0])){
+                printf("corrected 2 z_opt[0]\n");
+                ipm->z_opt[0] = 
+                    (0.05 - ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
+                print_mtx(ipm->z_opt, 5, 1);            
+            }
+        }
+        update(ipm->P_of_z, ipm->optvar_seqlen,
+            t_solve_optvar_seqlen, t_optvar_seqlen);
+        if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
+            if (ipm->P_of_z->socc[0]->c[0] * ipm->z_opt[0] <
+                    (0.2 - ipm->P_of_z->socc[0]->d[0])){
+                printf("corrected 2 z_opt[0]\n");
+                ipm->z_opt[0] = 
+                    (0.2 - ipm->P_of_z->socc[0]->d[0]) / ipm->P_of_z->socc[0]->c[0];
+                print_mtx(ipm->z_opt, 5, 1);            
+            }
+        }
 }
 
 void iterative_refinement(const struct hhmpc_ipm *ipm)
