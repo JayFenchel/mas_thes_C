@@ -11,7 +11,7 @@ void cholesky(real_t sol[],
     }
     
     for (i = 0; i < dim; i++){
-        sol[i*dim+i]+=0.0001;
+//         sol[i*dim+i]+=0.0001;  /* Immernoch benötigt, wenn nicht condensierte Probleme gelöst werden */
         for (j = 0; j < i; j++){
             sol[i*dim+i] -= sol[i*dim+j]*sol[i*dim+j];
         }

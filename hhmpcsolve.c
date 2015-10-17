@@ -40,6 +40,9 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
 //                 tmp_solve);
 //         print_mtx(ipm->delta_z, 5 ,1);
 //     print_mtx(Phi, 5, 5);
+    for (i = 0; i < T*(n+m); i++){
+        ipm->Phi[i*T*(n+m)+i] += ipm->reg[0];
+    }
     cholesky(chol_PHI, ipm->Phi, 5);
 //     print_mtx(chol_PHI, 5, 5);
     mpcinc_mtx_transpose(chol_PHI_T, chol_PHI, 5, 5);
