@@ -30,7 +30,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     real_t *tmp_Phi = ipm->tmp4_mtx_optvar_optvar;
     real_t *eye_nm = ipm->eye_optvar_veclen;
     real_t *eye_n = ipm->eye_state_veclen;
-    real_t f;
+    real_t f, delta_to_zero = 0.01;
 //     printf("g = ");
 //     print_mtx(ipm->g, 5, 1);
 //     printf("H = ");
@@ -62,7 +62,8 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     /* Update h for new xk */
     memcpy(ipm->P_of_z->h_hat, ipm->P_of_z->h, sizeof(real_t) * ipm->P_of_z->nb_lin_constr);
     
-    hhmpc_ipm_get_valid_trick(ipm);
+//     hhmpc_ipm_get_valid_trick(ipm);  /* Trick we used before */
+    hhmpc_ipm_get_positiv(ipm, &delta_to_zero);  /* Only ensure, that c*z +d > 0 */
     
     /*
     print_mtx(ipm->h, ipm->nb_of_ueq_constr, 1);*/
@@ -321,6 +322,36 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
 #endif
     return -1;
 }
+
+/* Ensure, that c*z +d > 0. So we can use generalized inequalities*/
+void hhmpc_ipm_get_positiv(const struct hhmpc_ipm *ipm, real_t *delta)
+{
+    real_t *t_solve_optvar_seqlen = ipm->tmp1_optvar_seqlen;
+    real_t *t_optvar_seqlen = ipm->tmp2_optvar_seqlen;
+    uint32_t i, k;
+    update(ipm->P_of_z, ipm->optvar_seqlen,
+        t_solve_optvar_seqlen, t_optvar_seqlen);
+    
+    if (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1){
+//         print_mtx(ipm->z_opt, 5, 1);
+//         printf("corrected pos z_opt[0] %d\n", hhmpc_ipm_check_positiv(ipm, ipm->z_opt));
+        for (k = 0; k < ipm->P_of_z->nb_socc; k++){
+            if (k == hhmpc_ipm_check_positiv(ipm, ipm->z_opt)){
+                ipm->z_opt[k] = delta[0] - ipm->P_of_z->socc[k]->d[0];
+                for (i = 0; i < k; i++){
+                    ipm->z_opt[k] -= ipm->P_of_z->socc[k]->c[i]*ipm->z_opt[i];
+                }
+                ipm->z_opt[k] /= ipm->P_of_z->socc[k]->c[k];
+            }
+        }
+//         print_mtx(ipm->z_opt, 5, 1);
+// //         if (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1){
+// //             printf("not corrected pos z_opt[0] enough %d\n", hhmpc_ipm_check_positiv(ipm, ipm->z_opt));
+// //             return;
+// //         }
+    }
+}
+
 
 void hhmpc_ipm_get_valid_trick(const struct hhmpc_ipm* ipm)
 {
