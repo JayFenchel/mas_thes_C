@@ -3,6 +3,8 @@
 
 /* Define desired example here. */
 #define HHMPC_SOCPCONDTEST
+// #define HHMPC_SOCPCONDTEST5
+#define HHMPC_QPCONDTEST5
 // #define HHMPC_QPTEST
 // #define HHMPC_QPSMALLTEST
 // #define HHMPC_SOCPTEST
@@ -19,6 +21,8 @@
 
 #ifdef HHMPC_SOCPCONDTEST
 
+#ifdef HHMPC_SOCPCONDTEST5
+
 #define HHMPC_HORIZON 5
 #define HHMPC_SV 0
 #define HHMPC_CV 1
@@ -30,6 +34,24 @@
 #define HHMPC_NB_SOCC 5
 #define HHMPC_NB_IEQ (HHMPC_NB_LCONSTR+HHMPC_NB_QC+HHMPC_NB_SOCC)
 #define HHMPC_NB_SOFT 0
+
+#endif  /* HHMPC_SOCPCONDTEST5 */
+
+#ifdef HHMPC_QPCONDTEST5
+
+#define HHMPC_HORIZON 5
+#define HHMPC_SV 0
+#define HHMPC_CV 1
+#define HHMPC_OV 1
+#define HHMPC_OS 5
+#define HHMPC_DS 0
+#define HHMPC_NB_LCONSTR 10
+#define HHMPC_NB_QC 0
+#define HHMPC_NB_SOCC 0
+#define HHMPC_NB_IEQ (HHMPC_NB_LCONSTR+HHMPC_NB_QC+HHMPC_NB_SOCC)
+#define HHMPC_NB_SOFT 0
+
+#endif  /* HHMPC_QPCONDTEST5 */
 
 #endif
 
