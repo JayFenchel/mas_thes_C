@@ -6,8 +6,11 @@
 #ifdef HHMPC_QPTEST
 #include "hhmpc_qpdata01.h"
 #endif
-#ifdef HHMPC_QPSMALLTEST
+#ifdef HHMPC_QPSMALLTEST5
 #include "hhmpc_qpdatasmall05.h"
+#endif
+#ifdef HHMPC_QPSMALLTEST30
+#include "hhmpc_qpdatasmall30.h"
 #endif
 #ifdef HHMPC_SOCPCONDTEST5
 #include "hhmpc_socpconddata01.h"
