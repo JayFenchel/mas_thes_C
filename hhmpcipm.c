@@ -64,6 +64,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     
 //     hhmpc_ipm_get_valid_trick(ipm);  /* Trick we used before */
     hhmpc_ipm_get_positiv(ipm, &delta_to_zero);  /* Only ensure, that c*z +d > 0 */
+//     hhmpc_ipm_get_valid_lin_constr(ipm, &delta_to_zero);
     
     /*
     print_mtx(ipm->h, ipm->nb_of_ueq_constr, 1);*/
@@ -342,6 +343,35 @@ void hhmpc_ipm_get_positiv(const struct hhmpc_ipm *ipm, real_t *delta)
                     ipm->z_opt[k] -= ipm->P_of_z->socc[k]->c[i]*ipm->z_opt[i];
                 }
                 ipm->z_opt[k] /= ipm->P_of_z->socc[k]->c[k];
+            }
+        }
+//         print_mtx(ipm->z_opt, 5, 1);
+// //         if (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1){
+// //             printf("not corrected pos z_opt[0] enough %d\n", hhmpc_ipm_check_positiv(ipm, ipm->z_opt));
+// //             return;
+// //         }
+    }
+}
+
+/* Ensure, that P*z > h */
+void hhmpc_ipm_get_valid_lin_constr(const struct hhmpc_ipm *ipm, real_t *delta)
+{
+    real_t *t_solve_optvar_seqlen = ipm->tmp1_optvar_seqlen;
+    real_t *t_optvar_seqlen = ipm->tmp2_optvar_seqlen;
+    uint32_t i, k;
+    update(ipm->P_of_z, ipm->optvar_seqlen,
+        t_solve_optvar_seqlen, t_optvar_seqlen);
+    
+    if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
+//         print_mtx(ipm->z_opt, 5, 1);
+//         printf("corrected pos z_opt[0] %d\n", hhmpc_ipm_check_positiv(ipm, ipm->z_opt));
+        for (k = 0; k < ipm->P_of_z->nb_lin_constr; k++){
+            if (k == hhmpc_ipm_check_valid(ipm, ipm->z_opt)){
+                ipm->z_opt[k] =  ipm->P_of_z->h[k] - delta[0];
+                for (i = 0; i < k; i++){
+                    ipm->z_opt[k] -= ipm->P_of_z->P[k*HHMPC_OS + i]*ipm->z_opt[i];
+                }
+                ipm->z_opt[k] /= ipm->P_of_z->P[k*HHMPC_OS + k];
             }
         }
 //         print_mtx(ipm->z_opt, 5, 1);
@@ -1240,7 +1270,7 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
 //     kappa[0] = 0.00008;
 #endif
     kappa[0] += 0;
-    kappa[0] = (kappa[0] > 10*1e-6)? kappa[0] : 10*1e-6;  //-3 statt -5 für QP cond
+    kappa[0] = (kappa[0] > 5*1e-6)? kappa[0] : 5*1e-6;  //-3 statt -5 für QP cond
 
 }
 

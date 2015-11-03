@@ -169,6 +169,8 @@ extern uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t 
 
 extern void hhmpc_ipm_get_positiv(const struct hhmpc_ipm *ipm, real_t *delta_to_zero);
 
+extern void hhmpc_ipm_get_valid_lin_constr(const struct hhmpc_ipm *ipm, real_t *delta_to_zero);
+
 extern void hhmpc_ipm_get_valid_trick(const struct hhmpc_ipm *ipm);
 
 extern uint32_t hhmpc_ipm_check_positiv(const struct hhmpc_ipm *ipm, const real_t *z_check);
