@@ -503,15 +503,15 @@ real_t soccc_data[] = {0.000000,
 struct hhmpc_term soccc_term = {30, 1, soccc_data};
 real_t soccd_data[] = {0.349000};
 struct hhmpc_term soccd_term = {1, 1, soccd_data};
-struct hhmpc_socc socc1_term = {&soccA_term, &soccb_term, &soccc_term,
+struct hhmpc_socc socc0_term = {&soccA_term, &soccb_term, &soccc_term,
                                 &soccd_term, 1, 30};
-struct hhmpc_socc socc2_term = {&soccA_term, &soccb_term, &soccc_term,
+struct hhmpc_socc socc1_term = {&soccA_term, &soccb_term, &soccc_term,
                                 &soccd_term, 32, 30};
-struct hhmpc_socc socc3_term = {&soccA_term, &soccb_term, &soccc_term,
+struct hhmpc_socc socc2_term = {&soccA_term, &soccb_term, &soccc_term,
                                 &soccd_term, 63, 30};
-struct hhmpc_socc socc4_term = {&soccA_term, &soccb_term, &soccc_term, 
+struct hhmpc_socc socc3_term = {&soccA_term, &soccb_term, &soccc_term, 
                                 &soccd_term, 94, 30};
-struct hhmpc_socc socc5_term = {&soccA_term, &soccb_term, &soccc_term,
+struct hhmpc_socc socc4_term = {&soccA_term, &soccb_term, &soccc_term,
                                 &soccd_term, 125, 30};
 
 #endif
