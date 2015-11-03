@@ -29,10 +29,10 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     real_t *L_Phi_T_blocks = ipm->tmp9_L_Phi_T;
     
 #ifdef HHMPC_SOCPCONDTEST
-    real_t chol_PHI[5*5];
-    real_t chol_PHI_T[5*5];
+    real_t chol_PHI[HHMPC_OS*HHMPC_OS];
+    real_t chol_PHI_T[HHMPC_OS*HHMPC_OS];
     int i;
-    for (i=0; i<5; i++)
+    for (i=0; i<HHMPC_OS; i++)
         tmp2_optvar_seqlen[i] = -1*rd[i];
 //     print_mtx(rd, 5, 1);
 //         solveBlock(ipm->delta_z, chol_PHI, chol_PHI_T,
@@ -43,13 +43,13 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     for (i = 0; i < T*(n+m); i++){
         ipm->Phi[i*T*(n+m)+i] += ipm->reg[0];
     }
-    cholesky(chol_PHI, ipm->Phi, 5);
+    cholesky(chol_PHI, ipm->Phi, HHMPC_OS);
 //     print_mtx(chol_PHI, 5, 5);
-    mpcinc_mtx_transpose(chol_PHI_T, chol_PHI, 5, 5);
-    fwd_subst(tmp1_optvar_seqlen, chol_PHI, 5, tmp2_optvar_seqlen, 1);
+    mpcinc_mtx_transpose(chol_PHI_T, chol_PHI, HHMPC_OS, HHMPC_OS);
+    fwd_subst(tmp1_optvar_seqlen, chol_PHI, HHMPC_OS, tmp2_optvar_seqlen, 1);
 //     print_mtx(rd, 5, 1);
 //     print_mtx(delta_z, 5, 1);
-    bwd_subst(delta_z, chol_PHI_T, 5, tmp1_optvar_seqlen, 1);
+    bwd_subst(delta_z, chol_PHI_T, HHMPC_OS, tmp1_optvar_seqlen, 1);
 //     print_mtx(delta_z, 5 ,1);
 #endif
 #ifndef HHMPC_SOCPCONDTEST

@@ -41,7 +41,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 //             ipm->H[k*5+l] *= 500.;
 //         }
 //     }
-    for (k = 0; k < 5; k++){
+    for (k = 0; k < HHMPC_OS; k++){
             ipm->g[k] *= 2.;
     }
 #endif
@@ -1240,7 +1240,7 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
 //     kappa[0] = 0.00008;
 #endif
     kappa[0] += 0;
-    kappa[0] = (kappa[0] > 10*1e-3)? kappa[0] : 10*1e-3;  //-3 statt -5 für QP cond
+    kappa[0] = (kappa[0] > 10*1e-5)? kappa[0] : 10*1e-5;  //-3 statt -5 für QP cond
 
 }
 
