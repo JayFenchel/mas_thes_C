@@ -9,8 +9,11 @@
 #ifdef HHMPC_QPSMALLTEST
 #include "hhmpc_qpdatasmall02.h"
 #endif
-#ifdef HHMPC_SOCPCONDTEST
+#ifdef HHMPC_SOCPCONDTEST5
 #include "hhmpc_socpconddata01.h"
+#endif
+#ifdef HHMPC_QPCONDTEST5
+#include "hhmpc_qpconddata05.h"
 #endif
 #ifdef HHMPC_SOCPTEST
 #include "hhmpc_socpdata01.h"
@@ -31,6 +34,7 @@ void form_socp_H(struct hhmpc_socp *socp)
 #ifdef HHMPC_SOCPCONDTEST
 void form_socp_with_cvp(struct hhmpc_socp *socp, struct mpc_cvp_prb *cvp_prb)
 {
+uint32_t i;
 socp->constant[HHMPC_Q_KL] = &q_term;
 // socp->constant[HHMPC_Q] = &Q_term;
 socp->constant[HHMPC_R_KL] = &r_term;
@@ -138,7 +142,19 @@ socp->prb->H = &Hcond_term;
 socp->prb->H->data = cvp_prb->H->data;
 socp->prb->H->rows = cvp_prb->H->rows;
 socp->prb->H->cols = cvp_prb->H->cols;
-
+#ifndef HHMPC_SOCPCONDTEST5
+// socp->constant[HHMPC_P]->data = cvp_prb->V->data;
+// socp->constant[HHMPC_P]->rows = cvp_prb->V->rows;
+// socp->constant[HHMPC_P]->cols = cvp_prb->V->cols;
+for (i=0; i < HHMPC_NB_LCONSTR/2; i++){
+    socp->prb->h->data[HHMPC_NB_LCONSTR/2+i] = cvp_prb->v_ub->data[2+i];
+}
+print_mtx(socp->prb->h->data, 1, 20);
+// // socp->prb->h->data[12] = cvp_prb->v_ub->data;
+// socp->prb->h->rows = 2* cvp_prb->v_ub->rows;
+// socp->prb->h->cols = cvp_prb->v_ub->cols;
+// 
+#endif
 #ifdef HHMPC_SOCPCONDTEST5
 socp->prb->socc = psocc_term;
 socp->prb->socc[0] = &socc0_term; 

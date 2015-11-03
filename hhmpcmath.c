@@ -17,7 +17,7 @@ void cholesky(real_t sol[],
         }
 //         printf("HIER sqrt\n");
         if (sol[i*dim+i]<0) printf("WARNUNG! %f\n",sol[i*dim+i] ); 
-        sol[i*dim+i] = sqrtf(smpl_abs(sol[i*dim+i]));
+        sol[i*dim+i] = sqrtf(smpl_abs(sol[i*dim+i]));  /* I think it's better if algo fails! */
 //         sol[i*dim+i] = smpl_sqrt(smpl_abs(sol[i*dim+i]), 2.);
         
 //         printf("HIER after sqrt\n");
