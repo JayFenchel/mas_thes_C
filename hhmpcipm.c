@@ -1240,7 +1240,7 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
 //     kappa[0] = 0.00008;
 #endif
     kappa[0] += 0;
-    kappa[0] = (kappa[0] > 10*1e-5)? kappa[0] : 10*1e-5;  //-3 statt -5 für QP cond
+    kappa[0] = (kappa[0] > 10*1e-6)? kappa[0] : 10*1e-6;  //-3 statt -5 für QP cond
 
 }
 

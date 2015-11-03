@@ -15,8 +15,14 @@
 #ifdef HHMPC_QPCONDTEST5
 #include "hhmpc_qpconddata05.h"
 #endif
+#ifdef HHMPC_QPCONDTEST10
+#include "hhmpc_qpconddata10.h"
+#endif
 #ifdef HHMPC_QPCONDTEST20
 #include "hhmpc_qpconddata20.h"
+#endif
+#ifdef HHMPC_QPCONDTEST30
+#include "hhmpc_qpconddata30.h"
 #endif
 #ifdef HHMPC_SOCPTEST
 #include "hhmpc_socpdata01.h"
@@ -150,7 +156,7 @@ socp->prb->H->cols = cvp_prb->H->cols;
 // socp->constant[HHMPC_P]->rows = cvp_prb->V->rows;
 // socp->constant[HHMPC_P]->cols = cvp_prb->V->cols;
 mpcinc_mtx_scale_direct(socp->constant[HHMPC_P]->data, -1, HHMPC_NB_LCONSTR/2, HHMPC_OS);
-print_mtx(socp->prb->P->data, 80, 20);
+print_mtx(socp->prb->P->data, HHMPC_NB_LCONSTR, HHMPC_OS);
 for (i=0; i < HHMPC_NB_LCONSTR/2; i++){
     socp->prb->h->data[HHMPC_NB_LCONSTR/2+i] = cvp_prb->v_ub->data[2+i];
 }
