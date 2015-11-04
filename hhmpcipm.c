@@ -1288,7 +1288,7 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     kappa[0] += tmp2[0];
     kappa[0] *= 0.01/ipm->optvar_veclen;  /* TODO auf optvar_seqlen umstellen*/
 #ifdef HHMPC_QPSMALLTEST
-    kappa[0] /= 6;
+    kappa[0] /= 1000;
 #endif
 #ifdef HHMPC_SOCPCONDTEST
 //     kappa[0] /= 4;
