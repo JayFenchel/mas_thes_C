@@ -2,16 +2,16 @@
 #define STATIC_DATA_H
 
 /* Define desired example here. */
-// #define HHMPC_SOCPCONDTEST  /* enable for HHMPC_QPCONDTESTs, too */
+#define HHMPC_SOCPCONDTEST  /* enable for HHMPC_QPCONDTESTs, too */
 // #define HHMPC_SOCPCONDTEST5
 // #define HHMPC_QPCONDTEST5
 // #define HHMPC_QPCONDTEST10
 // #define HHMPC_QPCONDTEST20
-// #define HHMPC_QPCONDTEST30
+#define HHMPC_QPCONDTEST30
 // #define HHMPC_QPTEST
-#define HHMPC_QPSMALLTEST
-// #define HHMPC_QPSMALLTEST5
-#define HHMPC_QPSMALLTEST30
+// #define HHMPC_QPSMALLTEST
+// // #define HHMPC_QPSMALLTEST5
+// #define HHMPC_QPSMALLTEST30
 // #define HHMPC_SOCPTEST
 // #define HHMPC_SOCPHARDTEST
 // #define HHMPC_SOCPSOFTTEST
