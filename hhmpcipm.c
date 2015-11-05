@@ -15,7 +15,7 @@ static void bt_line_search(real_t *good_step, const struct hhmpc_ipm *ipm);
 
 static void hhmpc_ipm_warm_start(const struct hhmpc_ipm *ipm);
 
-
+static void hhmpc_multiply_H_z(real_t *product, const real_t *z, const struct hhmpc_ipm *ipm);
 
 /* external functions definition */
 
@@ -35,7 +35,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 //     print_mtx(ipm->g, 5, 1);
 //     printf("H = ");
 //     print_mtx(ipm->H, 5, 5);
-#ifdef HHMPC_SOCPCONDTEST
+#ifndef HHMPC_SOCPCONDTEST
 //     for (k = 0; k < 5; k++){
 //         for (l = 0; l < 5; l++){
 //             ipm->H[k*5+l] *= 500.;
@@ -746,23 +746,38 @@ void residual_norm(real_t *f, const real_t *r_d, const real_t *r_p,
     } 
 }
 
-
+/* Calculate the residum r = (r_d, r_p) */
 void residual(const struct hhmpc_ipm *ipm,
-              const real_t *z, const real_t *v, const real_t *d, const real_t kappa)
+              const real_t *z, const real_t *v, const real_t *d,
+              const real_t kappa)
 {
     real_t *tmp1_os = ipm->tmp1_res_os;
     real_t *tmp2_os = ipm->tmp2_res_os;
     real_t *tmp3_ds = ipm->tmp3_res_ds;
-    
-    mpcinc_mtx_multiply_mtx_vec(tmp1_os, ipm->P2_T, d, ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
+    /* Term kappa*P^T*d */
+    mpcinc_mtx_multiply_mtx_vec(tmp1_os, ipm->P2_T, d,
+                                ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
     mpcinc_mtx_scale(ipm->r_d, tmp1_os, kappa, ipm->optvar_seqlen, 1);
+    /* Add term C^T*v */
     mpcinc_mtx_mul_add(ipm->r_d, tmp1_os, ipm->C_T, v,
                        ipm->optvar_seqlen, ipm->dual_seqlen);
+    /* Add term g */
     mpcinc_mtx_add_direct(ipm->r_d, ipm->g,
                           ipm->optvar_seqlen, 1);
+    /* Add term 2*H*(z-z_ref) */
+    /* Calculate distance to the reference (z-z_ref) */
     mpcinc_mtx_substract(tmp2_os, z, ipm->zref, ipm->optvar_seqlen, 1);
-    mpcinc_mtx_multiply_mtx_vec(tmp1_os, ipm->H, tmp2_os,
-                                ipm->optvar_seqlen, ipm->optvar_seqlen);
+    
+    hhmpc_multiply_H_z(tmp1_os, tmp2_os, ipm);
+    
+//     print_mtx(tmp1_os, ipm->optvar_seqlen, 1);
+//     
+//     mpcinc_mtx_multiply_mtx_vec(tmp1_os, ipm->H, tmp2_os,
+//                                 ipm->optvar_seqlen, ipm->optvar_seqlen);
+//     
+//     print_mtx(tmp1_os, ipm->optvar_seqlen, 1);
+    
+    
     mpcinc_mtx_scale_direct(tmp1_os, 2, ipm->optvar_seqlen, 1);
     mpcinc_mtx_add_direct(ipm->r_d, tmp1_os, ipm->optvar_seqlen, 1);
     
@@ -772,6 +787,33 @@ void residual(const struct hhmpc_ipm *ipm,
     mpcinc_mtx_mul_add(ipm->r_p, tmp3_ds, ipm->C, z,
                        ipm->dual_seqlen, ipm->optvar_seqlen);
 }
+
+void hhmpc_multiply_H_z(real_t *product, const real_t *z,
+                        const struct hhmpc_ipm* ipm)
+{
+    uint32_t i, j, k;
+    for (i = 0; i < ipm->control_veclen; i++){
+        product[i] = 0.;
+        for (j = 0; j < ipm->control_veclen; j++){
+            product[i] += ipm->H[i*ipm->optvar_seqlen+j]*z[j];
+        }
+    }
+    for (k = 0; k < ipm->horizon-1; k++){
+        for (i = ipm->control_veclen + k*ipm->optvar_veclen; i < ipm->control_veclen + (k+1)*ipm->optvar_veclen; i++){
+            product[i] = 0.;
+            for (j = ipm->control_veclen + k*ipm->optvar_veclen; j < ipm->control_veclen + (k+1)*ipm->optvar_veclen; j++){
+                product[i] += ipm->H[i*ipm->optvar_seqlen+j]*z[j];
+            }
+        }
+    }
+    for (i = ipm->control_veclen + k*ipm->optvar_veclen; i < (k+1)*ipm->optvar_veclen; i++){
+        product[i] = 0.;
+        for (j = ipm->control_veclen + k*ipm->optvar_veclen; j < (k+1)*ipm->optvar_veclen; j++){
+            product[i] += ipm->H[(i*ipm->optvar_veclen + j)*ipm->optvar_seqlen+j];
+        }
+    }
+}
+
 
 void form_Phi(real_t *Phi, real_t *help, real_t *t_Phi,
               const struct hhmpc_ipm *ipm,
