@@ -9,6 +9,12 @@
 #ifdef HHMPC_QPSMALLTEST5
 #include "hhmpc_qpdatasmall05.h"
 #endif
+#ifdef HHMPC_QPSMALLTEST10
+#include "hhmpc_qpdatasmall10.h"
+#endif
+#ifdef HHMPC_QPSMALLTEST20
+#include "hhmpc_qpdatasmall20.h"
+#endif
 #ifdef HHMPC_QPSMALLTEST30
 #include "hhmpc_qpdatasmall30.h"
 #endif
