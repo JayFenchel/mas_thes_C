@@ -35,7 +35,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 //     print_mtx(ipm->g, 5, 1);
 //     printf("H = ");
 //     print_mtx(ipm->H, 5, 5);
-#ifndef HHMPC_SOCPCONDTEST
+#ifdef HHMPC_SOCPCONDTEST
 //     for (k = 0; k < 5; k++){
 //         for (l = 0; l < 5; l++){
 //             ipm->H[k*5+l] *= 500.;
@@ -134,10 +134,10 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 
 //         print_mtx(ipm->delta_z, ipm->optvar_seqlen, 1);
 #ifndef HHMPC_SOCPCONDTEST
+        iterative_refinement(ipm);/*
         iterative_refinement(ipm);
         iterative_refinement(ipm);
-        iterative_refinement(ipm);
-        iterative_refinement(ipm);
+        iterative_refinement(ipm);*/
 #endif
 //         real_t tom1[ipm->optvar_seqlen*ipm->optvar_seqlen];
 //         real_t tom2[ipm->optvar_seqlen];
@@ -165,8 +165,8 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         print_mtx(ipm->z_opt, ipm->optvar_seqlen, 1);
         print_mtx(ipm->v_opt, ipm->dual_seqlen, 1);*/
         if (f <= 1e-12){
-            printf("break, res_norm = %f\n", f);
-            break;
+//             printf("break, res_norm = %f\n", f);
+//             break;
         }
 //         ipm->kappa[0] *= 0.8;
     }
@@ -252,11 +252,11 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
 #ifdef HHMPC_QPSMALLTEST
     for (i = 0; i < 2; i++){
 //         printf("%f\n", help1[i]);
-        if (help1[i] >= 0) {return i;}
+        if (help1[i] >= 0.) {return i;}
     }
     for (i = 3; i < ipm->nb_of_ueq_constr; i++){
 //         printf("%f\n", help1[i]);
-        if (help1[i] >= 0) {return i;}
+        if (help1[i] >= 0.) {return i;}
     }
 #endif
 #ifdef HHMPC_SOCPCONDTEST
@@ -768,12 +768,12 @@ void residual(const struct hhmpc_ipm *ipm,
     /* Calculate distance to the reference (z-z_ref) */
     mpcinc_mtx_substract(tmp2_os, z, ipm->zref, ipm->optvar_seqlen, 1);
     
-    hhmpc_multiply_H_z(tmp1_os, tmp2_os, ipm);
+//     hhmpc_multiply_H_z(tmp1_os, tmp2_os, ipm);
     
 //     print_mtx(tmp1_os, ipm->optvar_seqlen, 1);
 //     
-//     mpcinc_mtx_multiply_mtx_vec(tmp1_os, ipm->H, tmp2_os,
-//                                 ipm->optvar_seqlen, ipm->optvar_seqlen);
+    mpcinc_mtx_multiply_mtx_vec(tmp1_os, ipm->H, tmp2_os,
+                                ipm->optvar_seqlen, ipm->optvar_seqlen);
 //     
 //     print_mtx(tmp1_os, ipm->optvar_seqlen, 1);
     
@@ -823,12 +823,36 @@ void form_Phi(real_t *Phi, real_t *help, real_t *t_Phi,
               const real_t kappa,
               const uint32_t optvar, const uint32_t nb_of_ueq)
 {    
-    uint32_t i, j, pos_d, pos_Phi;
+    uint32_t i, j, k, pos_d, pos_Phi;
     struct hhmpc_ipm_qc *qc_i;
     struct hhmpc_ipm_socc *socc_i;
+    
+    for (j = 0; j < optvar; j++){
+        for (i = 0; i < nb_of_ueq; i++){
+            help[j*nb_of_ueq+i] = P_T[j*nb_of_ueq+i]*diag_d_sq[i*nb_of_ueq+i];
+        }
+    }
+    
+    for (i = 0; i < ipm->control_veclen; i++){  /* Zeile in Phi */
+        for (k = 0; k < ipm->control_veclen; k++){ /* Spalte in Phi */
+            mpcinc_mtx_multiply_mtx_vec(Phi+i*optvar+k, help+i*nb_of_ueq, P_T+k*nb_of_ueq, 1, nb_of_ueq);
+        }
+    }
+    for (j = 0; j < ipm->horizon-1; j++){
+        for (i = ipm->control_veclen + j*ipm->optvar_veclen; i < ipm->control_veclen + (j+1)*ipm->optvar_veclen; i++){  /* Zeile in Phi */
+            for (k = ipm->control_veclen + j*ipm->optvar_veclen; k < ipm->control_veclen + (j+1)*ipm->optvar_veclen; k++){ /* Spalte in Phi */
+                mpcinc_mtx_multiply_mtx_vec(Phi+i*optvar+k, help+i*nb_of_ueq, P_T+k*nb_of_ueq, 1, nb_of_ueq);
+            }
+        }
+    }
+    for (i = ipm->control_veclen + j*ipm->optvar_veclen; i < (j+1)*ipm->optvar_veclen; i++){  /* Zeile in Phi */
+        for (k = ipm->control_veclen + j*ipm->optvar_veclen; k < (j+1)*ipm->optvar_veclen; k++){ /* Spalte in Phi */
+            mpcinc_mtx_multiply_mtx_vec(Phi+i*optvar+k, help+i*nb_of_ueq, P_T+k*nb_of_ueq, 1, nb_of_ueq);
+        }
+    }
 
-    mpcinc_mtx_multiply_mtx_mtx(help, P_T, diag_d_sq, optvar, nb_of_ueq, nb_of_ueq);
-    mpcinc_mtx_multiply_mtx_mtx(Phi, help, P, optvar, nb_of_ueq, optvar);
+//     mpcinc_mtx_multiply_mtx_mtx(help, P_T, diag_d_sq, optvar, nb_of_ueq, nb_of_ueq);
+//     mpcinc_mtx_multiply_mtx_mtx(Phi, help, P, optvar, nb_of_ueq, optvar);
 
     /* Additional terms for Phi resulting of the second derivative of qc */
     for (i = 0; i < P_hat->nb_qc; i++){
@@ -1330,7 +1354,7 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     kappa[0] += tmp2[0];
     kappa[0] *= 0.01/ipm->optvar_veclen;  /* TODO auf optvar_seqlen umstellen*/
 #ifdef HHMPC_QPSMALLTEST
-    kappa[0] /= 1000;
+    kappa[0] /= 18;
 #endif
 #ifdef HHMPC_SOCPCONDTEST
 //     kappa[0] /= 4;
