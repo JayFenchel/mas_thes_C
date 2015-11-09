@@ -70,8 +70,8 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 //     hhmpc_ipm_get_positiv(ipm, &delta_to_zero);  /* Only ensure, that c*z +d > 0 */
     hhmpc_ipm_get_valid_lin_constr(ipm, &delta_to_zero_lin);
 #endif    
-    /*
-    print_mtx(ipm->h, ipm->nb_of_ueq_constr, 1);*/
+    
+//     print_mtx(ipm->h, 1, ipm->nb_of_ueq_constr);
     /*Improve z for a fixed number of steps j_in*/
     for (j = 0; j < *(ipm->j_in); j++) {  /*  TODO here error, compiling for MC */
         update(ipm->P_of_z, ipm->optvar_seqlen,
@@ -123,7 +123,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         /* Calculate the residual */
         residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
         residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
-//         print_mtx(ipm->r_d, ipm->optvar_seqlen, 1);
+//         print_mtx(ipm->r_p, ipm->dual_seqlen, 1);
 //         printf("res_norm = %f\n", f);
 //         print_mtx(ipm->Phi, ipm->optvar_seqlen, ipm->optvar_seqlen);
         /* Solve system of linear equations to obtain the step direction */
@@ -165,9 +165,9 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
             printf("No valid step possible: return");
             return;
         }
-        /*
-        print_mtx(ipm->z_opt, ipm->optvar_seqlen, 1);
-        print_mtx(ipm->v_opt, ipm->dual_seqlen, 1);*/
+        
+//         print_mtx(ipm->z_opt, ipm->optvar_veclen, 1);
+//         print_mtx(ipm->v_opt, ipm->dual_seqlen, 1);
         if (f <= 1e-12){
 //             printf("break, res_norm = %f\n", f);
 //             break;
@@ -193,6 +193,8 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     if (ipm->conf->warm_start) {
         hhmpc_ipm_warm_start(ipm);
     }
+//     print_mtx(ipm->z_opt, ipm->optvar_veclen, 1);
+//     print_mtx(ipm->r_p, ipm->state_veclen, 1);
     /*
     memcpy(ipm->z_ini, ipm->z_opt, ipm->sizeof_optvar_seqlen);
     memcpy(ipm->v_ini, ipm->v_opt, ipm->sizeof_dual_seqlen);*/
@@ -258,6 +260,11 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
 //         printf("%f\n", help1[i]);
         if (help1[i] >= 0.) {return i;}
     }
+//         printf("%f\n", help1[i]);
+//     if (help1[i] > 0.) {
+//         print_mtx(help1, ipm->nb_of_ueq_constr, 1);
+//         return i;
+//     }
     for (i = 3; i < ipm->nb_of_ueq_constr; i++){
 //         printf("%f\n", help1[i]);
         if (help1[i] >= 0.) {return i;}
@@ -710,7 +717,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     while ((hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1) || (f_p_g > (f_p + alpha*st*g_in_dir)) || (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1) )
     {
         st *= beta;
-        if (st < g_step){break;}
+        if (st < g_step){/*st = 0.;*/ break;}
         
         mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st,
                          ipm->optvar_seqlen, 1);
@@ -748,12 +755,13 @@ void residual_norm(real_t *f, const real_t *r_d, const real_t *r_p,
 {
     uint32_t i;
     f[0] = 0.;
-    for (i = 0; i < ld; i++){
-        f[0] += r_d[i]*r_d[i];
-    }
+    /* Better solution if only norm(r_p) is calculated */
+//     for (i = 0; i < ld; i++){
+//         f[0] += r_d[i]*r_d[i];
+//     }
     for (i = 0; i < lp; i++){
         f[0] += r_p[i]*r_p[i];
-    } 
+    }
 }
 
 /* Calculate the residum r = (r_d, r_p) */
@@ -1417,14 +1425,14 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     kappa[0] += tmp2[0];
     kappa[0] *= 0.01/ipm->optvar_veclen;  /* TODO auf optvar_seqlen umstellen*/
 #ifdef HHMPC_QPSMALLTEST
-    kappa[0] /= 18;
+    kappa[0] /= 12;
 #endif
 #ifdef HHMPC_SOCPCONDTEST
 //     kappa[0] /= 4;
 //     kappa[0] = 0.00008;
 #endif
     kappa[0] += 0;
-    kappa[0] = (kappa[0] > 5*1e-9)? kappa[0] : 5*1e-9;  //-3 statt -5 für QP cond
+    kappa[0] = (kappa[0] > 5*1e-5)? kappa[0] : 5*1e-5;  //-3 statt -5 für QP cond
  /* N=30: cond 5*1e-9, uncond 5*1e-6*/
 }
 
