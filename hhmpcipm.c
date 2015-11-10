@@ -1117,23 +1117,32 @@ void form_Phi(real_t *Phi, real_t *help, real_t *t_Phi,
         }
     }
     /* Fast multication of above product with P by use of its structure */
-    for (i = 0; i < ipm->control_veclen; i++){  /* Zeile in Phi */
-        for (k = 0; k < ipm->control_veclen; k++){ /* Spalte in Phi */
-            mpcinc_mtx_multiply_mtx_vec(Phi+i*optvar+k, help+i*nb_of_ueq, P_T+k*nb_of_ueq, 1, nb_of_ueq);
-        }
+//     for (i = 0; i < ipm->control_veclen; i++){  /* Zeile in Phi */
+//         for (k = 0; k < ipm->control_veclen; k++){ /* Spalte in Phi */
+//             mpcinc_mtx_multiply_mtx_vec(Phi+i*optvar+k, help+i*nb_of_ueq, P_T+k*nb_of_ueq, 1, nb_of_ueq);
+//         }
+//     }
+//     for (j = 0; j < ipm->horizon-1; j++){
+//         for (i = ipm->control_veclen + j*ipm->optvar_veclen; i < ipm->control_veclen + (j+1)*ipm->optvar_veclen; i++){  /* Zeile in Phi */
+//             for (k = ipm->control_veclen + j*ipm->optvar_veclen; k < ipm->control_veclen + (j+1)*ipm->optvar_veclen; k++){ /* Spalte in Phi */
+//                 mpcinc_mtx_multiply_mtx_vec(Phi+i*optvar+k, help+i*nb_of_ueq, P_T+k*nb_of_ueq, 1, nb_of_ueq);
+//             }
+//         }
+//     }
+//     for (i = ipm->control_veclen + j*ipm->optvar_veclen; i < (j+1)*ipm->optvar_veclen; i++){  /* Zeile in Phi */
+//         for (k = ipm->control_veclen + j*ipm->optvar_veclen; k < (j+1)*ipm->optvar_veclen; k++){ /* Spalte in Phi */
+//             mpcinc_mtx_multiply_mtx_vec(Phi+i*optvar+k, help+i*nb_of_ueq, P_T+k*nb_of_ueq, 1, nb_of_ueq);
+//         }
+//     }
+    
+    
+    for (i = 0; i < ipm->optvar_seqlen; i++){
+        hhmpc_multiply_P_T_d(Phi+i*optvar, P_T, help+i*nb_of_ueq, ipm);
     }
-    for (j = 0; j < ipm->horizon-1; j++){
-        for (i = ipm->control_veclen + j*ipm->optvar_veclen; i < ipm->control_veclen + (j+1)*ipm->optvar_veclen; i++){  /* Zeile in Phi */
-            for (k = ipm->control_veclen + j*ipm->optvar_veclen; k < ipm->control_veclen + (j+1)*ipm->optvar_veclen; k++){ /* Spalte in Phi */
-                mpcinc_mtx_multiply_mtx_vec(Phi+i*optvar+k, help+i*nb_of_ueq, P_T+k*nb_of_ueq, 1, nb_of_ueq);
-            }
-        }
-    }
-    for (i = ipm->control_veclen + j*ipm->optvar_veclen; i < (j+1)*ipm->optvar_veclen; i++){  /* Zeile in Phi */
-        for (k = ipm->control_veclen + j*ipm->optvar_veclen; k < (j+1)*ipm->optvar_veclen; k++){ /* Spalte in Phi */
-            mpcinc_mtx_multiply_mtx_vec(Phi+i*optvar+k, help+i*nb_of_ueq, P_T+k*nb_of_ueq, 1, nb_of_ueq);
-        }
-    }
+    
+    
+    
+    
 #endif
 #ifdef HHMPC_SOCPCONDTEST
     mpcinc_mtx_multiply_mtx_mtx(help, P_T, diag_d_sq, optvar, nb_of_ueq, nb_of_ueq);
@@ -1630,8 +1639,9 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     
     mpcinc_mtx_substract(tmp3, ipm->z_opt, ipm->zref, ipm->optvar_seqlen, 1);
     
-    mpcinc_mtx_multiply_mtx_mtx(tmp1, ipm->z_opt, ipm->H,
-                                1, ipm->optvar_seqlen, ipm->optvar_seqlen);
+//     mpcinc_mtx_multiply_mtx_mtx(tmp1, ipm->z_opt, ipm->H,
+//                                 1, ipm->optvar_seqlen, ipm->optvar_seqlen);
+    hhmpc_multiply_H_z(tmp1, ipm->H, ipm->z_opt, ipm);
     mpcinc_mtx_multiply_mtx_vec(tmp2, tmp1, ipm->z_opt, 1, ipm->optvar_seqlen);
     mpcinc_mtx_multiply_mtx_vec(kappa, ipm->g, z, 1, ipm->optvar_seqlen);
     kappa[0] = tmp2[0];
