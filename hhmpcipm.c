@@ -1422,18 +1422,20 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
                                 1, ipm->optvar_seqlen, ipm->optvar_seqlen);
     mpcinc_mtx_multiply_mtx_vec(tmp2, tmp1, ipm->z_opt, 1, ipm->optvar_seqlen);
     mpcinc_mtx_multiply_mtx_vec(kappa, ipm->g, z, 1, ipm->optvar_seqlen);
-    kappa[0] += tmp2[0];
-    kappa[0] *= 0.01/ipm->optvar_veclen;  /* TODO auf optvar_seqlen umstellen*/
+    kappa[0] = tmp2[0];
+    kappa[0] *= 0.01*30/ipm->optvar_seqlen;  /* TODO auf optvar_seqlen umstellen*/
 #ifdef HHMPC_QPSMALLTEST
-    kappa[0] /= 12;
+    kappa[0] /= 24;
 #endif
 #ifdef HHMPC_SOCPCONDTEST
-//     kappa[0] /= 4;
+    kappa[0] /= 24*3;
 //     kappa[0] = 0.00008;
 #endif
-    kappa[0] += 0;
+    kappa[0] += 0;    
+    printf("calculated kappa = %.20f\n", ipm->kappa[0]);
+
     /* -5 N=5, höchstens -6 N=20, -8 N= 30 */
-    kappa[0] = (kappa[0] > 5*1e-9)? kappa[0] : 5*1e-9;  //-3 statt -5 für QP cond
+    kappa[0] = (kappa[0] > 5*1e-8)? kappa[0] : 5*1e-8;  //-3 statt -5 für QP cond
  /* N=30: cond 5*1e-9, uncond 5*1e-6*/
 }
 
