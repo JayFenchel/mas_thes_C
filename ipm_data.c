@@ -215,6 +215,7 @@ void form_ipm(struct hhmpc_ipm *ipm, struct hhmpc_socp_prb *prb){
     ipm->d = d;
     ipm->dsoft = dsoft;
     ipm->diag_d_sq = diag_d_sq;
+    zeroes(diag_d_sq, ipm->nb_of_ueq_constr*ipm->nb_of_ueq_constr);
     ipm->diag_d_soft = diag_d_soft;
     ipm->Phi = Phi;
     zeroes(ipm->Phi, ipm->optvar_seqlen*ipm->optvar_seqlen);
