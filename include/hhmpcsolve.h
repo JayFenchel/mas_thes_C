@@ -24,6 +24,7 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
                     real_t *L_Y, real_t *L_Y_T);
 
 void form_delta_z(real_t delta_z[],
+                  const struct hhmpc_ipm *ipm,
                   real_t *tmp_optvar_seqlen,
                   const real_t delta_v[],
                   const real_t mtxL_Phi[],
@@ -39,6 +40,7 @@ void form_delta_v(real_t delta_v[],
                   const uint32_t T, const uint32_t n);
 
 void form_beta(real_t beta[],
+               const struct hhmpc_ipm *ipm,
                const real_t mtxL_Phi[],
                const real_t mtxL_Phi_T[],
                const real_t rd[], const real_t rp[],

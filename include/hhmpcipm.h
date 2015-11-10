@@ -163,6 +163,10 @@ struct hhmpc_ipm {
 
 /* External function declarations */
 
+extern void hhmpc_multiply_C_z(real_t *product, const real_t *z, const struct hhmpc_ipm *ipm);
+
+extern void hhmpc_multiply_C_T_v(real_t *product, const real_t *v, const struct hhmpc_ipm *ipm);
+
 extern void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm);
 
 extern uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_check);

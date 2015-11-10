@@ -60,16 +60,17 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
            Block_nxn1, Block_nxn2, tmp_optvar_veclenxoptvar_veclen);
 
     /* temporären Zeiger für beta sparen */
-    form_beta(delta_v, L_Phi_blocks, L_Phi_T_blocks, rd, rp, T, C, n, m,
+    form_beta(delta_v, ipm, L_Phi_blocks, L_Phi_T_blocks, rd, rp, T, C, n, m,
               tmp1_optvar_seqlen, tmp2_optvar_seqlen);
     form_delta_v(delta_v, tmp_dual_seqlen, tmp3_state_veclen, 
                  L_Y, L_Y_T, T, n);
-    form_delta_z(delta_z, tmp1_optvar_seqlen, delta_v,
+    form_delta_z(delta_z, ipm, tmp1_optvar_seqlen, delta_v,
                  L_Phi_blocks, L_Phi_T_blocks, rd, C_T, T, n, m);   
 #endif
 }
 
 void form_delta_z(real_t delta_z[],
+                  const struct hhmpc_ipm *ipm,
                   real_t *tmp_optvar_seqlen,
                   const real_t delta_v[],
                   const real_t L_Phi[],
@@ -79,7 +80,10 @@ void form_delta_z(real_t delta_z[],
                   const uint32_t T, const uint32_t n, const uint32_t m)
 {
     uint32_t i;
-    mpcinc_mtx_multiply_mtx_vec(delta_z, C_T, delta_v, T*(n+m), T*n);
+    
+    
+    hhmpc_multiply_C_T_v(delta_z, delta_v, ipm);
+//     mpcinc_mtx_multiply_mtx_vec(delta_z, C_T, delta_v, T*(n+m), T*n);
     mpcinc_mtx_add_direct(delta_z, rd, T*(n+m), 1);
     mpcinc_mtx_scale_direct(delta_z, -1, T*(n+m), 1);
 //     print_mtx(delta_z, T*(n+m), 1);
@@ -128,6 +132,7 @@ void form_delta_v(real_t delta_v[],
 }
 
 void form_beta(real_t beta[],
+               const struct hhmpc_ipm *ipm,
                const real_t L_Phi[],
                const real_t L_Phi_T[],
                const real_t rd[], const real_t rp[],
@@ -156,7 +161,8 @@ void form_beta(real_t beta[],
     bwd_subst(tmp2+m+i*(n+m), L_Phi_T+m*m+i*(n+m)*(n+m), n+m, tmp1+m+i*(n+m), 1);
     bwd_subst(tmp2, L_Phi_T, m, tmp1, 1);
     
-    mpcinc_mtx_multiply_mtx_vec(tmp1, C, tmp2, T*n, T*(n+m));
+    hhmpc_multiply_C_z(tmp1, tmp2, ipm);
+//     mpcinc_mtx_multiply_mtx_vec(tmp1, C, tmp2, T*n, T*(n+m));
     mpcinc_mtx_substract(beta, tmp1, rp, T*n, 1);
 //     print_mtx(beta, T*n, 1);
     mpcinc_mtx_scale_direct(beta, -1., T*n, 1);  /* return -beta */
