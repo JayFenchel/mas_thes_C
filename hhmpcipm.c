@@ -11,15 +11,19 @@
 
 static void residual_norm(real_t *f, const real_t *r_d, const real_t* r_p,
                           const uint32_t optvar_seqlen, const uint32_t dual_seqlen);
+static void bt_line_search_new(real_t *good_step, const struct hhmpc_ipm *ipm);
+
 static void bt_line_search(real_t *good_step, const struct hhmpc_ipm *ipm);
 
 static void hhmpc_ipm_warm_start(const struct hhmpc_ipm *ipm);
 
-static void hhmpc_multiply_H_z(real_t *product, const real_t *z, const struct hhmpc_ipm *ipm);
+static void hhmpc_multiply_H_z(real_t *product, const real_t *H, const real_t *z, const struct hhmpc_ipm *ipm);
 
-static void hhmpc_multiply_C_z(real_t *product, const real_t *z, const struct hhmpc_ipm *ipm);
+static void hhmpc_multiply_P_z(real_t *product, const real_t *P, const real_t *z, const struct hhmpc_ipm *ipm);
 
-static void hhmpc_multiply_C_T_v(real_t *product, const real_t *z, const struct hhmpc_ipm *ipm);
+static void hhmpc_multiply_P_T_d(real_t *product, const real_t *P_T, const real_t *z, const struct hhmpc_ipm *ipm);
+
+static uint32_t better_step_size(const struct hhmpc_ipm *ipm, real_t f1, real_t f2);
 
 /* external functions definition */
 
@@ -120,6 +124,7 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         form_Phi(ipm->Phi, ipm->tmp3_mtx_optvar_nb_of_ueq, tmp_Phi, ipm, ipm->H,
                  ipm->P2_T, ipm->P2, ipm->P_of_z , ipm->d, ipm->diag_d_sq,
                  ipm->kappa[0], ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
+        
         /* Calculate the residual */
         residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
         residual_norm(&f, ipm->r_d, ipm->r_p, ipm->optvar_seqlen, ipm->dual_seqlen);
@@ -149,8 +154,18 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
         
 //         print_mtx(ipm->delta_v, ipm->dual_seqlen, 1);
         /* Find best step size (0...1] */
-        bt_line_search(ipm->st_size, ipm);
-//         printf("st_size = %f\n", ipm->st_size[0]);
+//         real_t test = 0.;
+        bt_line_search_new(ipm->st_size, ipm);
+//         test = ipm->st_size[0];
+//         printf("new st_size = %.8f\n", ipm->st_size[0]);
+//         bt_line_search(ipm->st_size, ipm);
+//         if(smpl_abs(test-ipm->st_size[0]) > 0.00){
+//             HIER
+//             printf("new st_size = %.8f\n", test);
+//             printf("old st_size = %.8f\n", ipm->st_size[0]);
+//         }
+//         ipm->st_size[0] = test;
+//         printf("old st_size = %.8f\n", ipm->st_size[0]);
         
         /* Update z */
         mpcinc_mtx_scale_direct(ipm->delta_z, ipm->st_size[0],
@@ -241,8 +256,14 @@ uint32_t hhmpc_ipm_check_valid(const struct hhmpc_ipm *ipm, const real_t *z_chec
     real_t *help1 = ipm->tmp4_nb_of_constr;
     real_t *help2 = ipm->tmp5_nb_of_constr;
     mpcinc_mtx_scale(help1, ipm->h, -1, ipm->nb_of_ueq_constr, 1);
+#ifndef HHMPC_SOCPCONDTEST
+    hhmpc_multiply_P_z(help2, ipm->P, z_check, ipm);
+    mpcinc_mtx_add_direct(help1, help2, ipm->optvar_seqlen, 1);
+#endif
+#ifdef HHMPC_SOCPCONDTEST
     mpcinc_mtx_mul_add(help1, help2, ipm->P, z_check,
                        ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
+#endif
 //     print_mtx(help1, ipm->nb_of_ueq_constr, 1);
 //     printf("check:\n");
 #ifdef HHMPC_QPTEST
@@ -518,9 +539,9 @@ void iterative_refinement(const struct hhmpc_ipm *ipm)
 //     mpcinc_mtx_multiply_mtx_vec(tmp1, ipm->C_T, ipm->delta_v,
 //                                 ipm->optvar_seqlen, ipm->dual_seqlen);
     
-    
+    hhmpc_multiply_H_z(delta_rd, ipm->Phi, ipm->delta_z, ipm);/*
     mpcinc_mtx_multiply_mtx_vec(delta_rd, ipm->Phi, ipm->delta_z,
-                                ipm->optvar_seqlen, ipm->optvar_seqlen);
+                                ipm->optvar_seqlen, ipm->optvar_seqlen);*/
     mpcinc_mtx_add_direct(delta_rd, tmp1, ipm->optvar_seqlen, 1);
     mpcinc_mtx_add_direct(delta_rd, ipm->r_d, ipm->optvar_seqlen, 1);
     mpcinc_mtx_scale_direct(delta_rd, -1., ipm->optvar_seqlen, 1);
@@ -534,13 +555,13 @@ void iterative_refinement(const struct hhmpc_ipm *ipm)
    
 //     print_mtx(delta_rp, ipm->dual_seqlen, 1);
         
-    form_beta(delta_delta_v, L_Phi_blocks, L_Phi_T_blocks, delta_rd, delta_rp,
+    form_beta(delta_delta_v, ipm, L_Phi_blocks, L_Phi_T_blocks, delta_rd, delta_rp,
               ipm->horizon, ipm->C,
               ipm->state_veclen, ipm->optvar_veclen-ipm->state_veclen,
               tmp1, tmp2);
     form_delta_v(delta_delta_v, tmp4, tmp3, 
                  L_Y, L_Y_T, ipm->horizon, ipm->state_veclen);
-    form_delta_z(delta_delta_z, tmp1, delta_delta_v,
+    form_delta_z(delta_delta_z, ipm, tmp1, delta_delta_v,
                  L_Phi_blocks, L_Phi_T_blocks, delta_rd, ipm->C_T, ipm->horizon,
                  ipm->state_veclen, ipm->optvar_veclen-ipm->state_veclen);
     
@@ -644,6 +665,16 @@ void update(struct hhmpc_ipm_P_hat *P, const uint32_t optvar_seqlen,
                          optvar_seqlen);
 }
 
+uint32_t better_step_size(const struct hhmpc_ipm *ipm, real_t f_p_g, real_t f_p_alpha)
+{
+    if ((hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1) ||
+        (f_p_g > f_p_alpha) ||
+        (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1) ){
+            return 0;
+        }
+        return -1;
+}
+
 void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
 {
     const real_t g_step = 1e-6;
@@ -664,7 +695,19 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     memcpy(help_z, ipm->z_opt, ipm->sizeof_optvar_seqlen);
     memcpy(help_v, ipm->v_opt, ipm->sizeof_dual_seqlen);
     
-    
+    /* update P matrices */
+        update(ipm->P_of_z, ipm->optvar_seqlen,
+               t_solve_optvar_seqlen, t_optvar_seqlen);
+        form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
+               ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
+        form_dsoft(ipm->dsoft, ipm->diag_d_soft, ipm->r_d_soft, ipm->Phi_soft,
+                   ipm->tmp3_mtx_optvar_nb_of_soft,
+                   ipm->roh, ipm->z_opt, 
+                   ipm->Psoft, ipm->Psoft_T, ipm->hsoft,
+                   ipm->Fusoft, ipm->Fxsoft, ipm->Ffsoft,
+                   ipm->rowsFusoft, ipm->control_veclen, ipm->rowsFfsoft,
+                   ipm->state_veclen, ipm->horizon, ipm);
+        residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
     residual_norm(&f_p, ipm->r_d, ipm->r_p,
                   ipm->optvar_seqlen, ipm->dual_seqlen);
     
@@ -717,7 +760,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     while ((hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1) || (f_p_g > (f_p + alpha*st*g_in_dir)) || (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1) )
     {
         st *= beta;
-        if (st < g_step){/*st = 0.;*/ break;}
+        if (st < g_step){st = 0.; break;}
         
         mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st,
                          ipm->optvar_seqlen, 1);
@@ -750,6 +793,120 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     st_size[0] = st;
 }
 
+void bt_line_search_new(real_t *st_size, const struct hhmpc_ipm *ipm)
+{
+    const real_t g_step = 1e-6;
+    const real_t alpha = 0.25; //0.15;  /* [0.4] Measure for reduction of function value  */
+    const real_t beta = 0.6; //0.5;  /* [0.6] Factor to decrease step ervery iteration */
+    real_t *help_z = ipm->tmp6_optvar_seqlen;
+    real_t *help_v = ipm->tmp7_dual_seqlen;
+    real_t *t_solve_optvar_seqlen = ipm->tmp1_optvar_seqlen;
+    real_t *t_optvar_seqlen = ipm->tmp2_optvar_seqlen;
+    real_t st = 1.;
+    st_size[0] = st;
+    
+    real_t f_p;
+    real_t f_p_g;
+    real_t g_in_dir;
+    
+    uint32_t i;
+    
+    /*Save maintain value*/
+    memcpy(help_z, ipm->z_opt, ipm->sizeof_optvar_seqlen);
+    memcpy(help_v, ipm->v_opt, ipm->sizeof_dual_seqlen);
+    
+    
+    residual_norm(&f_p, ipm->r_d, ipm->r_p,
+                  ipm->optvar_seqlen, ipm->dual_seqlen);
+    
+    mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, g_step, ipm->optvar_seqlen, 1);
+    mpcinc_mtx_add_direct(ipm->z_opt, help_z, ipm->optvar_seqlen, 1);
+    mpcinc_mtx_scale(ipm->v_opt, ipm->delta_v, g_step, ipm->dual_seqlen, 1);
+    mpcinc_mtx_add_direct(ipm->v_opt, help_v, ipm->dual_seqlen, 1);
+    /* update P matrices */
+    update(ipm->P_of_z, ipm->optvar_seqlen,
+               t_solve_optvar_seqlen, t_optvar_seqlen);
+    form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
+    form_dsoft(ipm->dsoft, ipm->diag_d_soft, ipm->r_d_soft, ipm->Phi_soft,
+                   ipm->tmp3_mtx_optvar_nb_of_soft,
+                   ipm->roh, ipm->z_opt, 
+                   ipm->Psoft, ipm->Psoft_T, ipm->hsoft,
+                   ipm->Fusoft, ipm->Fxsoft, ipm->Ffsoft,
+                   ipm->rowsFusoft, ipm->control_veclen, ipm->rowsFfsoft,
+                   ipm->state_veclen, ipm->horizon, ipm);
+    residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
+    residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
+                  ipm->optvar_seqlen, ipm->dual_seqlen);
+    g_in_dir = (f_p_g - f_p)/g_step;
+//     printf("Grad in dir = %.8f\n", g_in_dir);
+//     g_in_dir = g_in_dir <= 0 ? g_in_dir : 0.;
+//     printf("Grad in dir = %.8f\n", g_in_dir);
+//     printf("st size inner = %f\n", st_size[0]);
+//     mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st_size[0],
+//                      ipm->optvar_seqlen, 1);
+//     mpcinc_mtx_add_direct(ipm->z_opt, help_z,
+//                           ipm->optvar_seqlen, 1);
+//     mpcinc_mtx_scale(ipm->v_opt, ipm->delta_v, st_size[0],
+//                      ipm->dual_seqlen, 1);
+//     mpcinc_mtx_add_direct(ipm->v_opt, help_v,
+//                           ipm->dual_seqlen, 1);
+//     /* update P matrices */
+//     update(ipm->P_of_z, ipm->optvar_seqlen,
+//                t_solve_optvar_seqlen, t_optvar_seqlen);
+//     hhmpc_ipm_check_valid(ipm, ipm->z_opt);
+//     form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt, ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
+//     form_dsoft(ipm->dsoft, ipm->diag_d_soft, ipm->r_d_soft, ipm->Phi_soft,
+//                    ipm->tmp3_mtx_optvar_nb_of_soft,
+//                    ipm->roh, ipm->z_opt, 
+//                    ipm->Psoft, ipm->Psoft_T, ipm->hsoft,
+//                    ipm->Fusoft, ipm->Fxsoft, ipm->Ffsoft,
+//                    ipm->rowsFusoft, ipm->control_veclen, ipm->rowsFfsoft,
+//                    ipm->state_veclen, ipm->horizon, ipm);
+//     residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
+//     residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
+//                   ipm->optvar_seqlen, ipm->dual_seqlen);
+//     while ((hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1) || (f_p_g > (f_p + alpha*st*g_in_dir)) || (hhmpc_ipm_check_positiv(ipm, ipm->z_opt)+1) )
+//     while (better_step_size(ipm, f_p_g, (f_p + alpha*st*g_in_dir)))
+    st = 1.0234904e-6;
+    st = 0.0060466176;
+    st = 0.0279936;
+    st_size[0] = st;
+    for (i = 0; i < 8; i++)
+    {
+        mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st,
+                         ipm->optvar_seqlen, 1);
+        mpcinc_mtx_add_direct(ipm->z_opt, help_z,
+                              ipm->optvar_seqlen, 1);
+        mpcinc_mtx_scale(ipm->v_opt, ipm->delta_v, st,
+                         ipm->dual_seqlen, 1);
+        mpcinc_mtx_add_direct(ipm->v_opt, help_v,
+                              ipm->dual_seqlen, 1);
+        /* update P matrices */
+        update(ipm->P_of_z, ipm->optvar_seqlen,
+               t_solve_optvar_seqlen, t_optvar_seqlen);
+        form_d(ipm->d, ipm->P, ipm->h, ipm->z_opt,
+               ipm->nb_of_ueq_constr, ipm->optvar_seqlen);
+        form_dsoft(ipm->dsoft, ipm->diag_d_soft, ipm->r_d_soft, ipm->Phi_soft,
+                   ipm->tmp3_mtx_optvar_nb_of_soft,
+                   ipm->roh, ipm->z_opt, 
+                   ipm->Psoft, ipm->Psoft_T, ipm->hsoft,
+                   ipm->Fusoft, ipm->Fxsoft, ipm->Ffsoft,
+                   ipm->rowsFusoft, ipm->control_veclen, ipm->rowsFfsoft,
+                   ipm->state_veclen, ipm->horizon, ipm);
+        residual(ipm, ipm->z_opt, ipm->v_opt, ipm->d, ipm->kappa[0]);
+        residual_norm(&f_p_g, ipm->r_d, ipm->r_p,
+                      ipm->optvar_seqlen, ipm->dual_seqlen);
+//         printf("step %f\n", st);
+        st_size[0] = better_step_size(ipm, f_p_g, (f_p + alpha*st*g_in_dir)) ? st : st_size[0];
+        st /= beta;
+    }
+    
+    /*Load back maintain value*/
+    memcpy(ipm->z_opt, help_z, ipm->sizeof_optvar_seqlen);
+    memcpy(ipm->v_opt, help_v, ipm->sizeof_dual_seqlen);
+//     st_size[0] = st;
+}
+
 void residual_norm(real_t *f, const real_t *r_d, const real_t *r_p,
                    const uint32_t ld, const uint32_t lp)
 {
@@ -773,8 +930,13 @@ void residual(const struct hhmpc_ipm *ipm,
     real_t *tmp2_os = ipm->tmp2_res_os;
     real_t *tmp3_ds = ipm->tmp3_res_ds;
     /* Term kappa*P^T*d */
+#ifdef HHMPC_SOCPCONDTEST
     mpcinc_mtx_multiply_mtx_vec(tmp1_os, ipm->P2_T, d,
                                 ipm->optvar_seqlen, ipm->nb_of_ueq_constr);
+#endif    
+#ifndef HHMPC_SOCPCONDTEST
+    hhmpc_multiply_P_T_d(tmp1_os, ipm->P2_T, d, ipm);
+#endif
     mpcinc_mtx_scale(ipm->r_d, tmp1_os, kappa, ipm->optvar_seqlen, 1);
     /* Add term C^T*v */
 #ifndef HHMPC_SOCPCONDTEST
@@ -792,7 +954,7 @@ void residual(const struct hhmpc_ipm *ipm,
     /* Calculate distance to the reference (z-z_ref) */
     mpcinc_mtx_substract(tmp2_os, z, ipm->zref, ipm->optvar_seqlen, 1);
 #ifndef HHMPC_SOCPCONDTEST
-    hhmpc_multiply_H_z(tmp1_os, tmp2_os, ipm);
+    hhmpc_multiply_H_z(tmp1_os, ipm->H, tmp2_os, ipm);
 #endif
 //     print_mtx(tmp1_os, 1, ipm->optvar_seqlen);
 #ifdef HHMPC_SOCPCONDTEST    
@@ -817,28 +979,80 @@ void residual(const struct hhmpc_ipm *ipm,
 #endif    
 }
 
-void hhmpc_multiply_H_z(real_t *product, const real_t *z,
+void hhmpc_multiply_P_T_d(real_t *product, const real_t *P_T, const real_t *d,
+                        const struct hhmpc_ipm* ipm)
+{
+    uint32_t i, j, k;
+    for (i = 0; i < ipm->control_veclen; i++){
+        product[i] = 0.;
+        for (j = 0; j < HHMPC_NB_ROWSFU; j++){
+            product[i] += P_T[i*HHMPC_NB_LCONSTR+j]*d[j];
+        }
+    }
+    for (k = 0; k < ipm->horizon-1; k++){
+        for (i = ipm->control_veclen + k*ipm->optvar_veclen; i < ipm->control_veclen + (k+1)*ipm->optvar_veclen; i++){
+            product[i] = 0.;
+            for (j = HHMPC_NB_ROWSFU + k*HHMPC_NB_ROWSFU; j < HHMPC_NB_ROWSFU + (k+1)*HHMPC_NB_ROWSFU; j++){
+                product[i] += P_T[i*HHMPC_NB_LCONSTR+j]*d[j];
+            }
+        }
+    }
+    for (i = ipm->control_veclen + k*ipm->optvar_veclen; i < (k+1)*ipm->optvar_veclen; i++){
+        product[i] = 0.;
+        for (j = HHMPC_NB_ROWSFU + k*HHMPC_NB_ROWSFU; j < HHMPC_NB_ROWSFU + k*HHMPC_NB_ROWSFU + HHMPC_NB_ROWSFF; j++){
+            product[i] += P_T[i*HHMPC_NB_LCONSTR+j]*d[j];
+        }
+    }
+}
+
+void hhmpc_multiply_P_z(real_t *product, const real_t *P, const real_t *z,
+                        const struct hhmpc_ipm* ipm)
+{
+    uint32_t i, j, k;
+    for (i = 0; i < HHMPC_NB_ROWSFU; i++){
+        product[i] = 0.;
+        for (j = 0; j < ipm->control_veclen; j++){
+            product[i] += P[i*ipm->optvar_seqlen+j]*z[j];
+        }
+    }
+    for (k = 0; k < ipm->horizon-1; k++){
+        for (i = HHMPC_NB_ROWSFU + k*HHMPC_NB_ROWSFU; i < HHMPC_NB_ROWSFU + (k+1)*HHMPC_NB_ROWSFU; i++){
+            product[i] = 0.;
+            for (j = ipm->control_veclen + k*ipm->optvar_veclen; j < ipm->control_veclen + (k+1)*ipm->optvar_veclen; j++){
+                product[i] += P[i*ipm->optvar_seqlen+j]*z[j];
+            }
+        }
+    }
+    for (i = HHMPC_NB_ROWSFU + k*HHMPC_NB_ROWSFU; i < HHMPC_NB_ROWSFU + k*HHMPC_NB_ROWSFU + HHMPC_NB_ROWSFF; i++){
+        product[i] = 0.;
+        for (j = ipm->control_veclen + k*ipm->optvar_veclen; j < (k+1)*ipm->optvar_veclen; j++){
+            product[i] += P[i*ipm->optvar_seqlen+j]*z[j];
+        }
+    }
+}
+
+void hhmpc_multiply_H_z(real_t *product, const real_t *H, const real_t *z,
                         const struct hhmpc_ipm* ipm)
 {
     uint32_t i, j, k;
     for (i = 0; i < ipm->control_veclen; i++){
         product[i] = 0.;
         for (j = 0; j < ipm->control_veclen; j++){
-            product[i] += ipm->H[i*ipm->optvar_seqlen+j]*z[j];
+            product[i] += H[i*ipm->optvar_seqlen+j]*z[j];
         }
     }
     for (k = 0; k < ipm->horizon-1; k++){
         for (i = ipm->control_veclen + k*ipm->optvar_veclen; i < ipm->control_veclen + (k+1)*ipm->optvar_veclen; i++){
             product[i] = 0.;
             for (j = ipm->control_veclen + k*ipm->optvar_veclen; j < ipm->control_veclen + (k+1)*ipm->optvar_veclen; j++){
-                product[i] += ipm->H[i*ipm->optvar_seqlen+j]*z[j];
+                product[i] += H[i*ipm->optvar_seqlen+j]*z[j];
             }
         }
     }
     for (i = ipm->control_veclen + k*ipm->optvar_veclen; i < (k+1)*ipm->optvar_veclen; i++){
         product[i] = 0.;
         for (j = ipm->control_veclen + k*ipm->optvar_veclen; j < (k+1)*ipm->optvar_veclen; j++){
-            product[i] += ipm->H[i*ipm->optvar_seqlen+j]*z[j];
+            product[i] += H[i*ipm->optvar_seqlen+j]*z[j];
         }
     }
 }
@@ -1402,11 +1616,9 @@ void form_dsoft(real_t *ds, real_t *diags, real_t *rd_soft, real_t *Phi_soft,
 
 void form_diag_d_sq(real_t *diag_d_sq, const real_t *d, const uint32_t dim)
 {
-    uint32_t i, j;
+    uint32_t i;
     for (i = 0; i < dim; i++){
-        for (j = 0; j < dim; j++){
-            diag_d_sq[i*dim+j] = (i == j) ? d[i]*d[i] : 0.;
-        }
+            diag_d_sq[i*dim+i] = d[i]*d[i];
     }
 }
 
@@ -1435,7 +1647,7 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     printf("calculated kappa = %.20f\n", ipm->kappa[0]);
 
     /* -5 N=5, höchstens -6 N=20, -8 N= 30 */
-    kappa[0] = (kappa[0] > 5*1e-8)? kappa[0] : 5*1e-8;  //-3 statt -5 für QP cond
+    kappa[0] = (kappa[0] > 5*1e-7)? kappa[0] : 5*1e-7;  //-3 statt -5 für QP cond
  /* N=30: cond 5*1e-9, uncond 5*1e-6*/
 }
 
