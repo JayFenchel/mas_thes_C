@@ -71,8 +71,12 @@ void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
     memcpy(ipm->P_of_z->h_hat, ipm->P_of_z->h, sizeof(real_t) * ipm->P_of_z->nb_lin_constr);
 #ifdef HHMPC_SOCPCONDTEST    
 //     hhmpc_ipm_get_valid_trick(ipm);  /* Trick we used before */
-//     hhmpc_ipm_get_positiv(ipm, &delta_to_zero);  /* Only ensure, that c*z +d > 0 */
+#ifdef HHMPC_SOCPCONDTEST5
+    hhmpc_ipm_get_positiv(ipm, &delta_to_zero);  /* Only ensure, that c*z +d > 0 */
+#endif
+#ifndef HHMPC_SOCPCONDTEST5
     hhmpc_ipm_get_valid_lin_constr(ipm, &delta_to_zero_lin);
+#endif
 #endif    
     
 //     print_mtx(ipm->h, 1, ipm->nb_of_ueq_constr);
@@ -1109,7 +1113,8 @@ void form_Phi(real_t *Phi, real_t *help, real_t *t_Phi,
     struct hhmpc_ipm_qc *qc_i;
     struct hhmpc_ipm_socc *socc_i;
 
-#ifndef HHMPC_SOCPCONDTEST    
+#ifndef HHMPC_SOCPCONDTEST
+    /* Der erste Teilschritt sollte auch bei condensed Problemen funktionieren */
     /* Multiply P_T mit diag_d_sq */
     for (j = 0; j < optvar; j++){
         for (i = 0; i < nb_of_ueq; i++){
@@ -1638,10 +1643,13 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     real_t *tmp2 = ipm->tmp3_state_veclen; 
     
     mpcinc_mtx_substract(tmp3, ipm->z_opt, ipm->zref, ipm->optvar_seqlen, 1);
-    
-//     mpcinc_mtx_multiply_mtx_mtx(tmp1, ipm->z_opt, ipm->H,
-//                                 1, ipm->optvar_seqlen, ipm->optvar_seqlen);
+#ifdef HHMPC_SOCPCONDTEST
+    mpcinc_mtx_multiply_mtx_mtx(tmp1, ipm->z_opt, ipm->H,
+                                1, ipm->optvar_seqlen, ipm->optvar_seqlen);
+#endif
+#ifndef HHMPC_SOCPCONDTEST
     hhmpc_multiply_H_z(tmp1, ipm->H, ipm->z_opt, ipm);
+#endif
     mpcinc_mtx_multiply_mtx_vec(tmp2, tmp1, ipm->z_opt, 1, ipm->optvar_seqlen);
     mpcinc_mtx_multiply_mtx_vec(kappa, ipm->g, z, 1, ipm->optvar_seqlen);
     kappa[0] = tmp2[0];
