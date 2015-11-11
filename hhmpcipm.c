@@ -1665,7 +1665,7 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     printf("calculated kappa = %.20f\n", ipm->kappa[0]);
 
     /* -5 N=5, höchstens -6 N=20, -8 N= 30 */
-    kappa[0] = (kappa[0] > 1e-5)? kappa[0] : 1e-5;  //-3 statt -5 für QP cond
+    kappa[0] = (kappa[0] > 1e-6)? kappa[0] : 1e-6;  //-3 statt -5 für QP cond
  /* N=30: cond 5*1e-9, uncond 5*1e-6*/
 }
 
