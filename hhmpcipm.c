@@ -874,7 +874,7 @@ void bt_line_search_new(real_t *st_size, const struct hhmpc_ipm *ipm)
     st = 1.0234904e-6;
     st = 0.0060466176;
     st = 0.0279936;
-    st_size[0] = st;
+    st_size[0] = g_step;
     for (i = 0; i < 8; i++)
     {
         mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st,
@@ -1665,7 +1665,7 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     printf("calculated kappa = %.20f\n", ipm->kappa[0]);
 
     /* -5 N=5, höchstens -6 N=20, -8 N= 30 */
-    kappa[0] = (kappa[0] > 5*1e-7)? kappa[0] : 5*1e-7;  //-3 statt -5 für QP cond
+    kappa[0] = (kappa[0] > 1e-5)? kappa[0] : 1e-5;  //-3 statt -5 für QP cond
  /* N=30: cond 5*1e-9, uncond 5*1e-6*/
 }
 
