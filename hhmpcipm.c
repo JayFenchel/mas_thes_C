@@ -406,11 +406,11 @@ void hhmpc_ipm_get_valid_lin_constr(const struct hhmpc_ipm *ipm, real_t *delta)
 //     ipm->z_opt[0] = ipm->P_of_z->h[60] - delta[0];
 //     ipm->z_opt[0] /= ipm->P_of_z->P[60*HHMPC_OS];
 //     printf("2corrected pos z_opt[0] %d\n", hhmpc_ipm_check_valid(ipm, ipm->z_opt));
-    
+//     delta[0] = (ipm->P_of_z->h[ipm->P_of_z->nb_lin_constr/2] + ipm->P_of_z->h[0])/2.;
 
     if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
 //         print_mtx(ipm->z_opt, 30, 1);
-        printf("corrected pos z_opt[0] %d\n", hhmpc_ipm_check_valid(ipm, ipm->z_opt));
+        printf("corrected valid z_opt[0] %d\n", hhmpc_ipm_check_valid(ipm, ipm->z_opt));
         for (k = 0; k < 1; k++){
 //             if (ipm->P_of_z->nb_lin_constr/2 + 2*k == hhmpc_ipm_check_valid(ipm, ipm->z_opt)){
                 ipm->z_opt[k] = ipm->P_of_z->h[ipm->P_of_z->nb_lin_constr/2 + 2*k] - delta[0];
@@ -423,7 +423,7 @@ void hhmpc_ipm_get_valid_lin_constr(const struct hhmpc_ipm *ipm, real_t *delta)
     }
     if (hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1){
 //         print_mtx(ipm->z_opt, 30, 1);
-        printf("corrected pos z_opt[0] %d\n", hhmpc_ipm_check_valid(ipm, ipm->z_opt));
+        printf("corrected valid z_opt[0] %d\n", hhmpc_ipm_check_valid(ipm, ipm->z_opt));
         for (k = 0; k < ipm->optvar_seqlen; k++){
 //             if ((ipm->P_of_z->nb_lin_constr/2 + 2*k) == hhmpc_ipm_check_valid(ipm, ipm->z_opt)){
                 ipm->z_opt[k] = ipm->P_of_z->h[ipm->P_of_z->nb_lin_constr/2 + 2*k] - delta[0];
