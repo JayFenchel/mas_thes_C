@@ -33,6 +33,9 @@
 #ifdef HHMPC_QPCONDTEST30
 #include "hhmpc_qpconddata30.h"
 #endif
+#ifdef HHMPC_QPCONDTEST40
+#include "hhmpc_qpconddata40.h"
+#endif
 #ifdef HHMPC_SOCPTEST
 #include "hhmpc_socpdata01.h"
 #endif

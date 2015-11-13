@@ -8,6 +8,7 @@
 // #define HHMPC_QPCONDTEST10
 // #define HHMPC_QPCONDTEST20
 // #define HHMPC_QPCONDTEST30
+// #define HHMPC_QPCONDTEST40
 // #define HHMPC_QPTEST
 #define HHMPC_QPSMALLTEST
 // #define HHMPC_QPSMALLTEST5
@@ -109,6 +110,22 @@
 #define HHMPC_NB_SOFT 0
 
 #endif  /* HHMPC_QPCONDTEST30 */
+
+#ifdef HHMPC_QPCONDTEST40
+
+#define HHMPC_HORIZON 40
+#define HHMPC_SV 0
+#define HHMPC_CV 1
+#define HHMPC_OV 1
+#define HHMPC_OS 40
+#define HHMPC_DS 0
+#define HHMPC_NB_LCONSTR 160
+#define HHMPC_NB_QC 0
+#define HHMPC_NB_SOCC 0
+#define HHMPC_NB_IEQ (HHMPC_NB_LCONSTR+HHMPC_NB_QC+HHMPC_NB_SOCC)
+#define HHMPC_NB_SOFT 0
+
+#endif  /* HHMPC_QPCONDTEST40 */
 
 #endif
 
