@@ -45,8 +45,12 @@ void solve_sysofleq(real_t delta_z[], real_t delta_v[],
     }
     cholesky(chol_PHI, ipm->Phi, HHMPC_OS);
     if (chol_PHI[ipm->optvar_seqlen*ipm->optvar_seqlen-1] !=
-        chol_PHI[ipm->optvar_seqlen*ipm->optvar_seqlen-1]){
+            chol_PHI[ipm->optvar_seqlen*ipm->optvar_seqlen-1]){
         cholesky(chol_PHI, ipm->H, HHMPC_OS);
+        mpcinc_mtx_transpose(chol_PHI_T, chol_PHI, HHMPC_OS, HHMPC_OS);
+        fwd_subst(tmp1_optvar_seqlen, chol_PHI, HHMPC_OS, tmp2_optvar_seqlen, 1);
+        zeroes(delta_z, ipm->optvar_seqlen);
+        return;
     }
     mpcinc_mtx_transpose(chol_PHI_T, chol_PHI, HHMPC_OS, HHMPC_OS);
     fwd_subst(tmp1_optvar_seqlen, chol_PHI, HHMPC_OS, tmp2_optvar_seqlen, 1);

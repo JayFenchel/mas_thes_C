@@ -4,9 +4,9 @@
 /* Define desired example here. */
 #define HHMPC_SOCPCONDTEST  /* enable for HHMPC_QPCONDTESTs, too */
 // #define HHMPC_SOCPCONDTEST5
-// #define HHMPC_QPCONDTEST5
+#define HHMPC_QPCONDTEST5
 // #define HHMPC_QPCONDTEST10
-#define HHMPC_QPCONDTEST20
+// #define HHMPC_QPCONDTEST20
 // #define HHMPC_QPCONDTEST30
 // #define HHMPC_QPCONDTEST40
 // #define HHMPC_QPTEST
