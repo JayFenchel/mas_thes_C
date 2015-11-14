@@ -2,19 +2,20 @@
 #define STATIC_DATA_H
 
 /* Define desired example here. */
-#define HHMPC_SOCPCONDTEST  /* enable for HHMPC_QPCONDTESTs, too */
+// #define HHMPC_SOCPCONDTEST  /* enable for HHMPC_QPCONDTESTs, too */
 // #define HHMPC_SOCPCONDTEST5
-#define HHMPC_QPCONDTEST5
+// #define HHMPC_QPCONDTEST5
 // #define HHMPC_QPCONDTEST10
 // #define HHMPC_QPCONDTEST20
 // #define HHMPC_QPCONDTEST30
 // #define HHMPC_QPCONDTEST40
 // #define HHMPC_QPTEST
-// #define HHMPC_QPSMALLTEST
+#define HHMPC_QPSMALLTEST
 // #define HHMPC_QPSMALLTEST5
 // #define HHMPC_QPSMALLTEST10
 // #define HHMPC_QPSMALLTEST20
 // #define HHMPC_QPSMALLTEST30
+#define HHMPC_QPSMALLTEST40
 // #define HHMPC_SOCPTEST
 // #define HHMPC_SOCPHARDTEST
 // #define HHMPC_SOCPSOFTTEST
@@ -208,6 +209,24 @@
 #define HHMPC_OS 180
 #define HHMPC_DS 150
 #define HHMPC_NB_LCONSTR 122
+#define HHMPC_NB_ROWSFU 4
+#define HHMPC_NB_ROWSFF 2
+#define HHMPC_NB_QC 0
+#define HHMPC_NB_SOCC 0
+#define HHMPC_NB_IEQ (HHMPC_NB_LCONSTR+HHMPC_NB_QC+HHMPC_NB_SOCC)
+#define HHMPC_NB_SOFT 0
+
+#endif
+
+#ifdef HHMPC_QPSMALLTEST40
+
+#define HHMPC_HORIZON 40
+#define HHMPC_SV 5
+#define HHMPC_CV 1
+#define HHMPC_OV 6
+#define HHMPC_OS 240
+#define HHMPC_DS 200
+#define HHMPC_NB_LCONSTR 162
 #define HHMPC_NB_ROWSFU 4
 #define HHMPC_NB_ROWSFF 2
 #define HHMPC_NB_QC 0
