@@ -1,5 +1,5 @@
 #include "include/hhmpcmath.h"
-
+#include "include/static_data.h"
 
 void cholesky(real_t sol[],
               const real_t mtx[], const uint32_t dim)
@@ -11,7 +11,9 @@ void cholesky(real_t sol[],
     }
     
     for (i = 0; i < dim; i++){
-//         sol[i*dim+i]+=0.0001;  /* Immernoch benötigt, wenn nicht condensierte Probleme gelöst werden */
+#ifdef HHMPC_SOCPTEST
+        sol[i*dim+i]+=0.0001;  /* Immernoch benötigt, wenn nicht condensierte Probleme gelöst werden */
+#endif
         for (j = 0; j < i; j++){
             sol[i*dim+i] -= sol[i*dim+j]*sol[i*dim+j];
         }
