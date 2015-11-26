@@ -21,6 +21,9 @@
 #ifdef HHMPC_QPSMALLTEST40
 #include "hhmpc_qpdatasmall40.h"
 #endif
+#ifdef HHMPC_QPSMALLTEST50
+#include "hhmpc_qpdatasmall50.h"
+#endif
 #ifdef HHMPC_SOCPCONDTEST5
 #include "hhmpc_socpconddata01.h"
 #endif
@@ -38,6 +41,9 @@
 #endif
 #ifdef HHMPC_QPCONDTEST40
 #include "hhmpc_qpconddata40.h"
+#endif
+#ifdef HHMPC_QPCONDTEST50
+#include "hhmpc_qpconddata50.h"
 #endif
 #ifdef HHMPC_SOCPTEST
 #include "hhmpc_socpdata01.h"

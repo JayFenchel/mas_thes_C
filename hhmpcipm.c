@@ -5,9 +5,11 @@
 #include "include/mpcincmtxops.h"
 #include <hhmpcusefull.h>
 #include "hhmpcsolve.h"
-#include "static_data.h"
+#include "include/static_data.h"
 /* static functions declaration */
 
+
+#ifndef HHMPC_QPTEST
 #ifndef HHMPC_SOCPTEST
 static void residual_norm(real_t *f, const real_t *r_d, const real_t* r_p,
                           const uint32_t optvar_seqlen, const uint32_t dual_seqlen);
@@ -27,6 +29,9 @@ static uint32_t better_step_size(const struct hhmpc_ipm *ipm, real_t f1, real_t 
 
 /* external functions definition */
 #endif
+#endif
+
+#ifndef HHMPC_QPTEST
 #ifndef HHMPC_SOCPTEST
 void hhmpc_ipm_solve_problem(const struct hhmpc_ipm *ipm)
 {
@@ -1666,12 +1671,31 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
     printf("calculated kappa = %.20f\n", ipm->kappa[0]);
 
     /* -5 N=5, höchstens -6 N=20, -8 N= 30 */
-    kappa[0] = (kappa[0] >20*1e-6)? kappa[0] : 20*1e-6;  //-3 statt -5 für QP cond
+    kappa[0] = (kappa[0] >5e-8)? kappa[0] : 5e-8;  //-3 statt -5 für QP cond
  /* N=30: cond 5*1e-9, uncond 5*1e-6*/
 }
 
 #endif
-#ifdef HHMPC_SOCPTEST
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// #ifdef HHMPC_SOCPTEST
+#ifdef HHMPC_QPTEST
+
 /* Second order cone program solver based on a primal barrier interior point method */
 
 #include <string.h>
@@ -2117,6 +2141,7 @@ void bt_line_search(real_t *st_size, const struct hhmpc_ipm *ipm)
     while ((hhmpc_ipm_check_valid(ipm, ipm->z_opt)+1) || (f_p_g > (f_p + alpha**st_size*g_in_dir)) )
     {
         *st_size *= beta;
+        if (st_size[0] < g_step){st_size[0] = -g_step*g_step; break;}
         
         mpcinc_mtx_scale(ipm->z_opt, ipm->delta_z, st_size[0],
                          ipm->optvar_seqlen, 1);
