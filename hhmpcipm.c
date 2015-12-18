@@ -1692,7 +1692,7 @@ void calc_kappa(real_t *kappa, const struct hhmpc_ipm *ipm, const real_t *z)
 
 
 
-
+/* Uncommend the used definition. */
 // #ifdef HHMPC_SOCPTEST
 #ifdef HHMPC_QPTEST
 
